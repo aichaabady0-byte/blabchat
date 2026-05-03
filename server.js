@@ -2,10 +2,11 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// TRÈS IMPORTANT : On dit à Express que les fichiers sont au même endroit que server.js
-app.use(express.static(__dirname));
+// 1. D'abord, on sert les fichiers statiques (app.js, style.css)
+// On utilise path.resolve pour être sûr du chemin sur Render
+app.use(express.static(path.resolve(__dirname)));
 
-// Route pour envoyer les variables d'environnement de Render au navigateur
+// 2. Ta route de configuration
 app.get('/config', (req, res) => {
     res.json({
         apiKey: process.env.FIREBASE_API_KEY,
@@ -18,12 +19,12 @@ app.get('/config', (req, res) => {
     });
 });
 
-// Route par défaut qui sert l'index.html pour toutes les autres requêtes
-app.get('*', (req, res) => {
+// 3. EN DERNIER : On ne sert l'index.html QUE si ce n'est pas un fichier
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Serveur BlabChat lancé sur le port ${PORT}`);
+    console.log(`Serveur prêt sur le port ${PORT}`);
 });
