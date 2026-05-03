@@ -3,7 +3,7 @@ import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://w
 
 // Tes clés en direct (plus besoin de fetch /config)
 const firebaseConfig = {
-    apiKey: "sdfgsnjsrgysrty-7TBKNFONIrPU", 
+    apiKey: "AIzaSyBwpvOG3MyfQwqfAK4pwf-7TBKNFONIrPU", 
     authDomain: "mazechat-78945.firebaseapp.com",
     databaseURL: "https://mazechat-78945-default-rtdb.firebaseio.com",
     projectId: "mazechat-78945",
