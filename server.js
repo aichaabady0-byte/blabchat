@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-app.use(express.static('public'));
+app.use(express.static(__dirname));
 
 // Cette route envoie tes clés API de Render vers ton navigateur en toute sécurité
 app.get('/config', (req, res) => {
