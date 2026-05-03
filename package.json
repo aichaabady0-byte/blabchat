@@ -1,0 +1,10 @@
+{
+  "name": "blabchat",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "serve public"
+  },
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}
