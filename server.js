@@ -2,9 +2,10 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
+// TRÈS IMPORTANT : On dit à Express que les fichiers sont au même endroit que server.js
 app.use(express.static(__dirname));
 
-// Cette route envoie tes clés API de Render vers ton navigateur en toute sécurité
+// Route pour envoyer les variables d'environnement de Render au navigateur
 app.get('/config', (req, res) => {
     res.json({
         apiKey: process.env.FIREBASE_API_KEY,
@@ -17,5 +18,12 @@ app.get('/config', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`BlabChat prêt sur le port ${PORT}`));
+// Route par défaut qui sert l'index.html pour toutes les autres requêtes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Serveur BlabChat lancé sur le port ${PORT}`);
+});
