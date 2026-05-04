@@ -7,70 +7,77 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- BARRE DE NAVIGATION TOUJOURS VISIBLE -->
-    <nav class="navbar">
-        <div class="logo">BlabChat 🚀</div>
-        <div class="nav-links">
-            <a href="#discover" id="link-discover">Discover</a>
-            <a href="#portfolio">Portfolio</a>
-            <a href="#wiki">Wiki</a>
-            <a href="#devforum">DevForum</a>
-        </div>
-        <div id="auth-controls">
-            <button id="loginBtn" class="btn-primary">Connexion Google</button>
-            <div id="user-profile" class="hidden">
-                <span id="user-name"></span>
-                <button id="logoutBtn" class="btn-outline">Quitter</button>
+    <!-- PAGE DE DÉCOUVERTE (DISCOVER) -->
+    <section id="page-discover" class="page active">
+        <nav class="top-nav">
+            <div class="logo">BlabChat 🚀</div>
+            <div class="auth-buttons">
+                <button onclick="showModal('login')">Connexion</button>
+                <button class="btn-main" onclick="showModal('register')">S'inscrire</button>
             </div>
-        </div>
-    </nav>
-
-    <!-- SECTION 1 : DISCOVER (Main Page Auto) -->
-    <section id="page-discover" class="active-page">
+        </nav>
         <div class="hero">
-            <h1>Bienvenue sur BlabChat.space</h1>
-            <p>Découvrez des communautés, créez vos serveurs et discutez en temps réel.</p>
-            <button class="btn-large" onclick="document.getElementById('loginBtn').click()">Commencer l'aventure</button>
-        </div>
-        <div class="discover-grid">
-            <div class="card"><h3>Serveur Gaming</h3><p>Rejoignez les joueurs.</p></div>
-            <div class="card"><h3>Dev Zone</h3><p>Le coin des codeurs.</p></div>
-            <div class="card"><h3>Art & Design</h3><p>Partagez vos créations.</p></div>
+            <h1>Découvrez l'univers BlabChat</h1>
+            <p>Le chat nouvelle génération. Rejoignez la communauté Fufu.</p>
         </div>
     </section>
 
-    <!-- SECTION 2 : L'APPLICATION DE CHAT (Masquée par défaut) -->
-    <section id="page-chat" class="hidden">
-        <div class="app-layout">
-            <aside class="sidebar-servers">
-                <div id="server-list">
-                    <div class="server-icon active">🏠</div>
+    <!-- APPLICATION PRINCIPALE (CACHÉE AVANT CONNEXION) -->
+    <section id="page-app" class="page">
+        <div class="app-container">
+            <aside class="sidebar-left">
+                <div id="server-list" class="icon-stack">
+                    <div class="icon active" onclick="switchTab('main-chat')">🏠</div>
                 </div>
-                <button id="addServerBtn" class="add-btn">+</button>
+                <button class="add-icon" onclick="createServer()">+</button>
             </aside>
-            
-            <main class="chat-area">
-                <div id="admin-panel" class="admin-panel hidden">
-                    <span>PANEL ADMIN ACTIF</span>
-                    <button>Vérifier un utilisateur</button>
-                </div>
-                <div id="chat-messages"></div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="Envoyer un message...">
-                    <button id="sendBtn">➤</button>
+
+            <main class="content-area">
+                <header class="content-header">
+                    <h3 id="current-title">Général</h3>
+                    <div class="user-pill">
+                        <span id="user-display">Pseudo</span>
+                        <span id="verified-badge" class="badge hidden">VÉRIFIÉ</span>
+                        <button onclick="logout()" class="btn-logout">X</button>
+                    </div>
+                </header>
+
+                <div id="tab-main-chat" class="tab-content active">
+                    <div id="admin-panel" class="admin-bar hidden">
+                        <span>Panel Fufu :</span>
+                        <button>Modération</button>
+                        <button>Broadcast</button>
+                    </div>
+                    <div id="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="msgInput" placeholder="Envoyer un message...">
+                        <button id="sendBtn">➤</button>
+                    </div>
                 </div>
             </main>
 
-            <aside class="sidebar-friends">
-                <h3>Amis</h3>
+            <aside class="sidebar-right">
+                <h4>Amis</h4>
                 <div id="friends-list"></div>
-                <div class="add-friend">
-                    <input type="text" id="friendEmail" placeholder="Email...">
-                    <button id="addFriendBtn">+</button>
+                <div class="add-friend-box">
+                    <input type="text" id="friendUser" placeholder="Username...">
+                    <button id="addFriendBtn">Ajouter</button>
                 </div>
             </aside>
         </div>
     </section>
+
+    <!-- MODALES AUTH -->
+    <div id="modal-overlay" class="hidden">
+        <div class="modal">
+            <h2 id="modal-title">Connexion</h2>
+            <input type="email" id="auth-email" placeholder="Email">
+            <input type="password" id="auth-pass" placeholder="Mot de passe">
+            <input type="text" id="auth-user" class="hidden" placeholder="Username (pour inscription)">
+            <button id="auth-submit">Valider</button>
+            <button onclick="closeModal()" class="btn-close">Annuler</button>
+        </div>
+    </div>
 
     <script type="module" src="app.js"></script>
 </body>
