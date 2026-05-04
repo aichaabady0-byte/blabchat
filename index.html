@@ -3,23 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlabChat 🚀</title>
+    <title>BlabChat Space</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="container">
-        <h2>BlabChat 🚀</h2>
-        <div id="chat-box"></div>
-
-        <div class="input-area">
-            <input type="text" id="username" placeholder="Pseudo" maxlength="15">
-            <input type="text" id="messageInput" placeholder="Tapez votre message...">
-            <button id="sendBtn">➤</button>
+    <nav class="navbar">
+        <div class="logo">BlabChat 🚀</div>
+        <div class="nav-links">
+            <a href="#">Portfolio</a>
+            <a href="#">Discover</a>
+            <a href="#">Wiki</a>
+            <a href="#">DevForum</a>
         </div>
+        <div id="auth-ui">
+            <button id="loginBtn">Connexion Google</button>
+            <div id="user-info" class="hidden">
+                <span id="display-name"></span>
+                <span id="admin-badge" class="badge hidden">VERIFIED</span>
+                <button id="logoutBtn">Déconnexion</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- Liste des Serveurs -->
+        <aside class="server-sidebar">
+            <div class="server-list" id="server-list">
+                <div class="server-icon active" title="Général">🏠</div>
+            </div>
+            <button id="addServerBtn" class="add-btn">+</button>
+        </aside>
+
+        <!-- Chat Principal -->
+        <main class="chat-container">
+            <div id="admin-panel" class="admin-panel hidden">
+                <h3>Panel Admin (Fufu Only)</h3>
+                <button onclick="alert('Action Admin: Teleport')">Teleport All</button>
+                <button onclick="alert('Action Admin: Verify')">Verify User</button>
+            </div>
+            <div id="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="messageInput" placeholder="Tapez un message...">
+                <button id="sendBtn">➤</button>
+            </div>
+        </main>
+
+        <!-- Amis -->
+        <aside class="friends-sidebar">
+            <h3>Amis</h3>
+            <div id="friends-list"></div>
+            <input type="text" id="friendEmail" placeholder="Email de l'ami">
+            <button id="addFriendBtn">Ajouter</button>
+        </aside>
     </div>
 
-    <!-- Chargement du script en mode module -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
