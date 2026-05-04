@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBwpvOG3MyfQwqfAK4pwf-7TBKNFONIrPU", 
+    apiKey: "sdfgsnjsrgysrty-7TBKNFONIrPU", 
     authDomain: "mazechat-78945.firebaseapp.com",
     databaseURL: "https://mazechat-78945-default-rtdb.firebaseio.com",
     projectId: "mazechat-78945",
@@ -16,7 +16,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// --- NAVIGATION & MODALES ---
+// --- VARIABLES D'ÉTAT ---
+let currentServerId = 'global';
+let currentChannelId = 'general';
+
+// --- AUTHENTIFICATION ---
 window.showAuth = (type) => {
     document.getElementById('modal-container').classList.remove('hidden');
     document.getElementById('group-user').style.display = (type === 'login') ? 'none' : 'flex';
@@ -30,84 +34,125 @@ async function handleAuth(type) {
     const email = document.getElementById('auth-email').value;
     const pass = document.getElementById('auth-pass').value;
     const user = document.getElementById('auth-user').value;
-    const errorEl = document.getElementById('auth-error');
 
     try {
         if (type === 'register') {
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: user });
-            await set(ref(db, `users/${user}`), { uid: res.user.uid, email });
+            await set(ref(db, `users/${res.user.uid}`), { username: user, status: 'online' });
         } else {
             await signInWithEmailAndPassword(auth, email, pass);
         }
         closeAuth();
-    } catch (e) {
-        errorEl.innerText = e.message;
-        errorEl.classList.remove('hidden');
-    }
+    } catch (e) { alert(e.message); }
 }
 
-window.logout = () => signOut(auth);
+window.logout = () => {
+    if(auth.currentUser) set(ref(db, `users/${auth.currentUser.uid}/status`), 'offline');
+    signOut(auth);
+};
 
-// --- ÉTAT DE CONNEXION ---
+// --- LOGIQUE CORE ---
 onAuthStateChanged(auth, (user) => {
-    const pageDiscover = document.getElementById('page-discover');
-    const pageApp = document.getElementById('page-app');
-
     if (user) {
-        pageDiscover.classList.remove('active');
-        pageApp.classList.add('active');
+        document.getElementById('page-discover').classList.remove('active');
+        document.getElementById('page-app').classList.add('active');
         document.getElementById('my-name').innerText = user.displayName;
         document.getElementById('my-avatar').innerText = user.displayName[0].toUpperCase();
-
-        // Admin Check
-        if(user.displayName === "Fufu") {
-            document.getElementById('admin-panel').classList.remove('hidden');
-            document.getElementById('my-status').innerHTML = '<span class="badge-verify">VERIFIED</span>';
-        }
+        
+        // Mise à jour statut
+        set(ref(db, `users/${user.uid}/status`), 'online');
+        
+        initApp();
     } else {
-        pageDiscover.classList.add('active');
-        pageApp.classList.remove('active');
+        document.getElementById('page-discover').classList.add('active');
+        document.getElementById('page-app').classList.remove('active');
     }
 });
 
-// --- CHAT LOGIQUE ---
-const chatRef = ref(db, 'messages');
-document.getElementById('sendBtn').onclick = sendMessage;
-document.getElementById('msgInput').onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
-
-function sendMessage() {
-    const text = document.getElementById('msgInput').value;
-    if(text && auth.currentUser) {
-        push(chatRef, {
-            sender: auth.currentUser.displayName,
-            text: text,
-            timestamp: serverTimestamp(),
-            isAdmin: (auth.currentUser.displayName === "Fufu")
-        });
-        document.getElementById('msgInput').value = "";
-    }
+function initApp() {
+    loadServers();
+    loadMessages();
+    loadMembers();
 }
 
-onChildAdded(chatRef, (snapshot) => {
-    const m = snapshot.val();
+// --- GESTION DES SERVEURS ---
+window.createNewServer = async () => {
+    const name = prompt("Nom du serveur ?");
+    if(name) {
+        const newServerRef = push(ref(db, 'servers'));
+        await set(newServerRef, {
+            name: name,
+            owner: auth.currentUser.uid,
+            icon: name[0].toUpperCase()
+        });
+    }
+};
+
+function loadServers() {
+    const serverList = document.getElementById('server-list');
+    onValue(ref(db, 'servers'), (snapshot) => {
+        serverList.innerHTML = '';
+        snapshot.forEach((child) => {
+            const s = child.val();
+            const div = document.createElement('div');
+            div.className = `server-icon ${currentServerId === child.key ? 'active' : ''}`;
+            div.innerText = s.icon;
+            div.onclick = () => { currentServerId = child.key; loadServers(); };
+            serverList.appendChild(div);
+        });
+    });
+}
+
+// --- GESTION DES MEMBRES ---
+function loadMembers() {
+    const membersList = document.getElementById('members-list');
+    onValue(ref(db, 'users'), (snapshot) => {
+        membersList.innerHTML = '';
+        snapshot.forEach((child) => {
+            const u = child.val();
+            if(u.status === 'online') {
+                const div = document.createElement('div');
+                div.className = 'member-item';
+                div.innerHTML = `
+                    <div class="member-avatar">${u.username[0]}</div>
+                    <span class="member-name">${u.username}</span>
+                `;
+                membersList.appendChild(div);
+            }
+        });
+    });
+}
+
+// --- CHAT ---
+function loadMessages() {
     const chatBox = document.getElementById('chat-messages');
-    
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `msg-line first-in-group ${m.sender === auth.currentUser?.displayName ? 'own-msg' : ''}`;
-    
-    msgDiv.innerHTML = `
-        <div class="msg-avatar-col">
-            <div class="msg-avatar ${m.isAdmin ? 'admin-avatar' : ''}">${m.sender[0].toUpperCase()}</div>
-        </div>
-        <div class="msg-content-col">
-            <div class="msg-header">
-                <span class="msg-sender ${m.isAdmin ? 'is-admin' : ''}">${m.sender}</span>
-                <span class="msg-time">aujourd'hui</span>
-            </div>
-            <div class="msg-text">${m.text}</div>
-        </div>
-    `;
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-});
+    chatBox.innerHTML = '';
+    onChildAdded(ref(db, `messages/${currentServerId}`), (snapshot) => {
+        const m = snapshot.val();
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg-line ${m.sender === auth.currentUser?.displayName ? 'own-msg' : ''}`;
+        msgDiv.innerHTML = `
+            <div class="msg-avatar-col"><div class="msg-avatar">${m.sender[0]}</div></div>
+            <div class="msg-content-col">
+                <div class="msg-header"><span class="msg-sender">${m.sender}</span></div>
+                <div class="msg-text">${m.text}</div>
+            </div>`;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
+
+window.sendMessage = () => {
+    const input = document.getElementById('msgInput');
+    if(input.value && auth.currentUser) {
+        push(ref(db, `messages/${currentServerId}`), {
+            sender: auth.currentUser.displayName,
+            text: input.value,
+            timestamp: serverTimestamp()
+        });
+        input.value = "";
+    }
+};
+
+document.getElementById('sendBtn').onclick = window.sendMessage;
