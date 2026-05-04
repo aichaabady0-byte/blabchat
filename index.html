@@ -9,8 +9,12 @@
 </head>
 <body>
 
+    <!-- ══ PAGE DISCOVER ══ -->
     <section id="page-discover" class="page active">
-        <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+        <div class="bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+        </div>
         <nav class="top-nav">
             <div class="logo">🚀 <span class="logo-text">BLABCHAT</span></div>
             <div class="auth-buttons">
@@ -25,8 +29,47 @@
         </main>
     </section>
 
+    <!-- ══ PAGE APP ══ -->
     <section id="page-app" class="page">
+
+        <!-- Backdrop du drawer mobile (caché sur ≥ 600px) -->
+        <div class="mobile-drawer-backdrop" aria-hidden="true"></div>
+
+        <!-- Drawer mobile : serveurs + salons (caché sur ≥ 600px) -->
+        <div class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Navigation">
+
+            <!-- Colonne serveurs -->
+            <div class="drawer-servers">
+                <div class="server-home" onclick="switchServer('global', 'Général')">🏠</div>
+                <div class="server-divider"></div>
+                <div id="drawer-server-list" class="server-list"></div>
+                <button class="server-add" onclick="createNewServer()">+</button>
+            </div>
+
+            <!-- Colonne salons -->
+            <div class="drawer-channels">
+                <div class="drawer-header">
+                    <span id="drawer-server-name" class="drawer-title">GLOBAL</span>
+                    <button class="drawer-close" aria-label="Fermer le menu">✕</button>
+                </div>
+                <div class="drawer-channel-list">
+                    <div id="drawer-channel-list"></div>
+                </div>
+                <div class="drawer-user-bar">
+                    <div class="user-bar-avatar" id="drawer-my-avatar">?</div>
+                    <div class="user-bar-info">
+                        <span class="user-bar-name" id="drawer-my-name">...</span>
+                        <span class="user-bar-status">En ligne</span>
+                    </div>
+                    <button class="btn-icon-logout" onclick="logout()">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layout principal -->
         <div class="app-layout">
+
+            <!-- Sidebar serveurs (desktop ≥ 600px) -->
             <aside class="sidebar-servers">
                 <div class="server-home" onclick="switchServer('global', 'Général')">🏠</div>
                 <div class="server-divider"></div>
@@ -34,6 +77,7 @@
                 <button class="server-add" onclick="createNewServer()">+</button>
             </aside>
 
+            <!-- Sidebar salons (desktop ≥ 600px) -->
             <aside class="sidebar-channels">
                 <div class="channels-header">
                     <span id="current-server-name" class="channels-title">GLOBAL</span>
@@ -51,16 +95,27 @@
                         <span class="user-bar-name" id="my-name">...</span>
                         <span class="user-bar-status">En ligne</span>
                     </div>
-                    <button class="logout-btn" onclick="logout()">✕</button>
+                    <button class="btn-icon-logout" onclick="logout()">✕</button>
                 </div>
             </aside>
 
+            <!-- Zone principale -->
             <main class="main-area">
                 <header class="main-header">
-                    <span class="header-hash">#</span>
-                    <h3 id="current-channel-display">général</h3>
+                    <div class="main-header-left">
+                        <!-- Bouton hamburger (mobile uniquement) -->
+                        <button class="mobile-menu-btn" aria-label="Ouvrir le menu" aria-expanded="false">
+                            <span class="hamburger-bar"></span>
+                            <span class="hamburger-bar"></span>
+                            <span class="hamburger-bar"></span>
+                        </button>
+                        <span class="header-hash">#</span>
+                        <h3 id="current-channel-display">général</h3>
+                    </div>
                 </header>
+
                 <div id="chat-messages" class="chat-messages"></div>
+
                 <div class="chat-input-area">
                     <div class="chat-input-box">
                         <input type="text" id="msgInput" placeholder="Message...">
@@ -69,6 +124,7 @@
                 </div>
             </main>
 
+            <!-- Sidebar membres (desktop ≥ 960px) -->
             <aside class="sidebar-members">
                 <div class="members-label">MEMBRES</div>
                 <div id="members-list" class="members-list"></div>
@@ -77,20 +133,81 @@
                     <button onclick="addFriend()">+</button>
                 </div>
             </aside>
+
         </div>
     </section>
 
+    <!-- ══ MODAL AUTH ══ -->
     <div id="modal-container" class="modal-overlay hidden">
+        <div class="modal-backdrop" onclick="closeAuth()"></div>
         <div class="modal">
-            <h2 id="modal-title">Bienvenue</h2>
-            <div id="group-user" class="form-group"><input type="text" id="auth-user" placeholder="Pseudo"></div>
-            <div class="form-group"><input type="email" id="auth-email" placeholder="Email"></div>
-            <div class="form-group"><input type="password" id="auth-pass" placeholder="Password"></div>
+            <h2 id="modal-title" class="modal-title">Bienvenue</h2>
+            <div id="group-user" class="form-group">
+                <label>Pseudo</label>
+                <input type="text" id="auth-user" placeholder="Ton pseudo">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="auth-email" placeholder="ton@email.com">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" id="auth-pass" placeholder="••••••••">
+            </div>
             <button id="auth-submit" class="btn-primary btn-full">Confirmer</button>
             <button class="btn-ghost btn-full" onclick="closeAuth()">Annuler</button>
         </div>
     </div>
 
     <script type="module" src="app.js"></script>
+
+    <!-- Drawer controller (vanilla JS, pas besoin de module) -->
+    <script>
+    (function () {
+        const btn      = document.querySelector('.mobile-menu-btn');
+        const drawer   = document.querySelector('.mobile-drawer');
+        const backdrop = document.querySelector('.mobile-drawer-backdrop');
+        if (!btn || !drawer || !backdrop) return;
+
+        function openDrawer() {
+            backdrop.classList.add('visible');
+            requestAnimationFrame(() => {
+                backdrop.classList.add('open');
+                drawer.classList.add('open');
+                btn.classList.add('is-open');
+                btn.setAttribute('aria-expanded', 'true');
+            });
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+            backdrop.classList.remove('open');
+            drawer.classList.remove('open');
+            btn.classList.remove('is-open');
+            btn.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+            setTimeout(() => backdrop.classList.remove('visible'), 320);
+        }
+
+        btn.addEventListener('click', () =>
+            btn.classList.contains('is-open') ? closeDrawer() : openDrawer()
+        );
+
+        backdrop.addEventListener('click', closeDrawer);
+
+        const closeBtn = drawer.querySelector('.drawer-close');
+        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+
+        // Fermer le drawer quand on sélectionne un salon
+        drawer.querySelectorAll('.channel-item').forEach(item => {
+            item.addEventListener('click', () => setTimeout(closeDrawer, 120));
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+        });
+    })();
+    </script>
+
 </body>
 </html>
