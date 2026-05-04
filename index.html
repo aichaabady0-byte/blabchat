@@ -3,206 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlabChat — Next-Gen Messaging</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <title>BlabChat Space</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Fonts demandées par ton CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- ════════════════════════════════════
-     PAGE DISCOVER
-════════════════════════════════════ -->
-<section id="page-discover" class="page active">
-    <div class="bg-orbs">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-    <nav class="top-nav">
-        <div class="logo">
-            <span class="logo-icon">◈</span>
-            <span class="logo-text">BlabChat</span>
+    <!-- PAGE DÉCOUVERTE -->
+    <section id="page-discover" class="page active">
+        <div class="bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
         </div>
-        <div class="auth-buttons">
-            <button class="btn-ghost" onclick="showModal('login')">Connexion</button>
-            <button class="btn-primary" onclick="showModal('register')">S'inscrire →</button>
-        </div>
-    </nav>
-
-    <div class="hero">
-        <div class="hero-badge">✦ Nouvelle génération</div>
-        <h1 class="hero-title">
-            Parle.<br>
-            <span class="gradient-text">Connecte.</span><br>
-            Vis.
-        </h1>
-        <p class="hero-sub">Le chat qui ne ressemble à aucun autre.<br>Rejoins la communauté BlabChat.</p>
-        <div class="hero-cta">
-            <button class="btn-primary btn-large" onclick="showModal('register')">Commencer gratuitement</button>
-            <button class="btn-ghost btn-large" onclick="showModal('login')">J'ai déjà un compte</button>
-        </div>
-        <div class="hero-stats">
-            <div class="stat"><span class="stat-num">∞</span><span class="stat-label">Messages</span></div>
-            <div class="stat-sep">·</div>
-            <div class="stat"><span class="stat-num">Live</span><span class="stat-label">Temps réel</span></div>
-            <div class="stat-sep">·</div>
-            <div class="stat"><span class="stat-num">Free</span><span class="stat-label">Pour toujours</span></div>
-        </div>
-    </div>
-
-    <!-- Floating chat preview -->
-    <div class="chat-preview">
-        <div class="preview-msg incoming">
-            <div class="preview-avatar">F</div>
-            <div class="preview-bubble">Salut tout le monde ! 👋</div>
-        </div>
-        <div class="preview-msg outgoing">
-            <div class="preview-bubble">BlabChat c'est vraiment ouf !</div>
-            <div class="preview-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">U</div>
-        </div>
-        <div class="preview-msg incoming">
-            <div class="preview-avatar" style="background: linear-gradient(135deg, #10b981, #06b6d4);">M</div>
-            <div class="preview-bubble">On dirait Discord mais en 100x mieux 🔥</div>
-        </div>
-    </div>
-</section>
-
-<!-- ════════════════════════════════════
-     PAGE APP
-════════════════════════════════════ -->
-<section id="page-app" class="page">
-    <div class="app-layout">
-
-        <!-- Sidebar gauche : serveurs -->
-        <aside class="sidebar-servers">
-            <div class="server-home active" onclick="switchTab('main-chat')" title="Accueil">◈</div>
-            <div class="server-divider"></div>
-            <div id="server-list" class="server-list"></div>
-            <button class="server-add" onclick="createServer()" title="Créer un salon">+</button>
-        </aside>
-
-        <!-- Sidebar channels -->
-        <aside class="sidebar-channels">
-            <div class="channels-header">
-                <span class="channels-title">BlabChat</span>
-                <button class="channels-settings">⚙</button>
+        
+        <nav class="top-nav">
+            <div class="logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">BLABCHAT</span>
             </div>
-            <div class="channel-group">
-                <div class="channel-group-label">Salons textuels</div>
-                <div class="channel-item active">
-                    <span class="channel-hash">#</span> général
-                </div>
-                <div class="channel-item">
-                    <span class="channel-hash">#</span> hors-sujet
-                </div>
-                <div class="channel-item">
-                    <span class="channel-hash">#</span> annonces
-                </div>
+            <div class="auth-buttons">
+                <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
+                <button class="btn-primary" onclick="showAuth('register')">S'inscrire</button>
             </div>
-            <div class="user-bar">
-                <div class="user-bar-avatar" id="user-bar-avatar">?</div>
-                <div class="user-bar-info">
-                    <span id="user-display" class="user-bar-name">Pseudo</span>
-                    <span class="user-bar-status">● En ligne</span>
-                </div>
-                <div style="display:flex;gap:6px;align-items:center;">
-                    <span id="verified-badge" class="badge-verify hidden">✦</span>
-                    <button onclick="logout()" class="btn-icon-logout" title="Déconnexion">⏻</button>
-                </div>
+        </nav>
+
+        <main class="hero">
+            <div class="hero-badge">Alpha v2.0 est là</div>
+            <h1 class="hero-title">Discutez. <br><span class="gradient-text">Créez.</span> Explorez.</h1>
+            <p class="hero-sub">Le chat premium pour les communautés exigeantes. Rejoignez l'univers de Fufu et vivez une expérience fluide en glassmorphism.</p>
+            <div class="hero-cta">
+                <button class="btn-primary btn-large" onclick="showAuth('register')">Créer un compte</button>
+                <button class="btn-ghost btn-large">En savoir plus</button>
             </div>
-        </aside>
-
-        <!-- Zone principale -->
-        <main class="main-area">
-            <header class="main-header">
-                <div class="main-header-left">
-                    <span class="header-hash">#</span>
-                    <h3 id="current-title">général</h3>
-                    <span class="header-desc">Le salon principal de BlabChat</span>
-                </div>
-                <div class="main-header-right">
-                    <button class="header-btn" onclick="toggleMemberList()">👥</button>
-                    <button class="header-btn">🔍</button>
-                    <button class="header-btn">📌</button>
-                </div>
-            </header>
-
-            <div id="admin-panel" class="admin-bar hidden">
-                <span class="admin-title">⚡ Panel Fufu</span>
-                <button class="admin-btn">🛡 Modération</button>
-                <button class="admin-btn">📡 Broadcast</button>
-                <button class="admin-btn">📊 Stats</button>
-            </div>
-
-            <div id="chat-messages" class="chat-messages"></div>
-
-            <div class="chat-input-area">
-                <div class="chat-input-box">
-                    <button class="input-attach">+</button>
-                    <input type="text" id="msgInput" placeholder="Message #général..." autocomplete="off">
-                    <div class="input-actions">
-                        <button class="input-emoji">😊</button>
-                        <button class="input-send" id="sendBtn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
-                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-num">2.4k</span><span class="stat-label">Membres</span></div>
+                <span class="stat-sep">/</span>
+                <div class="stat"><span class="stat-num">150</span><span class="stat-label">Serveurs</span></div>
             </div>
         </main>
 
-        <!-- Sidebar membres -->
-        <aside class="sidebar-members" id="members-panel">
-            <div class="members-section">
-                <div class="members-label">EN LIGNE — <span id="online-count">1</span></div>
-                <div id="friends-list" class="members-list"></div>
+        <div class="chat-preview">
+            <div class="preview-msg incoming">
+                <div class="preview-avatar">F</div>
+                <div class="preview-bubble">Salut ! Tu as vu le nouveau design ?</div>
             </div>
-            <div class="add-friend-section">
-                <p class="add-friend-label">Ajouter un ami</p>
-                <div class="add-friend-input">
-                    <input type="text" id="friendUser" placeholder="Username...">
-                    <button id="addFriendBtn">→</button>
+            <div class="preview-msg outgoing">
+                <div class="preview-bubble">Ouais, le glassmorphism est incroyable ! 😍</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERFACE APP -->
+    <section id="page-app" class="page">
+        <div class="app-layout">
+            <aside class="sidebar-servers">
+                <div class="server-home">🏠</div>
+                <div class="server-divider"></div>
+                <div id="server-list" class="server-list"></div>
+                <button class="server-add" onclick="createNewServer()">+</button>
+            </aside>
+
+            <aside class="sidebar-channels">
+                <div class="channels-header">
+                    <span class="channels-title">COMMUNAUTÉ</span>
+                    <button class="channels-settings">⚙️</button>
                 </div>
+                <div class="channel-group">
+                    <div class="channel-group-label">Salons textuels</div>
+                    <div class="channel-item active"><span class="channel-hash">#</span> général</div>
+                    <div class="channel-item"><span class="channel-hash">#</span> aide-dev</div>
+                </div>
+                <div class="user-bar">
+                    <div class="user-bar-avatar" id="my-avatar">?</div>
+                    <div class="user-bar-info">
+                        <span class="user-bar-name" id="my-name">Chargement...</span>
+                        <span id="my-status" class="user-bar-status">En ligne</span>
+                    </div>
+                    <button class="btn-icon-logout" onclick="logout()">✕</button>
+                </div>
+            </aside>
+
+            <main class="main-area">
+                <header class="main-header">
+                    <div class="main-header-left">
+                        <span class="header-hash">#</span>
+                        <h3 id="current-channel">général</h3>
+                        <span class="header-desc">Bienvenue sur le salon principal</span>
+                    </div>
+                </header>
+
+                <div id="admin-panel" class="admin-bar hidden">
+                    <span class="admin-title">PANEL ADMINISTRATEUR</span>
+                    <button class="admin-btn">Gérer les membres</button>
+                    <button class="admin-btn">Broadcast</button>
+                </div>
+
+                <div id="chat-messages" class="chat-messages"></div>
+
+                <div class="chat-input-area">
+                    <div class="chat-input-box">
+                        <button class="input-attach">+</button>
+                        <input type="text" id="msgInput" placeholder="Envoyer un message dans #général">
+                        <div class="input-actions">
+                            <button class="input-emoji">😊</button>
+                            <button id="sendBtn" class="input-send">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="sidebar-members">
+                <div class="members-section">
+                    <div class="members-label">En ligne — 1</div>
+                    <div id="members-list" class="members-list"></div>
+                </div>
+                <div class="add-friend-section">
+                    <div class="add-friend-label">Ajouter un ami</div>
+                    <div class="add-friend-input">
+                        <input type="text" id="friendUser" placeholder="Username...">
+                        <button onclick="addFriend()">+</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- MODAL AUTH -->
+    <div id="modal-container" class="modal-overlay hidden">
+        <div class="modal-backdrop" onclick="closeAuth()"></div>
+        <div class="modal">
+            <div class="modal-logo">🚀</div>
+            <h2 id="modal-title" class="modal-title">Bienvenue</h2>
+            <p class="modal-sub">Heureux de vous revoir !</p>
+            
+            <div class="form-group" id="group-user">
+                <label>Nom d'utilisateur</label>
+                <input type="text" id="auth-user" placeholder="Ex: Fufu">
             </div>
-        </aside>
-
+            <div class="form-group">
+                <label>Adresse Email</label>
+                <input type="email" id="auth-email" placeholder="email@exemple.com">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" id="auth-pass" placeholder="••••••••">
+            </div>
+            
+            <button id="auth-submit" class="btn-primary btn-full">Continuer</button>
+            <p id="auth-error" class="auth-error hidden"></p>
+        </div>
     </div>
-</section>
 
-<!-- ════════════════════════════════════
-     MODAL AUTH
-════════════════════════════════════ -->
-<div id="modal-overlay" class="modal-overlay hidden">
-    <div class="modal-backdrop" onclick="closeModal()"></div>
-    <div class="modal">
-        <div class="modal-logo">◈</div>
-        <h2 id="modal-title" class="modal-title">Connexion</h2>
-        <p class="modal-sub" id="modal-sub">Ravi de te revoir.</p>
-
-        <div class="form-group">
-            <label>Adresse e-mail</label>
-            <input type="email" id="auth-email" placeholder="toi@exemple.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-            <label>Mot de passe</label>
-            <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password">
-        </div>
-        <div class="form-group" id="form-username">
-            <label>Nom d'utilisateur</label>
-            <input type="text" id="auth-user" placeholder="ton_pseudo">
-        </div>
-
-        <button id="auth-submit" class="btn-primary btn-full">Valider</button>
-        <button onclick="closeModal()" class="btn-ghost btn-full">Annuler</button>
-        <div id="auth-error" class="auth-error hidden"></div>
-    </div>
-</div>
-
-<!-- Toast notifications -->
-<div id="toast-container"></div>
-
-<script type="module" src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
