@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, serverTimestamp, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -17,75 +17,54 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Éléments UI
+// Éléments de navigation
+const pageDiscover = document.getElementById('page-discover');
+const pageChat = document.getElementById('page-chat');
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
-const authUI = document.getElementById('user-info');
+const userProfile = document.getElementById('user-profile');
 const adminPanel = document.getElementById('admin-panel');
-const adminBadge = document.getElementById('admin-badge');
 
-let currentUser = null;
-
-// --- AUTHENTIFICATION ---
-loginBtn.onclick = () => signInWithPopup(auth, provider);
-logoutBtn.onclick = () => signOut(auth);
-
+// --- SYSTÈME DE ROUTING ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        currentUser = user;
+        // Connecté : On va au Chat
+        pageDiscover.classList.add('hidden');
+        pageChat.classList.remove('hidden');
         loginBtn.classList.add('hidden');
-        authUI.classList.remove('hidden');
-        document.getElementById('display-name').innerText = user.displayName;
+        userProfile.classList.remove('hidden');
+        document.getElementById('user-name').innerText = user.displayName;
 
-        // VERIFICATION SI C'EST FUFU
-        if (user.displayName.includes("Fufu") || user.email === "tonemail@gmail.com") {
+        // Condition spéciale pour FUFU
+        if (user.displayName.toLowerCase().includes("fufu")) {
             adminPanel.classList.remove('hidden');
-            adminBadge.classList.remove('hidden');
+            console.log("Bienvenue Admin Fufu");
         }
     } else {
-        currentUser = null;
+        // Déconnecté : Retour au Discover
+        pageDiscover.classList.remove('hidden');
+        pageChat.classList.add('hidden');
         loginBtn.classList.remove('hidden');
-        authUI.classList.add('hidden');
-        adminPanel.classList.add('hidden');
+        userProfile.classList.add('hidden');
     }
 });
 
-// --- GESTION SERVEURS ---
-document.getElementById('addServerBtn').onclick = async () => {
-    const sName = prompt("Nom du serveur ?");
-    if (sName) {
-        const inviteCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-        const newServerRef = push(ref(db, 'servers'));
-        await set(newServerRef, {
-            name: sName,
-            owner: currentUser.uid,
-            code: inviteCode
-        });
-        alert(`Serveur créé ! Code d'invitation : ${inviteCode}`);
-    }
-};
+// --- ACTIONS ---
+loginBtn.onclick = () => signInWithPopup(auth, provider);
+logoutBtn.onclick = () => signOut(auth);
 
-// --- CHAT LOGIQUE ---
+// --- CHAT LOGIQUE (Simplifiée) ---
 const chatRef = ref(db, 'messages');
-const sendMessage = () => {
+document.getElementById('sendBtn').onclick = () => {
     const msg = document.getElementById('messageInput').value;
-    if (msg && currentUser) {
-        push(chatRef, {
-            username: currentUser.displayName,
-            text: msg,
-            timestamp: serverTimestamp(),
-            isVerified: !adminBadge.classList.contains('hidden')
-        });
+    if(msg) {
+        push(chatRef, { username: auth.currentUser.displayName, text: msg, timestamp: serverTimestamp() });
         document.getElementById('messageInput').value = "";
     }
 };
 
-document.getElementById('sendBtn').onclick = sendMessage;
-
-onChildAdded(chatRef, (snapshot) => {
-    const val = snapshot.val();
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'message';
-    msgDiv.innerHTML = `${val.isVerified ? '✅ ' : ''}<strong>${val.username}:</strong> ${val.text}`;
-    document.getElementById('chat-box').appendChild(msgDiv);
+onChildAdded(chatRef, (snap) => {
+    const div = document.createElement('div');
+    div.innerHTML = `<b>${snap.val().username}</b>: ${snap.val().text}`;
+    document.getElementById('chat-messages').appendChild(div);
 });
