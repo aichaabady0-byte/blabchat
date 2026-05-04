@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, push, onChildAdded, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBwpvOG3MyfQwqfAK4pwf-7TBKNFONIrPU", 
@@ -15,56 +15,79 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
 
-// Éléments de navigation
-const pageDiscover = document.getElementById('page-discover');
-const pageChat = document.getElementById('page-chat');
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const userProfile = document.getElementById('user-profile');
-const adminPanel = document.getElementById('admin-panel');
+// --- NAVIGATION & MODALES ---
+window.showModal = (type) => {
+    document.getElementById('modal-overlay').classList.remove('hidden');
+    document.getElementById('auth-user').classList.toggle('hidden', type === 'login');
+    document.getElementById('modal-title').innerText = type === 'login' ? 'Connexion' : 'Inscription';
+    document.getElementById('auth-submit').onclick = () => handleAuth(type);
+};
+window.closeModal = () => document.getElementById('modal-overlay').classList.add('hidden');
 
-// --- SYSTÈME DE ROUTING ---
+// --- AUTHENTIFICATION RÉELLE ---
+async function handleAuth(type) {
+    const email = document.getElementById('auth-email').value;
+    const pass = document.getElementById('auth-pass').value;
+    const user = document.getElementById('auth-user').value;
+
+    try {
+        if (type === 'register') {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(res.user, { displayName: user });
+            await set(ref(db, `users/${user}`), { uid: res.user.uid, email: email });
+        } else {
+            await signInWithEmailAndPassword(auth, email, pass);
+        }
+        closeModal();
+    } catch (e) { alert(e.message); }
+}
+
+window.logout = () => signOut(auth);
+
+// --- SURVEILLANCE ÉTAT ---
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Connecté : On va au Chat
-        pageDiscover.classList.add('hidden');
-        pageChat.classList.remove('hidden');
-        loginBtn.classList.add('hidden');
-        userProfile.classList.remove('hidden');
-        document.getElementById('user-name').innerText = user.displayName;
-
-        // Condition spéciale pour FUFU
-        if (user.displayName.toLowerCase().includes("fufu")) {
-            adminPanel.classList.remove('hidden');
-            console.log("Bienvenue Admin Fufu");
+        document.getElementById('page-discover').classList.remove('active');
+        document.getElementById('page-app').classList.add('active');
+        document.getElementById('user-display').innerText = user.displayName;
+        
+        if(user.displayName === "Fufu") {
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('verified-badge').classList.remove('hidden');
         }
     } else {
-        // Déconnecté : Retour au Discover
-        pageDiscover.classList.remove('hidden');
-        pageChat.classList.add('hidden');
-        loginBtn.classList.remove('hidden');
-        userProfile.classList.add('hidden');
+        document.getElementById('page-discover').classList.add('active');
+        document.getElementById('page-app').classList.remove('active');
     }
 });
 
-// --- ACTIONS ---
-loginBtn.onclick = () => signInWithPopup(auth, provider);
-logoutBtn.onclick = () => signOut(auth);
-
-// --- CHAT LOGIQUE (Simplifiée) ---
-const chatRef = ref(db, 'messages');
-document.getElementById('sendBtn').onclick = () => {
-    const msg = document.getElementById('messageInput').value;
-    if(msg) {
-        push(chatRef, { username: auth.currentUser.displayName, text: msg, timestamp: serverTimestamp() });
-        document.getElementById('messageInput').value = "";
+// --- SYSTÈME D'AMIS PAR USERNAME ---
+document.getElementById('addFriendBtn').onclick = async () => {
+    const target = document.getElementById('friendUser').value;
+    const snapshot = await get(ref(db, `users/${target}`));
+    if (snapshot.exists()) {
+        await set(ref(db, `friends/${auth.currentUser.displayName}/${target}`), true);
+        alert("Ami ajouté !");
+    } else {
+        alert("Utilisateur introuvable.");
     }
 };
 
-onChildAdded(chatRef, (snap) => {
+// --- CHAT ---
+const chatRef = ref(db, 'messages');
+document.getElementById('sendBtn').onclick = () => {
+    const text = document.getElementById('msgInput').value;
+    if(text) {
+        push(chatRef, { sender: auth.currentUser.displayName, text, time: serverTimestamp() });
+        document.getElementById('msgInput').value = "";
+    }
+};
+
+onChildAdded(chatRef, (s) => {
+    const m = s.val();
     const div = document.createElement('div');
-    div.innerHTML = `<b>${snap.val().username}</b>: ${snap.val().text}`;
+    div.className = "msg-line";
+    div.innerHTML = `<b>${m.sender}:</b> ${m.text}`;
     document.getElementById('chat-messages').appendChild(div);
 });
