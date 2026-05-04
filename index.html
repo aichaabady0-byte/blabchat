@@ -7,55 +7,70 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- BARRE DE NAVIGATION TOUJOURS VISIBLE -->
     <nav class="navbar">
         <div class="logo">BlabChat 🚀</div>
         <div class="nav-links">
-            <a href="#">Portfolio</a>
-            <a href="#">Discover</a>
-            <a href="#">Wiki</a>
-            <a href="#">DevForum</a>
+            <a href="#discover" id="link-discover">Discover</a>
+            <a href="#portfolio">Portfolio</a>
+            <a href="#wiki">Wiki</a>
+            <a href="#devforum">DevForum</a>
         </div>
-        <div id="auth-ui">
-            <button id="loginBtn">Connexion Google</button>
-            <div id="user-info" class="hidden">
-                <span id="display-name"></span>
-                <span id="admin-badge" class="badge hidden">VERIFIED</span>
-                <button id="logoutBtn">Déconnexion</button>
+        <div id="auth-controls">
+            <button id="loginBtn" class="btn-primary">Connexion Google</button>
+            <div id="user-profile" class="hidden">
+                <span id="user-name"></span>
+                <button id="logoutBtn" class="btn-outline">Quitter</button>
             </div>
         </div>
     </nav>
 
-    <div class="main-layout">
-        <!-- Liste des Serveurs -->
-        <aside class="server-sidebar">
-            <div class="server-list" id="server-list">
-                <div class="server-icon active" title="Général">🏠</div>
-            </div>
-            <button id="addServerBtn" class="add-btn">+</button>
-        </aside>
+    <!-- SECTION 1 : DISCOVER (Main Page Auto) -->
+    <section id="page-discover" class="active-page">
+        <div class="hero">
+            <h1>Bienvenue sur BlabChat.space</h1>
+            <p>Découvrez des communautés, créez vos serveurs et discutez en temps réel.</p>
+            <button class="btn-large" onclick="document.getElementById('loginBtn').click()">Commencer l'aventure</button>
+        </div>
+        <div class="discover-grid">
+            <div class="card"><h3>Serveur Gaming</h3><p>Rejoignez les joueurs.</p></div>
+            <div class="card"><h3>Dev Zone</h3><p>Le coin des codeurs.</p></div>
+            <div class="card"><h3>Art & Design</h3><p>Partagez vos créations.</p></div>
+        </div>
+    </section>
 
-        <!-- Chat Principal -->
-        <main class="chat-container">
-            <div id="admin-panel" class="admin-panel hidden">
-                <h3>Panel Admin (Fufu Only)</h3>
-                <button onclick="alert('Action Admin: Teleport')">Teleport All</button>
-                <button onclick="alert('Action Admin: Verify')">Verify User</button>
-            </div>
-            <div id="chat-box"></div>
-            <div class="input-area">
-                <input type="text" id="messageInput" placeholder="Tapez un message...">
-                <button id="sendBtn">➤</button>
-            </div>
-        </main>
+    <!-- SECTION 2 : L'APPLICATION DE CHAT (Masquée par défaut) -->
+    <section id="page-chat" class="hidden">
+        <div class="app-layout">
+            <aside class="sidebar-servers">
+                <div id="server-list">
+                    <div class="server-icon active">🏠</div>
+                </div>
+                <button id="addServerBtn" class="add-btn">+</button>
+            </aside>
+            
+            <main class="chat-area">
+                <div id="admin-panel" class="admin-panel hidden">
+                    <span>PANEL ADMIN ACTIF</span>
+                    <button>Vérifier un utilisateur</button>
+                </div>
+                <div id="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Envoyer un message...">
+                    <button id="sendBtn">➤</button>
+                </div>
+            </main>
 
-        <!-- Amis -->
-        <aside class="friends-sidebar">
-            <h3>Amis</h3>
-            <div id="friends-list"></div>
-            <input type="text" id="friendEmail" placeholder="Email de l'ami">
-            <button id="addFriendBtn">Ajouter</button>
-        </aside>
-    </div>
+            <aside class="sidebar-friends">
+                <h3>Amis</h3>
+                <div id="friends-list"></div>
+                <div class="add-friend">
+                    <input type="text" id="friendEmail" placeholder="Email...">
+                    <button id="addFriendBtn">+</button>
+                </div>
+            </aside>
+        </div>
+    </section>
 
     <script type="module" src="app.js"></script>
 </body>
