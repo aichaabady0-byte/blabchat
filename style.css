@@ -1,20 +1,24 @@
-:root { --primary: #5865F2; --dark: #313338; --light: #f4f4f9; }
-body { margin: 0; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 .hidden { display: none !important; }
-.navbar { background: var(--dark); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-.nav-links a { color: #b5bac1; margin-right: 15px; text-decoration: none; font-size: 14px; }
-.badge { background: #23a559; padding: 2px 5px; border-radius: 4px; font-size: 10px; margin-left: 5px; font-weight: bold; }
+.page { display: none; height: 100vh; }
+.page.active { display: block; }
 
-.main-layout { display: flex; flex: 1; overflow: hidden; }
-.server-sidebar { width: 70px; background: #1e1f22; display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 10px; }
-.server-icon { width: 48px; height: 48px; background: #313338; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: 0.2s; }
-.server-icon:hover { border-radius: 30%; background: var(--primary); }
-.add-btn { width: 48px; height: 48px; border-radius: 50%; border: none; background: #313338; color: #23a559; font-size: 24px; cursor: pointer; }
+/* Dashboard Layout */
+.app-container { display: flex; height: 100vh; background: #313338; color: white; }
+.sidebar-left { width: 72px; background: #1e1f22; display: flex; flex-direction: column; align-items: center; padding: 12px 0; }
+.content-area { flex: 1; display: flex; flex-direction: column; }
+.sidebar-right { width: 240px; background: #2b2d31; padding: 15px; border-left: 1px solid #1e1f22; }
 
-.chat-container { flex: 1; display: flex; flex-direction: column; background: #313338; color: white; }
-#chat-box { flex: 1; overflow-y: auto; padding: 20px; }
-.admin-panel { background: #da373c; padding: 10px; text-align: center; }
-.input-area { padding: 20px; display: flex; gap: 10px; background: #313338; }
-input { flex: 1; padding: 10px; border-radius: 5px; border: none; background: #383a40; color: white; }
+/* Header */
+.content-header { height: 48px; background: #313338; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid #1e1f22; }
+.badge { background: #5865f2; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
 
-.friends-sidebar { width: 240px; background: #2b2d31; color: white; padding: 10px; border-left: 1px solid #1e1f22; }
+/* Messages */
+#chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.msg-line { background: #383a40; padding: 8px 12px; border-radius: 8px; width: fit-content; }
+.chat-input { padding: 20px; display: flex; gap: 10px; }
+.chat-input input { flex: 1; padding: 12px; border-radius: 8px; border: none; background: #383a40; color: white; }
+
+/* Modales */
+#modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal { background: #313338; padding: 30px; border-radius: 8px; display: flex; flex-direction: column; gap: 15px; width: 300px; }
