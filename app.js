@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Tes clés en direct (plus besoin de fetch /config)
 const firebaseConfig = {
     apiKey: "AIzaSyBwpvOG3MyfQwqfAK4pwf-7TBKNFONIrPU", 
     authDomain: "mazechat-78945.firebaseapp.com",
@@ -12,22 +11,18 @@ const firebaseConfig = {
     appId: "1:816965158155:web:54ba35107bd86f912b0e0e"
 };
 
-// Initialisation
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const chatRef = ref(db, 'messages');
 
-// Sélection des éléments HTML
 const messageInput = document.getElementById('messageInput');
 const usernameInput = document.getElementById('username');
 const sendBtn = document.getElementById('sendBtn');
 const chatBox = document.getElementById('chat-box');
 
-// Fonction d'envoi
 const sendMessage = () => {
     const user = usernameInput.value.trim() || "Anonyme";
     const msg = messageInput.value.trim();
-    
     if (msg !== "") {
         push(chatRef, {
             username: user,
@@ -38,22 +33,14 @@ const sendMessage = () => {
     }
 };
 
-// Événements
 sendBtn.onclick = sendMessage;
-messageInput.onkeypress = (e) => {
-    if (e.key === 'Enter') sendMessage();
-};
+messageInput.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
 
-// Réception en temps réel
 onChildAdded(chatRef, (snapshot) => {
     const val = snapshot.val();
     const msgDiv = document.createElement('div');
     msgDiv.className = 'message';
     msgDiv.innerHTML = `<strong>${val.username}:</strong> ${val.text}`;
     chatBox.appendChild(msgDiv);
-    
-    // Scroll automatique vers le bas
     chatBox.scrollTop = chatBox.scrollHeight;
 });
-
-console.log("BlabChat est prêt !");
