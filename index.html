@@ -5,61 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlabChat Space</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Fonts demandées par ton CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- PAGE DÉCOUVERTE -->
     <section id="page-discover" class="page active">
-        <div class="bg-orbs">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="orb orb-3"></div>
-        </div>
-        
+        <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
         <nav class="top-nav">
-            <div class="logo">
-                <span class="logo-icon">🚀</span>
-                <span class="logo-text">BLABCHAT</span>
-            </div>
+            <div class="logo">🚀 <span class="logo-text">BLABCHAT</span></div>
             <div class="auth-buttons">
                 <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
                 <button class="btn-primary" onclick="showAuth('register')">S'inscrire</button>
             </div>
         </nav>
-
         <main class="hero">
-            <div class="hero-badge">Alpha v2.0 est là</div>
-            <h1 class="hero-title">Discutez. <br><span class="gradient-text">Créez.</span> Explorez.</h1>
-            <p class="hero-sub">Le chat premium pour les communautés exigeantes. Rejoignez l'univers de Fufu et vivez une expérience fluide en glassmorphism.</p>
-            <div class="hero-cta">
-                <button class="btn-primary btn-large" onclick="showAuth('register')">Créer un compte</button>
-                <button class="btn-ghost btn-large">En savoir plus</button>
-            </div>
-            <div class="hero-stats">
-                <div class="stat"><span class="stat-num">2.4k</span><span class="stat-label">Membres</span></div>
-                <span class="stat-sep">/</span>
-                <div class="stat"><span class="stat-num">150</span><span class="stat-label">Serveurs</span></div>
-            </div>
+            <h1 class="hero-title">Le Chat <span class="gradient-text">Premium</span></h1>
+            <p class="hero-sub">Propulsé par Firebase. Design par Fufu.</p>
+            <button class="btn-primary btn-large" onclick="showAuth('register')">Commencer</button>
         </main>
-
-        <div class="chat-preview">
-            <div class="preview-msg incoming">
-                <div class="preview-avatar">F</div>
-                <div class="preview-bubble">Salut ! Tu as vu le nouveau design ?</div>
-            </div>
-            <div class="preview-msg outgoing">
-                <div class="preview-bubble">Ouais, le glassmorphism est incroyable ! 😍</div>
-            </div>
-        </div>
     </section>
 
-    <!-- INTERFACE APP -->
     <section id="page-app" class="page">
         <div class="app-layout">
             <aside class="sidebar-servers">
-                <div class="server-home">🏠</div>
+                <div class="server-home" onclick="switchServer('global', 'Général')">🏠</div>
                 <div class="server-divider"></div>
                 <div id="server-list" class="server-list"></div>
                 <button class="server-add" onclick="createNewServer()">+</button>
@@ -67,92 +36,58 @@
 
             <aside class="sidebar-channels">
                 <div class="channels-header">
-                    <span class="channels-title">COMMUNAUTÉ</span>
-                    <button class="channels-settings">⚙️</button>
+                    <span id="current-server-name" class="channels-title">GLOBAL</span>
                 </div>
                 <div class="channel-group">
-                    <div class="channel-group-label">Salons textuels</div>
-                    <div class="channel-item active"><span class="channel-hash">#</span> général</div>
-                    <div class="channel-item"><span class="channel-hash">#</span> aide-dev</div>
+                    <div class="channel-group-header">
+                        <span>SALONS</span>
+                        <button onclick="createNewChannel()" class="add-ch-btn">+</button>
+                    </div>
+                    <div id="channel-list"></div>
                 </div>
                 <div class="user-bar">
                     <div class="user-bar-avatar" id="my-avatar">?</div>
                     <div class="user-bar-info">
-                        <span class="user-bar-name" id="my-name">Chargement...</span>
-                        <span id="my-status" class="user-bar-status">En ligne</span>
+                        <span class="user-bar-name" id="my-name">...</span>
+                        <span class="user-bar-status">En ligne</span>
                     </div>
-                    <button class="btn-icon-logout" onclick="logout()">✕</button>
+                    <button class="logout-btn" onclick="logout()">✕</button>
                 </div>
             </aside>
 
             <main class="main-area">
                 <header class="main-header">
-                    <div class="main-header-left">
-                        <span class="header-hash">#</span>
-                        <h3 id="current-channel">général</h3>
-                        <span class="header-desc">Bienvenue sur le salon principal</span>
-                    </div>
+                    <span class="header-hash">#</span>
+                    <h3 id="current-channel-display">général</h3>
                 </header>
-
-                <div id="admin-panel" class="admin-bar hidden">
-                    <span class="admin-title">PANEL ADMINISTRATEUR</span>
-                    <button class="admin-btn">Gérer les membres</button>
-                    <button class="admin-btn">Broadcast</button>
-                </div>
-
                 <div id="chat-messages" class="chat-messages"></div>
-
                 <div class="chat-input-area">
                     <div class="chat-input-box">
-                        <button class="input-attach">+</button>
-                        <input type="text" id="msgInput" placeholder="Envoyer un message dans #général">
-                        <div class="input-actions">
-                            <button class="input-emoji">😊</button>
-                            <button id="sendBtn" class="input-send">➤</button>
-                        </div>
+                        <input type="text" id="msgInput" placeholder="Message...">
+                        <button id="sendBtn" class="input-send">➤</button>
                     </div>
                 </div>
             </main>
 
             <aside class="sidebar-members">
-                <div class="members-section">
-                    <div class="members-label">En ligne — 1</div>
-                    <div id="members-list" class="members-list"></div>
-                </div>
-                <div class="add-friend-section">
-                    <div class="add-friend-label">Ajouter un ami</div>
-                    <div class="add-friend-input">
-                        <input type="text" id="friendUser" placeholder="Username...">
-                        <button onclick="addFriend()">+</button>
-                    </div>
+                <div class="members-label">MEMBRES</div>
+                <div id="members-list" class="members-list"></div>
+                <div class="friend-zone">
+                    <input type="text" id="friendUser" placeholder="Ajouter ami...">
+                    <button onclick="addFriend()">+</button>
                 </div>
             </aside>
         </div>
     </section>
 
-    <!-- MODAL AUTH -->
     <div id="modal-container" class="modal-overlay hidden">
-        <div class="modal-backdrop" onclick="closeAuth()"></div>
         <div class="modal">
-            <div class="modal-logo">🚀</div>
-            <h2 id="modal-title" class="modal-title">Bienvenue</h2>
-            <p class="modal-sub">Heureux de vous revoir !</p>
-            
-            <div class="form-group" id="group-user">
-                <label>Nom d'utilisateur</label>
-                <input type="text" id="auth-user" placeholder="Ex: Fufu">
-            </div>
-            <div class="form-group">
-                <label>Adresse Email</label>
-                <input type="email" id="auth-email" placeholder="email@exemple.com">
-            </div>
-            <div class="form-group">
-                <label>Mot de passe</label>
-                <input type="password" id="auth-pass" placeholder="••••••••">
-            </div>
-            
-            <button id="auth-submit" class="btn-primary btn-full">Continuer</button>
-            <p id="auth-error" class="auth-error hidden"></p>
+            <h2 id="modal-title">Bienvenue</h2>
+            <div id="group-user" class="form-group"><input type="text" id="auth-user" placeholder="Pseudo"></div>
+            <div class="form-group"><input type="email" id="auth-email" placeholder="Email"></div>
+            <div class="form-group"><input type="password" id="auth-pass" placeholder="Password"></div>
+            <button id="auth-submit" class="btn-primary btn-full">Confirmer</button>
+            <button class="btn-ghost btn-full" onclick="closeAuth()">Annuler</button>
         </div>
     </div>
 
