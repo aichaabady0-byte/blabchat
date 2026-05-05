@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlabChat Space</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         /* ═══════════════════════════════ RESET & VARS ═══════════════════════════════ */
@@ -42,7 +44,8 @@
         .orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -120px; left: -80px; animation: drift 10s ease-in-out infinite alternate-reverse; }
         @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
         .top-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; z-index: 10; }
-        .logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-size: 1.2rem; letter-spacing: 2px; }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 38px; width: auto; display: block; }
         .auth-buttons { display: flex; gap: 10px; }
         .hero { position: relative; z-index: 5; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
         .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(3rem, 10vw, 6rem); font-weight: 800; line-height: 1; }
@@ -271,7 +274,10 @@
         <div class="orb orb-2"></div>
     </div>
     <nav class="top-nav">
-        <div class="logo">🚀 <span class="logo-text" style="font-family:'Syne',sans-serif;letter-spacing:2px;">BLABCHAT</span></div>
+        <!-- ✅ LOGO : remplacé par logo.png -->
+        <div class="logo">
+            <img src="logo.png" alt="BlabChat">
+        </div>
         <div class="auth-buttons">
             <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
             <button class="btn-primary" onclick="showAuth('register')">S'inscrire</button>
