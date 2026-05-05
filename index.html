@@ -4,210 +4,561 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlabChat Space</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════ RESET & VARS ═══════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg-base:     #0d0f13;
+            --bg-mid:      #13161c;
+            --bg-high:     #1a1e27;
+            --bg-card:     #1f2330;
+            --border:      #2a2f3f;
+            --accent:      #5b6af0;
+            --accent-glow: #5b6af040;
+            --accent2:     #e05bf0;
+            --green:       #3fd68f;
+            --red:         #f05b5b;
+            --yellow:      #f0c05b;
+            --txt-1:       #eef0f6;
+            --txt-2:       #8b92a8;
+            --txt-3:       #5a6075;
+            --radius:      10px;
+            --sidebar-w:   220px;
+            --server-w:    64px;
+            --member-w:    220px;
+        }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-base); color: var(--txt-1); height: 100dvh; overflow: hidden; }
+
+        /* ═══════════════════════════════ PAGE SYSTEM ═══════════════════════════════ */
+        .page { display: none; width: 100%; height: 100dvh; }
+        .page.active { display: flex; flex-direction: column; }
+
+        /* ═══════════════════════════════ DISCOVER ═══════════════════════════════ */
+        #page-discover { background: var(--bg-base); position: relative; overflow: hidden; align-items: center; justify-content: center; }
+        .bg-orbs { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .35; }
+        .orb-1 { width: 500px; height: 500px; background: var(--accent); top: -150px; right: -100px; animation: drift 8s ease-in-out infinite alternate; }
+        .orb-2 { width: 400px; height: 400px; background: var(--accent2); bottom: -120px; left: -80px; animation: drift 10s ease-in-out infinite alternate-reverse; }
+        @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
+        .top-nav { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; z-index: 10; }
+        .logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-size: 1.2rem; letter-spacing: 2px; }
+        .auth-buttons { display: flex; gap: 10px; }
+        .hero { position: relative; z-index: 5; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+        .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(3rem, 10vw, 6rem); font-weight: 800; line-height: 1; }
+        .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-sub { color: var(--txt-2); font-size: 1.1rem; }
+
+        /* ═══════════════════════════════ BUTTONS ═══════════════════════════════ */
+        .btn-primary { background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: var(--radius); font-family: inherit; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; font-size: .95rem; }
+        .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-ghost { background: transparent; color: var(--txt-2); border: 1px solid var(--border); padding: 10px 20px; border-radius: var(--radius); font-family: inherit; font-weight: 500; cursor: pointer; transition: color .15s, border-color .15s; font-size: .95rem; }
+        .btn-ghost:hover { color: var(--txt-1); border-color: var(--txt-3); }
+        .btn-large { padding: 14px 36px; font-size: 1.1rem; }
+        .btn-full { width: 100%; margin-top: 8px; }
+        .btn-danger { background: var(--red); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; cursor: pointer; font-size: .85rem; }
+        .btn-green { background: var(--green); color: #111; border: none; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-weight: 600; cursor: pointer; font-size: .85rem; }
+        .btn-icon { background: none; border: none; color: var(--txt-2); cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 1rem; transition: color .15s, background .15s; }
+        .btn-icon:hover { background: var(--bg-high); color: var(--txt-1); }
+        .btn-icon-logout { background: none; border: none; color: var(--txt-3); cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 1rem; transition: color .15s; }
+        .btn-icon-logout:hover { color: var(--red); }
+
+        /* ═══════════════════════════════ APP LAYOUT ═══════════════════════════════ */
+        #page-app { flex-direction: row; }
+        .app-layout { display: flex; flex: 1; overflow: hidden; width: 100%; height: 100dvh; }
+
+        /* ═══════════════════════════════ SIDEBAR SERVERS ═══════════════════════════════ */
+        .sidebar-servers { width: var(--server-w); background: var(--bg-base); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 6px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
+        .sidebar-servers::-webkit-scrollbar { display: none; }
+        .server-home { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: border-radius .2s, background .15s; }
+        .server-home:hover, .server-home.active { border-radius: 14px; background: var(--accent); }
+        .server-divider { width: 28px; height: 2px; background: var(--border); border-radius: 2px; margin: 4px 0; }
+        .server-list { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+        .server-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; font-weight: 700; color: var(--txt-1); transition: border-radius .2s, background .15s; position: relative; }
+        .server-icon:hover { border-radius: 14px; background: var(--accent); }
+        .server-icon.active { border-radius: 14px; background: var(--accent); }
+        .server-icon .notif-dot { position: absolute; bottom: -2px; right: -2px; width: 10px; height: 10px; background: var(--red); border-radius: 50%; border: 2px solid var(--bg-base); }
+        .server-add { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); border: 2px dashed var(--border); color: var(--green); font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-radius .2s, background .15s; margin-top: 4px; }
+        .server-add:hover { border-radius: 14px; background: var(--green); color: var(--bg-base); border-color: var(--green); }
+        .server-dm-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: border-radius .2s, background .15s; }
+        .server-dm-btn:hover, .server-dm-btn.active { border-radius: 14px; background: var(--accent2); }
+
+        /* ═══════════════════════════════ SIDEBAR CHANNELS ═══════════════════════════════ */
+        .sidebar-channels { width: var(--sidebar-w); background: var(--bg-mid); display: flex; flex-direction: column; flex-shrink: 0; }
+        .channels-header { padding: 16px 12px; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-1); display: flex; align-items: center; justify-content: space-between; }
+        .channels-header .header-actions { display: flex; gap: 4px; }
+        .channel-scroll { flex: 1; overflow-y: auto; padding: 8px 0; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .channel-category { margin: 12px 0 4px; padding: 0 8px; display: flex; align-items: center; justify-content: space-between; }
+        .channel-category-name { font-size: .7rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; cursor: pointer; }
+        .channel-category-name:hover { color: var(--txt-2); }
+        .channel-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; margin: 1px 6px; border-radius: 8px; cursor: pointer; color: var(--txt-2); font-size: .9rem; transition: background .12s, color .12s; }
+        .channel-item:hover { background: var(--bg-high); color: var(--txt-1); }
+        .channel-item.active { background: var(--bg-high); color: var(--txt-1); }
+        .channel-hash { color: var(--txt-3); font-size: 1.1rem; }
+        .channel-item .unread-badge { margin-left: auto; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+        .add-ch-btn { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: 1.1rem; padding: 2px 4px; border-radius: 4px; transition: color .12s; }
+        .add-ch-btn:hover { color: var(--txt-1); }
+        .user-bar { padding: 10px 8px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--bg-base); }
+        .user-bar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+        .user-bar-info { flex: 1; min-width: 0; }
+        .user-bar-name { display: block; font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-bar-status { font-size: .72rem; color: var(--green); }
+
+        /* DM list in sidebar */
+        .dm-section { padding: 8px 0; }
+        .dm-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 12px; margin: 1px 6px; border-radius: 8px; cursor: pointer; transition: background .12s; }
+        .dm-item:hover { background: var(--bg-high); }
+        .dm-item.active { background: var(--bg-high); }
+        .dm-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent2); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+        .dm-name { font-size: .88rem; color: var(--txt-2); }
+        .dm-item.active .dm-name, .dm-item:hover .dm-name { color: var(--txt-1); }
+        .dm-unread { margin-left: auto; background: var(--red); color: #fff; font-size: .7rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; }
+        .sidebar-section-label { padding: 8px 12px 4px; font-size: .7rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
+
+        /* ═══════════════════════════════ MAIN AREA ═══════════════════════════════ */
+        .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-mid); }
+        .main-header { padding: 0 16px; height: 52px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg-mid); }
+        .main-header-left { display: flex; align-items: center; gap: 10px; }
+        .header-hash { color: var(--txt-3); font-size: 1.3rem; }
+        .main-header h3 { font-size: 1rem; font-weight: 600; }
+        .header-actions { display: flex; gap: 6px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 2px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .chat-input-area { padding: 0 16px 16px; flex-shrink: 0; }
+        .chat-input-box { background: var(--bg-high); border-radius: 10px; display: flex; align-items: center; padding: 0 4px 0 14px; border: 1px solid var(--border); }
+        .chat-input-box input { flex: 1; background: none; border: none; outline: none; color: var(--txt-1); font-family: inherit; font-size: .95rem; padding: 12px 0; }
+        .chat-input-box input::placeholder { color: var(--txt-3); }
+        .input-send { background: var(--accent); border: none; color: #fff; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: opacity .15s; }
+        .input-send:hover { opacity: .8; }
+        .msg-line { display: flex; gap: 10px; padding: 4px 0; border-radius: 8px; transition: background .1s; }
+        .msg-line:hover { background: var(--bg-high); }
+        .msg-line.own-msg .msg-sender { color: var(--accent); }
+        .msg-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+        .msg-avatar-col { width: 34px; flex-shrink: 0; padding-top: 2px; }
+        .msg-sender { font-weight: 700; font-size: .88rem; margin-right: 8px; }
+        .msg-time { font-size: .72rem; color: var(--txt-3); }
+        .msg-text { font-size: .92rem; color: var(--txt-2); line-height: 1.5; word-break: break-word; }
+        .msg-text a { color: var(--accent); text-decoration: none; }
+        .msg-text a:hover { text-decoration: underline; }
+        .system-msg { padding: 6px 12px; color: var(--txt-3); font-size: .82rem; font-style: italic; text-align: center; }
+        .date-divider { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+        .date-divider::before, .date-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .date-divider span { font-size: .72rem; color: var(--txt-3); white-space: nowrap; }
+
+        /* ═══════════════════════════════ SIDEBAR MEMBERS ═══════════════════════════════ */
+        .sidebar-members { width: var(--member-w); background: var(--bg-mid); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .members-label { padding: 16px 12px 8px; font-size: .7rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; }
+        .members-list { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; flex: 1; }
+        .member-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: background .12s; }
+        .member-item:hover { background: var(--bg-high); }
+        .member-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; flex-shrink: 0; position: relative; }
+        .member-status { position: absolute; bottom: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); border: 2px solid var(--bg-mid); }
+        .member-status.offline { background: var(--txt-3); }
+        .member-name { font-size: .88rem; color: var(--txt-2); }
+        .member-role-badge { margin-left: auto; font-size: .65rem; padding: 1px 5px; border-radius: 6px; font-weight: 700; }
+        .friend-zone { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 6px; }
+        .friend-zone input { flex: 1; background: var(--bg-high); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; color: var(--txt-1); font-family: inherit; font-size: .85rem; outline: none; }
+        .friend-zone input::placeholder { color: var(--txt-3); }
+        .friend-zone button { background: var(--accent); color: #fff; border: none; border-radius: 8px; width: 32px; cursor: pointer; font-size: 1.1rem; }
+
+        /* ═══════════════════════════════ MODAL ═══════════════════════════════ */
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay.hidden { display: none; }
+        .modal-backdrop { position: absolute; inset: 0; background: #00000080; backdrop-filter: blur(4px); }
+        .modal { position: relative; z-index: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 380px; max-width: 95vw; display: flex; flex-direction: column; gap: 12px; max-height: 90dvh; overflow-y: auto; }
+        .modal-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: .8rem; font-weight: 600; color: var(--txt-2); }
+        .form-group input, .form-group select, .form-group textarea { background: var(--bg-high); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--txt-1); font-family: inherit; font-size: .95rem; outline: none; transition: border-color .15s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+        .form-group select option { background: var(--bg-card); }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .modal-desc { font-size: .85rem; color: var(--txt-2); line-height: 1.5; }
+        .invite-link-box { background: var(--bg-high); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: .85rem; color: var(--accent); word-break: break-all; cursor: pointer; transition: border-color .15s; }
+        .invite-link-box:hover { border-color: var(--accent); }
+
+        /* ═══════════════════════════════ TABS ═══════════════════════════════ */
+        .modal-tabs { display: flex; gap: 4px; background: var(--bg-high); border-radius: 10px; padding: 4px; }
+        .modal-tab { flex: 1; padding: 8px; border: none; background: none; color: var(--txt-2); font-family: inherit; font-size: .85rem; font-weight: 500; cursor: pointer; border-radius: 8px; transition: background .12s, color .12s; }
+        .modal-tab.active { background: var(--bg-card); color: var(--txt-1); font-weight: 700; }
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 12px; }
+
+        /* ═══════════════════════════════ FRIEND CARDS ═══════════════════════════════ */
+        .friend-card { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-high); border-radius: 10px; }
+        .friend-card-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+        .friend-card-info { flex: 1; min-width: 0; }
+        .friend-card-name { font-weight: 600; font-size: .9rem; }
+        .friend-card-status { font-size: .75rem; color: var(--txt-3); }
+        .friend-card-actions { display: flex; gap: 6px; }
+        .search-input { background: var(--bg-high); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--txt-1); font-family: inherit; font-size: .9rem; outline: none; width: 100%; transition: border-color .15s; }
+        .search-input:focus { border-color: var(--accent); }
+        .search-results { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+        .search-result-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg-high); border-radius: 8px; }
+        .empty-state { text-align: center; color: var(--txt-3); font-size: .85rem; padding: 20px 0; }
+
+        /* ═══════════════════════════════ ROLE MANAGEMENT ═══════════════════════════════ */
+        .role-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg-high); border-radius: 8px; }
+        .role-color { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+        .role-name { flex: 1; font-weight: 600; font-size: .9rem; }
+        .permission-grid { display: flex; flex-direction: column; gap: 8px; }
+        .permission-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg-high); border-radius: 8px; }
+        .permission-label { font-size: .88rem; }
+        .toggle { position: relative; width: 36px; height: 20px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 20px; cursor: pointer; transition: background .2s; }
+        .toggle-slider::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
+        .toggle input:checked + .toggle-slider { background: var(--accent); }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+        /* ═══════════════════════════════ NOTIFICATIONS ═══════════════════════════════ */
+        .notif-badge { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+        .notif { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; min-width: 240px; max-width: 320px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn .3s ease; box-shadow: 0 8px 24px #00000040; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .notif-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .notif-body { flex: 1; }
+        .notif-title { font-weight: 700; font-size: .85rem; margin-bottom: 2px; }
+        .notif-text { font-size: .8rem; color: var(--txt-2); }
+        .notif-close { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: .9rem; }
+
+        /* ═══════════════════════════════ JOIN SERVER PROMPT ═══════════════════════════════ */
+        .join-prompt { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
+        .join-prompt-icon { font-size: 2.5rem; }
+        .join-prompt h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; }
+
+        /* ═══════════════════════════════ ADMIN PANEL ═══════════════════════════════ */
+        .admin-section { border-top: 1px solid var(--border); padding-top: 12px; }
+        .admin-section-title { font-size: .8rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; margin-bottom: 8px; }
+
+        /* ═══════════════════════════════ WELCOME SCREEN ═══════════════════════════════ */
+        .welcome-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--txt-3); }
+        .welcome-screen h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; color: var(--txt-2); }
+
+        /* ═══════════════════════════════ MOBILE ═══════════════════════════════ */
+        .mobile-menu-btn { display: none; }
+        .mobile-drawer { display: none; }
+        .mobile-drawer-backdrop { display: none; }
+
+        @media (max-width: 960px) { .sidebar-members { display: none; } }
+        @media (max-width: 600px) {
+            .sidebar-channels, .sidebar-servers { display: none; }
+            .mobile-menu-btn { display: flex; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 6px; }
+            .hamburger-bar { width: 20px; height: 2px; background: var(--txt-2); border-radius: 2px; transition: transform .2s, opacity .2s; }
+            .mobile-menu-btn.is-open .hamburger-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+            .mobile-menu-btn.is-open .hamburger-bar:nth-child(2) { opacity: 0; }
+            .mobile-menu-btn.is-open .hamburger-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+            .mobile-drawer-backdrop { display: block; position: fixed; inset: 0; z-index: 100; background: #00000080; opacity: 0; pointer-events: none; transition: opacity .3s; }
+            .mobile-drawer-backdrop.visible { pointer-events: auto; }
+            .mobile-drawer-backdrop.open { opacity: 1; }
+            .mobile-drawer { display: flex; position: fixed; top: 0; left: 0; bottom: 0; z-index: 101; transform: translateX(-100%); transition: transform .3s ease; background: var(--bg-mid); }
+            .mobile-drawer.open { transform: translateX(0); }
+            .drawer-servers { width: 60px; background: var(--bg-base); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 6px; overflow-y: auto; scrollbar-width: none; }
+            .drawer-channels { width: 200px; display: flex; flex-direction: column; }
+            .drawer-header { padding: 14px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+            .drawer-title { font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700; letter-spacing: 1px; }
+            .drawer-close { background: none; border: none; color: var(--txt-2); cursor: pointer; font-size: 1rem; }
+            .drawer-channel-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+            .drawer-user-bar { padding: 10px 8px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--bg-base); }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- ══ PAGE DISCOVER ══ -->
-    <section id="page-discover" class="page active">
-        <div class="bg-orbs">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
+<!-- ══ PAGE DISCOVER ══ -->
+<section id="page-discover" class="page active">
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+    <nav class="top-nav">
+        <div class="logo">🚀 <span class="logo-text" style="font-family:'Syne',sans-serif;letter-spacing:2px;">BLABCHAT</span></div>
+        <div class="auth-buttons">
+            <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
+            <button class="btn-primary" onclick="showAuth('register')">S'inscrire</button>
         </div>
-        <nav class="top-nav">
-            <div class="logo">🚀 <span class="logo-text">BLABCHAT</span></div>
-            <div class="auth-buttons">
-                <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
-                <button class="btn-primary" onclick="showAuth('register')">S'inscrire</button>
-            </div>
-        </nav>
-        <main class="hero">
-            <h1 class="hero-title">Le Chat <span class="gradient-text">Premium</span></h1>
-            <p class="hero-sub">Propulsé par Firebase. Design par Fufu.</p>
-            <button class="btn-primary btn-large" onclick="showAuth('register')">Commencer</button>
-        </main>
-    </section>
+    </nav>
+    <main class="hero">
+        <h1 class="hero-title">Le Chat <span class="gradient-text">Premium</span></h1>
+        <p class="hero-sub">Serveurs, salons, rôles, messages privés.</p>
+        <button class="btn-primary btn-large" onclick="showAuth('register')">Commencer gratuitement</button>
+    </main>
+</section>
 
-    <!-- ══ PAGE APP ══ -->
-    <section id="page-app" class="page">
-
-        <!-- Backdrop du drawer mobile (caché sur ≥ 600px) -->
-        <div class="mobile-drawer-backdrop" aria-hidden="true"></div>
-
-        <!-- Drawer mobile : serveurs + salons (caché sur ≥ 600px) -->
-        <div class="mobile-drawer" role="dialog" aria-modal="true" aria-label="Navigation">
-
-            <!-- Colonne serveurs -->
-            <div class="drawer-servers">
-                <div class="server-home" onclick="switchServer('global', 'Général')">🏠</div>
-                <div class="server-divider"></div>
-                <div id="drawer-server-list" class="server-list"></div>
-                <button class="server-add" onclick="createNewServer()">+</button>
-            </div>
-
-            <!-- Colonne salons -->
-            <div class="drawer-channels">
-                <div class="drawer-header">
-                    <span id="drawer-server-name" class="drawer-title">GLOBAL</span>
-                    <button class="drawer-close" aria-label="Fermer le menu">✕</button>
-                </div>
-                <div class="drawer-channel-list">
-                    <div id="drawer-channel-list"></div>
-                </div>
-                <div class="drawer-user-bar">
-                    <div class="user-bar-avatar" id="drawer-my-avatar">?</div>
-                    <div class="user-bar-info">
-                        <span class="user-bar-name" id="drawer-my-name">...</span>
-                        <span class="user-bar-status">En ligne</span>
-                    </div>
-                    <button class="btn-icon-logout" onclick="logout()">✕</button>
-                </div>
-            </div>
+<!-- ══ PAGE APP ══ -->
+<section id="page-app" class="page">
+    <div class="mobile-drawer-backdrop" aria-hidden="true"></div>
+    <div class="mobile-drawer" role="dialog" aria-modal="true">
+        <div class="drawer-servers">
+            <div class="server-home" onclick="switchView('global')">🏠</div>
+            <div class="server-dm-btn" onclick="switchView('dm')">💬</div>
+            <div class="server-divider"></div>
+            <div id="drawer-server-list" class="server-list"></div>
+            <button class="server-add" onclick="createNewServer()">+</button>
         </div>
-
-        <!-- Layout principal -->
-        <div class="app-layout">
-
-            <!-- Sidebar serveurs (desktop ≥ 600px) -->
-            <aside class="sidebar-servers">
-                <div class="server-home" onclick="switchServer('global', 'Général')">🏠</div>
-                <div class="server-divider"></div>
-                <div id="server-list" class="server-list"></div>
-                <button class="server-add" onclick="createNewServer()">+</button>
-            </aside>
-
-            <!-- Sidebar salons (desktop ≥ 600px) -->
-            <aside class="sidebar-channels">
-                <div class="channels-header">
-                    <span id="current-server-name" class="channels-title">GLOBAL</span>
-                </div>
-                <div class="channel-group">
-                    <div class="channel-group-header">
-                        <span>SALONS</span>
-                        <button onclick="createNewChannel()" class="add-ch-btn">+</button>
-                    </div>
-                    <div id="channel-list"></div>
-                </div>
-                <div class="user-bar">
-                    <div class="user-bar-avatar" id="my-avatar">?</div>
-                    <div class="user-bar-info">
-                        <span class="user-bar-name" id="my-name">...</span>
-                        <span class="user-bar-status">En ligne</span>
-                    </div>
-                    <button class="btn-icon-logout" onclick="logout()">✕</button>
-                </div>
-            </aside>
-
-            <!-- Zone principale -->
-            <main class="main-area">
-                <header class="main-header">
-                    <div class="main-header-left">
-                        <!-- Bouton hamburger (mobile uniquement) -->
-                        <button class="mobile-menu-btn" aria-label="Ouvrir le menu" aria-expanded="false">
-                            <span class="hamburger-bar"></span>
-                            <span class="hamburger-bar"></span>
-                            <span class="hamburger-bar"></span>
-                        </button>
-                        <span class="header-hash">#</span>
-                        <h3 id="current-channel-display">général</h3>
-                    </div>
-                </header>
-
-                <div id="chat-messages" class="chat-messages"></div>
-
-                <div class="chat-input-area">
-                    <div class="chat-input-box">
-                        <input type="text" id="msgInput" placeholder="Message...">
-                        <button id="sendBtn" class="input-send">➤</button>
-                    </div>
-                </div>
-            </main>
-
-            <!-- Sidebar membres (desktop ≥ 960px) -->
-            <aside class="sidebar-members">
-                <div class="members-label">MEMBRES</div>
-                <div id="members-list" class="members-list"></div>
-                <div class="friend-zone">
-                    <input type="text" id="friendUser" placeholder="Ajouter ami...">
-                    <button onclick="addFriend()">+</button>
-                </div>
-            </aside>
-
-        </div>
-    </section>
-
-    <!-- ══ MODAL AUTH ══ -->
-    <div id="modal-container" class="modal-overlay hidden">
-        <div class="modal-backdrop" onclick="closeAuth()"></div>
-        <div class="modal">
-            <h2 id="modal-title" class="modal-title">Bienvenue</h2>
-            <div id="group-user" class="form-group">
-                <label>Pseudo</label>
-                <input type="text" id="auth-user" placeholder="Ton pseudo">
+        <div class="drawer-channels">
+            <div class="drawer-header">
+                <span id="drawer-server-name" class="drawer-title">GLOBAL</span>
+                <button class="drawer-close" aria-label="Fermer">✕</button>
             </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="auth-email" placeholder="ton@email.com">
+            <div class="drawer-channel-list" id="drawer-channel-list"></div>
+            <div class="drawer-user-bar">
+                <div class="user-bar-avatar" id="drawer-my-avatar">?</div>
+                <div class="user-bar-info">
+                    <span class="user-bar-name" id="drawer-my-name">...</span>
+                    <span class="user-bar-status">En ligne</span>
+                </div>
+                <button class="btn-icon-logout" onclick="logout()">✕</button>
             </div>
-            <div class="form-group">
-                <label>Mot de passe</label>
-                <input type="password" id="auth-pass" placeholder="••••••••">
-            </div>
-            <button id="auth-submit" class="btn-primary btn-full">Confirmer</button>
-            <button class="btn-ghost btn-full" onclick="closeAuth()">Annuler</button>
         </div>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <div class="app-layout">
+        <!-- Serveurs -->
+        <aside class="sidebar-servers">
+            <div class="server-home" onclick="switchView('global')" id="nav-home" title="Accueil">🏠</div>
+            <div class="server-dm-btn" onclick="switchView('dm')" id="nav-dm" title="Messages privés">💬</div>
+            <div class="server-divider"></div>
+            <div id="server-list" class="server-list"></div>
+            <button class="server-add" onclick="createNewServer()" title="Créer un serveur">+</button>
+        </aside>
 
-    <!-- Drawer controller (vanilla JS, pas besoin de module) -->
-    <script>
-    (function () {
-        const btn      = document.querySelector('.mobile-menu-btn');
-        const drawer   = document.querySelector('.mobile-drawer');
-        const backdrop = document.querySelector('.mobile-drawer-backdrop');
-        if (!btn || !drawer || !backdrop) return;
+        <!-- Salons / DMs -->
+        <aside class="sidebar-channels">
+            <div class="channels-header">
+                <span id="current-server-name" class="channels-title">GLOBAL</span>
+                <div class="header-actions" id="channel-header-actions"></div>
+            </div>
+            <div class="channel-scroll" id="channel-scroll">
+                <div id="channel-list"></div>
+            </div>
+            <div class="user-bar">
+                <div class="user-bar-avatar" id="my-avatar">?</div>
+                <div class="user-bar-info">
+                    <span class="user-bar-name" id="my-name">...</span>
+                    <span class="user-bar-status">En ligne</span>
+                </div>
+                <button class="btn-icon-logout" onclick="logout()" title="Déconnexion">✕</button>
+            </div>
+        </aside>
 
-        function openDrawer() {
-            backdrop.classList.add('visible');
-            requestAnimationFrame(() => {
-                backdrop.classList.add('open');
-                drawer.classList.add('open');
-                btn.classList.add('is-open');
-                btn.setAttribute('aria-expanded', 'true');
-            });
-            document.body.style.overflow = 'hidden';
-        }
+        <!-- Zone principale -->
+        <main class="main-area">
+            <header class="main-header">
+                <div class="main-header-left">
+                    <button class="mobile-menu-btn" aria-label="Menu" aria-expanded="false">
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span>
+                    </button>
+                    <span class="header-hash">#</span>
+                    <h3 id="current-channel-display">général</h3>
+                </div>
+                <div class="header-actions" id="main-header-actions"></div>
+            </header>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input-area" id="chat-input-area">
+                <div class="chat-input-box">
+                    <input type="text" id="msgInput" placeholder="Message...">
+                    <button id="sendBtn" class="input-send">➤</button>
+                </div>
+            </div>
+        </main>
 
-        function closeDrawer() {
-            backdrop.classList.remove('open');
-            drawer.classList.remove('open');
-            btn.classList.remove('is-open');
-            btn.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-            setTimeout(() => backdrop.classList.remove('visible'), 320);
-        }
+        <!-- Membres -->
+        <aside class="sidebar-members">
+            <div class="members-label">MEMBRES</div>
+            <div id="members-list" class="members-list"></div>
+            <div class="friend-zone">
+                <input type="text" id="friendUser" placeholder="Rechercher un ami...">
+                <button onclick="openFriendsModal()">👥</button>
+            </div>
+        </aside>
+    </div>
+</section>
 
-        btn.addEventListener('click', () =>
-            btn.classList.contains('is-open') ? closeDrawer() : openDrawer()
-        );
+<!-- ══ MODAL AUTH ══ -->
+<div id="modal-auth" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-auth')"></div>
+    <div class="modal">
+        <h2 id="modal-title" class="modal-title">Bienvenue</h2>
+        <div id="group-user" class="form-group">
+            <label>Pseudo</label>
+            <input type="text" id="auth-user" placeholder="Ton pseudo">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="auth-email" placeholder="ton@email.com">
+        </div>
+        <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" id="auth-pass" placeholder="••••••••">
+        </div>
+        <button id="auth-submit" class="btn-primary btn-full">Confirmer</button>
+        <button class="btn-ghost btn-full" onclick="closeModal('modal-auth')">Annuler</button>
+    </div>
+</div>
 
-        backdrop.addEventListener('click', closeDrawer);
+<!-- ══ MODAL FRIENDS ══ -->
+<div id="modal-friends" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-friends')"></div>
+    <div class="modal">
+        <h2 class="modal-title">👥 Amis & Recherche</h2>
+        <div class="modal-tabs">
+            <button class="modal-tab active" onclick="switchTab('friends','tab-myfriends')">Mes amis</button>
+            <button class="modal-tab" onclick="switchTab('friends','tab-requests')">Demandes</button>
+            <button class="modal-tab" onclick="switchTab('friends','tab-search')">Rechercher</button>
+        </div>
+        <div id="tab-myfriends" class="tab-content active"></div>
+        <div id="tab-requests" class="tab-content"></div>
+        <div id="tab-search" class="tab-content">
+            <input class="search-input" id="friend-search-input" placeholder="Pseudo ou email..." oninput="searchUsers(this.value)">
+            <div class="search-results" id="friend-search-results"><div class="empty-state">Tape pour chercher...</div></div>
+        </div>
+        <button class="btn-ghost btn-full" onclick="closeModal('modal-friends')">Fermer</button>
+    </div>
+</div>
 
-        const closeBtn = drawer.querySelector('.drawer-close');
-        if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+<!-- ══ MODAL SEARCH SERVERS ══ -->
+<div id="modal-search-servers" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-search-servers')"></div>
+    <div class="modal">
+        <h2 class="modal-title">🔍 Rejoindre un serveur</h2>
+        <div class="modal-tabs">
+            <button class="modal-tab active" onclick="switchTab('servers','tab-search-sv')">Rechercher</button>
+            <button class="modal-tab" onclick="switchTab('servers','tab-invite')">Lien d'invitation</button>
+        </div>
+        <div id="tab-search-sv" class="tab-content active">
+            <input class="search-input" id="server-search-input" placeholder="Nom du serveur..." oninput="searchServers(this.value)">
+            <div class="search-results" id="server-search-results"><div class="empty-state">Tape pour chercher...</div></div>
+        </div>
+        <div id="tab-invite" class="tab-content">
+            <p class="modal-desc">Colle le lien d'invitation que tu as reçu :</p>
+            <div class="form-group">
+                <label>Lien / Code</label>
+                <input type="text" id="invite-link-input" placeholder="blabchat.io/invite/XXXXXX ou code court">
+            </div>
+            <button class="btn-primary btn-full" onclick="joinByInviteLink()">Rejoindre →</button>
+        </div>
+        <button class="btn-ghost btn-full" onclick="closeModal('modal-search-servers')">Fermer</button>
+    </div>
+</div>
 
-        // Fermer le drawer quand on sélectionne un salon
-        drawer.querySelectorAll('.channel-item').forEach(item => {
-            item.addEventListener('click', () => setTimeout(closeDrawer, 120));
-        });
+<!-- ══ MODAL JOIN CONFIRM ══ -->
+<div id="modal-join-confirm" class="modal-overlay hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal">
+        <div class="join-prompt">
+            <div class="join-prompt-icon" id="join-confirm-icon">🏠</div>
+            <h3 id="join-confirm-name">Serveur</h3>
+            <p class="modal-desc" id="join-confirm-desc">Voulez-vous rejoindre ce serveur ?</p>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn-danger" onclick="closeModal('modal-join-confirm')">Non, merci</button>
+                <button class="btn-green" onclick="confirmJoinServer()">Oui, rejoindre !</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
-        });
-    })();
-    </script>
+<!-- ══ MODAL ADMIN ══ -->
+<div id="modal-admin" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-admin')"></div>
+    <div class="modal">
+        <h2 class="modal-title">⚙️ Administration</h2>
+        <div class="modal-tabs">
+            <button class="modal-tab active" onclick="switchTab('admin','tab-admin-channels')">Salons</button>
+            <button class="modal-tab" onclick="switchTab('admin','tab-admin-roles')">Rôles</button>
+            <button class="modal-tab" onclick="switchTab('admin','tab-admin-members')">Membres</button>
+            <button class="modal-tab" onclick="switchTab('admin','tab-admin-invite')">Invitation</button>
+        </div>
 
+        <!-- Salons & Catégories -->
+        <div id="tab-admin-channels" class="tab-content active">
+            <div class="admin-section">
+                <div class="admin-section-title">Catégories</div>
+                <div id="admin-category-list"></div>
+                <button class="btn-primary btn-full" style="margin-top:8px" onclick="createCategory()">+ Nouvelle catégorie</button>
+            </div>
+            <div class="admin-section">
+                <div class="admin-section-title">Créer un salon</div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="admin-channel-category"></select>
+                </div>
+                <div class="form-group">
+                    <label>Nom du salon</label>
+                    <input type="text" id="admin-channel-name" placeholder="nouveau-salon">
+                </div>
+                <button class="btn-primary btn-full" onclick="adminCreateChannel()">Créer le salon</button>
+            </div>
+        </div>
+
+        <!-- Rôles -->
+        <div id="tab-admin-roles" class="tab-content">
+            <div id="admin-role-list"></div>
+            <div class="admin-section">
+                <div class="admin-section-title">Nouveau rôle</div>
+                <div class="form-group">
+                    <label>Nom du rôle</label>
+                    <input type="text" id="new-role-name" placeholder="ex: Modérateur">
+                </div>
+                <div class="form-group">
+                    <label>Couleur</label>
+                    <input type="color" id="new-role-color" value="#5b6af0">
+                </div>
+                <div class="admin-section-title" style="margin-top:8px">Permissions</div>
+                <div class="permission-grid">
+                    <div class="permission-item"><span class="permission-label">Gérer les salons</span><label class="toggle"><input type="checkbox" id="perm-manage-channels"><span class="toggle-slider"></span></label></div>
+                    <div class="permission-item"><span class="permission-label">Gérer les membres</span><label class="toggle"><input type="checkbox" id="perm-manage-members"><span class="toggle-slider"></span></label></div>
+                    <div class="permission-item"><span class="permission-label">Supprimer des messages</span><label class="toggle"><input type="checkbox" id="perm-delete-messages"><span class="toggle-slider"></span></label></div>
+                    <div class="permission-item"><span class="permission-label">Envoyer des messages</span><label class="toggle"><input type="checkbox" id="perm-send-messages" checked><span class="toggle-slider"></span></label></div>
+                </div>
+                <button class="btn-primary btn-full" style="margin-top:8px" onclick="adminCreateRole()">Créer le rôle</button>
+            </div>
+        </div>
+
+        <!-- Membres -->
+        <div id="tab-admin-members" class="tab-content">
+            <div id="admin-members-list"></div>
+        </div>
+
+        <!-- Invitation -->
+        <div id="tab-admin-invite" class="tab-content">
+            <p class="modal-desc">Partage ce lien pour inviter des gens sur ton serveur :</p>
+            <div class="invite-link-box" id="invite-link-display" onclick="copyInviteLink()">Génération...</div>
+            <button class="btn-primary btn-full" onclick="copyInviteLink()">📋 Copier le lien</button>
+            <button class="btn-ghost btn-full" style="margin-top:4px" onclick="regenerateInvite()">🔄 Nouveau lien</button>
+        </div>
+
+        <button class="btn-ghost btn-full" onclick="closeModal('modal-admin')">Fermer</button>
+    </div>
+</div>
+
+<!-- ══ NOTIFICATIONS ══ -->
+<div id="notif-container" class="notif-badge"></div>
+
+<script type="module" src="app.js"></script>
+<script>
+(function () {
+    const btn = document.querySelector('.mobile-menu-btn');
+    const drawer = document.querySelector('.mobile-drawer');
+    const backdrop = document.querySelector('.mobile-drawer-backdrop');
+    if (!btn || !drawer || !backdrop) return;
+    function openDrawer() {
+        backdrop.classList.add('visible');
+        requestAnimationFrame(() => { backdrop.classList.add('open'); drawer.classList.add('open'); btn.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); });
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+        backdrop.classList.remove('open'); drawer.classList.remove('open'); btn.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(() => backdrop.classList.remove('visible'), 320);
+    }
+    btn.addEventListener('click', () => btn.classList.contains('is-open') ? closeDrawer() : openDrawer());
+    backdrop.addEventListener('click', closeDrawer);
+    const closeBtn = drawer.querySelector('.drawer-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer(); });
+})();
+</script>
 </body>
 </html>
