@@ -20,33 +20,53 @@ const firebaseConfig = {
     appId: "1:816965158155:web:54ba35107bd86f912b0e0e"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getDatabase(app);
 const auth = getAuth(app);
 
 /* ══════════════════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════════════════ */
-let currentView       = 'global';   // 'global' | 'dm' | serverID
+let currentView       = 'global';
 let currentServerId   = 'global';
 let currentChannelId  = 'general';
 let currentDmUserId   = null;
-let pendingJoinServer = null;        // { id, data } serveur à confirmer
-let activeListeners   = [];          // pour nettoyer les listeners Firebase
+let pendingJoinServer = null;
+let activeListeners   = [];
+
+// BlabPoints catalogue
+const BP_COLORS = [
+    { id: 'color-blue',   name: 'Bleu Néon',    color: '#5b6af0', price: 10 },
+    { id: 'color-pink',   name: 'Rose Vif',      color: '#e05bf0', price: 10 },
+    { id: 'color-green',  name: 'Vert Émeraude', color: '#3fd68f', price: 10 },
+    { id: 'color-red',    name: 'Rouge Feu',     color: '#f05b5b', price: 15 },
+    { id: 'color-gold',   name: 'Or',            color: '#f5c842', price: 20 },
+    { id: 'color-orange', name: 'Orange',        color: '#f09d28', price: 15 },
+];
+
+const BP_FONTS = [
+    { id: 'font-syne',  name: 'Syne Bold',   font: 'syne',  price: 20, preview: 'Syne' },
+    { id: 'font-mono',  name: 'Monospace',   font: 'mono',  price: 15, preview: 'Mono' },
+    { id: 'font-serif', name: 'Serif Élégant', font: 'serif', price: 15, preview: 'Serif' },
+];
+
+const BP_ANIMS = [
+    { id: 'anim-pulse',   name: 'Pulsation',  anim: 'pulse',   price: 25, emoji: '💓' },
+    { id: 'anim-rainbow', name: 'Arc-en-ciel', anim: 'rainbow', price: 35, emoji: '🌈' },
+    { id: 'anim-glow',    name: 'Halo',       anim: 'glow',    price: 30, emoji: '✨' },
+];
 
 /* ══════════════════════════════════════════════════════════════
    HELPERS
 ══════════════════════════════════════════════════════════════ */
 function esc(str = '') {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function uid() { return auth.currentUser?.uid || null; }
 function me()  { return auth.currentUser?.displayName || '?'; }
-
-function dmChannelId(uid1, uid2) {
-    return [uid1, uid2].sort().join('__');
-}
+function dmChannelId(uid1, uid2) { return [uid1, uid2].sort().join('__'); }
 
 function showNotif(icon, title, text, duration = 4000) {
     const container = document.getElementById('notif-container');
@@ -72,18 +92,15 @@ function stopListeners() {
    MODAL SYSTEM
 ══════════════════════════════════════════════════════════════ */
 window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 
-/* tab switcher */
-window.switchTab = (group, targetId) => {
-    const modal = document.getElementById(`tab-${targetId.replace('tab-','').split('-')[0]}`)?.closest('.modal')
-        || document.querySelector('.modal-overlay:not(.hidden) .modal');
+window.switchTab = (group, targetId, evt) => {
+    const modal = document.getElementById(targetId)?.closest('.modal');
     if (!modal) return;
     modal.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
     modal.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(targetId)?.classList.add('active');
-    event.target.classList.add('active');
+    if (evt?.target) evt.target.classList.add('active');
 };
 
 /* ══════════════════════════════════════════════════════════════
@@ -105,7 +122,8 @@ async function handleAuth(type) {
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: user });
             await set(ref(db, `users/${res.user.uid}`), {
-                username: user, email, status: 'online', createdAt: Date.now()
+                username: user, email, status: 'online',
+                createdAt: Date.now(), bp: 0
             });
         } else {
             await signInWithEmailAndPassword(auth, email, pass);
@@ -127,13 +145,14 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('page-discover').classList.remove('active');
         document.getElementById('page-app').classList.add('active');
-        document.getElementById('my-name').textContent = user.displayName;
-        document.getElementById('my-avatar').textContent = user.displayName[0].toUpperCase();
-        document.getElementById('drawer-my-name').textContent = user.displayName;
+        document.getElementById('my-name').textContent      = user.displayName;
+        document.getElementById('my-avatar').textContent    = user.displayName[0].toUpperCase();
+        document.getElementById('drawer-my-name').textContent   = user.displayName;
         document.getElementById('drawer-my-avatar').textContent = user.displayName[0].toUpperCase();
         initApp();
         listenFriendRequests();
         checkInviteInUrl();
+        listenBP();
     } else {
         document.getElementById('page-discover').classList.add('active');
         document.getElementById('page-app').classList.remove('active');
@@ -174,7 +193,6 @@ window.switchView = (view) => {
         renderMembersGlobal();
         document.getElementById('main-header-actions').innerHTML = '';
     } else {
-        // it's a server
         currentServerId = view;
         loadServerView(view);
     }
@@ -194,10 +212,9 @@ function renderGlobalChannels() {
     const list = document.getElementById('channel-list');
     list.innerHTML = '';
 
-    // default channels in global
     const defaults = [
-        { id: 'general', name: 'général' },
-        { id: 'random',  name: 'random' },
+        { id: 'general',  name: 'général' },
+        { id: 'random',   name: 'random' },
         { id: 'annonces', name: 'annonces' },
     ];
 
@@ -220,7 +237,6 @@ function renderGlobalChannels() {
         list.appendChild(div);
     });
 
-    // auto-load first
     currentChannelId = 'general';
     document.getElementById('current-channel-display').textContent = 'général';
     loadMessages('global', 'general');
@@ -237,7 +253,6 @@ async function loadServerView(serverId) {
 
     document.getElementById('current-server-name').textContent = serverData.name.toUpperCase();
 
-    // check if user is member
     const memberSnap = await get(ref(db, `servers/${serverId}/members/${uid()}`));
     if (!memberSnap.exists()) {
         showWelcomeScreen('🔒', 'Accès refusé', 'Tu n\'es pas membre de ce serveur.');
@@ -245,7 +260,6 @@ async function loadServerView(serverId) {
         return;
     }
 
-    // header actions
     const isOwner = serverData.owner === uid();
     document.getElementById('channel-header-actions').innerHTML =
         isOwner ? `<button class="btn-icon" onclick="openAdminPanel()" title="Administration">⚙️</button>` : '';
@@ -261,20 +275,12 @@ function renderServerChannels(serverId) {
     list.innerHTML = '';
 
     onValue(ref(db, `servers/${serverId}/categories`), (catSnap) => {
-        list.innerHTML = '';
         const categories = {};
         catSnap.forEach(c => { categories[c.key] = c.val(); });
-
-        // uncategorized label
-        const uncatLabel = document.createElement('div');
-        uncatLabel.className = 'sidebar-section-label';
-        uncatLabel.innerHTML = '<span>SALONS</span>';
-        list.appendChild(uncatLabel);
 
         onValue(ref(db, `servers/${serverId}/channels`), (chanSnap) => {
             list.innerHTML = '';
 
-            // Group by category
             const byCat = {};
             chanSnap.forEach(ch => {
                 const d = ch.val();
@@ -283,17 +289,14 @@ function renderServerChannels(serverId) {
                 byCat[cat].push({ id: ch.key, ...d });
             });
 
-            // Render categories
             Object.entries(categories).forEach(([catId, catData]) => {
                 const catDiv = document.createElement('div');
                 catDiv.className = 'channel-category';
                 catDiv.innerHTML = `<span class="channel-category-name">▾ ${esc(catData.name)}</span>`;
                 list.appendChild(catDiv);
-
                 (byCat[catId] || []).forEach(ch => appendChannelItem(list, ch, serverId));
             });
 
-            // No category
             if (byCat['none']?.length) {
                 const noCatLabel = document.createElement('div');
                 noCatLabel.className = 'channel-category';
@@ -302,7 +305,6 @@ function renderServerChannels(serverId) {
                 byCat['none'].forEach(ch => appendChannelItem(list, ch, serverId));
             }
 
-            // Auto-select first channel if none selected
             if (!currentChannelId || list.querySelector('.channel-item')) {
                 const first = list.querySelector('.channel-item');
                 if (first) first.click();
@@ -328,6 +330,26 @@ function appendChannelItem(list, ch, serverId) {
 /* ══════════════════════════════════════════════════════════════
    MESSAGES
 ══════════════════════════════════════════════════════════════ */
+async function getUserStyle(senderId) {
+    try {
+        const snap = await get(ref(db, `users/${senderId}/style`));
+        return snap.exists() ? snap.val() : {};
+    } catch { return {}; }
+}
+
+function buildSenderEl(senderName, senderId, style = {}) {
+    const color = style.color || '';
+    const font  = style.font  || '';
+    const anim  = style.anim  || '';
+    const span  = document.createElement('span');
+    span.className = 'msg-sender';
+    span.textContent = senderName;
+    if (color) span.style.color = color;
+    if (font)  span.dataset.font = font;
+    if (anim)  span.dataset.anim = anim;
+    return span;
+}
+
 function loadMessages(serverId, channelId) {
     stopListeners();
     const chatBox = document.getElementById('chat-messages');
@@ -335,15 +357,17 @@ function loadMessages(serverId, channelId) {
     document.getElementById('chat-input-area').style.display = '';
 
     const msgPath = `messages/${serverId}/${channelId}`;
-    let lastDate = null;
+    let lastDate   = null;
     let lastSender = null;
 
-    const listener = onChildAdded(ref(db, msgPath), (snap) => {
+    const listener = onChildAdded(ref(db, msgPath), async (snap) => {
         const m = snap.val();
         if (!m) return;
 
         // Date divider
-        const msgDate = m.timestamp ? new Date(m.timestamp).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }) : null;
+        const msgDate = m.timestamp
+            ? new Date(m.timestamp).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })
+            : null;
         if (msgDate && msgDate !== lastDate) {
             const div = document.createElement('div');
             div.className = 'date-divider';
@@ -352,22 +376,59 @@ function loadMessages(serverId, channelId) {
             lastDate = msgDate;
         }
 
-        const isOwn = m.sender === me();
+        const isOwn     = m.senderId === uid();
         const showAvatar = m.sender !== lastSender;
         lastSender = m.sender;
+        const time = m.timestamp
+            ? new Date(m.timestamp).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })
+            : '';
 
-        const time = m.timestamp ? new Date(m.timestamp).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }) : '';
+        // Fetch style
+        const style = m.senderId ? await getUserStyle(m.senderId) : {};
 
         const msgDiv = document.createElement('div');
         msgDiv.className = `msg-line ${isOwn ? 'own-msg' : ''}`;
-        msgDiv.innerHTML = `
-            <div class="msg-avatar-col">
-                ${showAvatar ? `<div class="msg-avatar">${esc(m.sender[0])}</div>` : ''}
-            </div>
-            <div class="msg-content-col">
-                ${showAvatar ? `<div class="msg-header"><span class="msg-sender">${esc(m.sender)}</span><span class="msg-time">${time}</span></div>` : ''}
-                <div class="msg-text">${formatMessage(m.text)}</div>
-            </div>`;
+
+        const avatarCol = document.createElement('div');
+        avatarCol.className = 'msg-avatar-col';
+        if (showAvatar) {
+            const av = document.createElement('div');
+            av.className = 'msg-avatar';
+            av.textContent = (m.sender || '?')[0].toUpperCase();
+            if (style.color) av.style.background = style.color;
+            avatarCol.appendChild(av);
+        }
+
+        const contentCol = document.createElement('div');
+        contentCol.className = 'msg-content-col';
+
+        if (showAvatar) {
+            const header = document.createElement('div');
+            header.className = 'msg-header';
+            const senderEl = buildSenderEl(m.sender || '?', m.senderId, style);
+            const timeEl   = document.createElement('span');
+            timeEl.className = 'msg-time';
+            timeEl.textContent = time;
+            header.appendChild(senderEl);
+            header.appendChild(timeEl);
+            contentCol.appendChild(header);
+        }
+
+        const textEl = document.createElement('div');
+        textEl.className = 'msg-text';
+        textEl.innerHTML = formatMessage(m.text);
+        contentCol.appendChild(textEl);
+
+        // Message actions (delete for own messages)
+        if (isOwn) {
+            const actions = document.createElement('div');
+            actions.className = 'msg-actions';
+            actions.innerHTML = `<button class="msg-action-btn" onclick="deleteMsg('${msgPath}','${snap.key}')">🗑</button>`;
+            msgDiv.appendChild(actions);
+        }
+
+        msgDiv.appendChild(avatarCol);
+        msgDiv.appendChild(contentCol);
         chatBox.appendChild(msgDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
     });
@@ -375,23 +436,27 @@ function loadMessages(serverId, channelId) {
     activeListeners.push([msgPath, listener]);
 }
 
+window.deleteMsg = async (path, key) => {
+    if (!confirm('Supprimer ce message ?')) return;
+    await remove(ref(db, `${path}/${key}`));
+};
+
 function formatMessage(text) {
     if (!text) return '';
-    // basic URL linkify
     return esc(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 }
 
-document.getElementById('sendBtn').onclick = sendMessage;
+document.getElementById('sendBtn').onclick   = sendMessage;
 document.getElementById('msgInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 
 function sendMessage() {
     const input = document.getElementById('msgInput');
-    const text = input.value.trim();
+    const text  = input.value.trim();
     if (!text || !auth.currentUser) return;
 
     if (currentDmUserId && currentView === 'dm') {
         const dmId = dmChannelId(uid(), currentDmUserId);
-        push(ref(db, `dm/${dmId}`), {
+        push(ref(db, `messages/dm/${dmId}`), {
             sender: me(), senderId: uid(), text, timestamp: serverTimestamp()
         });
     } else {
@@ -400,6 +465,7 @@ function sendMessage() {
         });
     }
     input.value = '';
+    awardBPForActivity();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -407,9 +473,9 @@ function sendMessage() {
 ══════════════════════════════════════════════════════════════ */
 function loadServers() {
     onValue(ref(db, 'servers'), (snap) => {
-        const list = document.getElementById('server-list');
+        const list  = document.getElementById('server-list');
         const dlist = document.getElementById('drawer-server-list');
-        list.innerHTML = '';
+        list.innerHTML  = '';
         dlist.innerHTML = '';
 
         snap.forEach(child => {
@@ -421,8 +487,8 @@ function loadServers() {
                 const div = document.createElement('div');
                 div.className = `server-icon ${currentServerId === child.key ? 'active' : ''}`;
                 div.innerText = s.icon || s.name[0].toUpperCase();
-                div.title = s.name;
-                div.onclick = () => switchView(child.key);
+                div.title     = s.name;
+                div.onclick   = () => switchView(child.key);
                 container.appendChild(div);
             });
         });
@@ -441,14 +507,13 @@ window.createNewServer = async () => {
         members: { [uid()]: { role: 'owner', joinedAt: Date.now() } },
         inviteCode: generateInviteCode()
     });
-    // create default channel
     await push(ref(db, `servers/${newRef.key}/channels`), { name: 'général', categoryId: null });
     switchView(newRef.key);
 };
 
 function generateInviteCode(len = 8) {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -469,9 +534,7 @@ window.searchServers = async (query) => {
     const found = [];
     snap.forEach(child => {
         const s = child.val();
-        if (s.name.toLowerCase().includes(query.toLowerCase())) {
-            found.push({ id: child.key, ...s });
-        }
+        if (s.name.toLowerCase().includes(query.toLowerCase())) found.push({ id: child.key, ...s });
     });
 
     if (!found.length) { results.innerHTML = '<div class="empty-state">Aucun serveur trouvé.</div>'; return; }
@@ -494,12 +557,9 @@ window.promptJoinServer = async (serverId) => {
     const snap = await get(ref(db, `servers/${serverId}`));
     if (!snap.exists()) return;
     pendingJoinServer = { id: serverId, data: snap.val() };
-
     document.getElementById('join-confirm-icon').textContent = snap.val().icon || snap.val().name[0];
     document.getElementById('join-confirm-name').textContent = snap.val().name;
-    document.getElementById('join-confirm-desc').textContent =
-        `Voulez-vous rejoindre le serveur "${snap.val().name}" ?`;
-
+    document.getElementById('join-confirm-desc').textContent = `Voulez-vous rejoindre le serveur "${snap.val().name}" ?`;
     closeModal('modal-search-servers');
     openModal('modal-join-confirm');
 };
@@ -516,7 +576,7 @@ window.confirmJoinServer = async () => {
 };
 
 window.joinByInviteLink = async () => {
-    const raw = document.getElementById('invite-link-input').value.trim();
+    const raw  = document.getElementById('invite-link-input').value.trim();
     const code = raw.includes('/') ? raw.split('/').pop() : raw;
     if (!code) return;
 
@@ -531,19 +591,17 @@ window.joinByInviteLink = async () => {
     pendingJoinServer = found;
     document.getElementById('join-confirm-icon').textContent = found.data.icon || found.data.name[0];
     document.getElementById('join-confirm-name').textContent = found.data.name;
-    document.getElementById('join-confirm-desc').textContent =
-        `Voulez-vous rejoindre le serveur "${found.data.name}" ?`;
+    document.getElementById('join-confirm-desc').textContent = `Voulez-vous rejoindre le serveur "${found.data.name}" ?`;
     closeModal('modal-search-servers');
     openModal('modal-join-confirm');
 };
 
 function checkInviteInUrl() {
     const params = new URLSearchParams(window.location.search);
-    const code = params.get('invite');
+    const code   = params.get('invite');
     if (code) {
         document.getElementById('invite-link-input').value = code;
         openModal('modal-search-servers');
-        // switch to invite tab
         document.getElementById('tab-search-sv').classList.remove('active');
         document.getElementById('tab-invite').classList.add('active');
     }
@@ -561,10 +619,10 @@ window.openAdminPanel = async () => {
 };
 
 async function loadAdminCategories() {
-    const snap = await get(ref(db, `servers/${currentServerId}/categories`));
-    const list = document.getElementById('admin-category-list');
+    const snap   = await get(ref(db, `servers/${currentServerId}/categories`));
+    const list   = document.getElementById('admin-category-list');
     const select = document.getElementById('admin-channel-category');
-    list.innerHTML = '';
+    list.innerHTML   = '';
     select.innerHTML = '<option value="">Sans catégorie</option>';
 
     snap.forEach(child => {
@@ -575,9 +633,8 @@ async function loadAdminCategories() {
             <span class="role-name">${esc(c.name)}</span>
             <button class="btn-danger" style="padding:4px 10px;font-size:.75rem" onclick="deleteCategory('${child.key}')">✕</button>`;
         list.appendChild(div);
-
         const opt = document.createElement('option');
-        opt.value = child.key;
+        opt.value       = child.key;
         opt.textContent = c.name;
         select.appendChild(opt);
     });
@@ -596,7 +653,7 @@ window.deleteCategory = async (catId) => {
 };
 
 window.adminCreateChannel = async () => {
-    const name = document.getElementById('admin-channel-name').value.trim();
+    const name       = document.getElementById('admin-channel-name').value.trim();
     const categoryId = document.getElementById('admin-channel-category').value || null;
     if (!name) return;
     await push(ref(db, `servers/${currentServerId}/channels`), {
@@ -612,14 +669,13 @@ async function loadAdminRoles() {
     list.innerHTML = '';
     if (!snap.exists()) { list.innerHTML = '<div class="empty-state">Aucun rôle créé.</div>'; return; }
     snap.forEach(child => {
-        const r = child.val();
+        const r   = child.val();
         const div = document.createElement('div');
         div.className = 'role-item';
         div.innerHTML = `
             <div class="role-color" style="background:${esc(r.color || '#888')}"></div>
             <span class="role-name">${esc(r.name)}</span>
             <div style="display:flex;gap:4px;margin-left:auto">
-                <button class="btn-ghost" style="font-size:.75rem;padding:4px 8px" onclick="editRolePermissions('${child.key}')">Perms</button>
                 <button class="btn-danger" style="padding:4px 10px;font-size:.75rem" onclick="deleteRole('${child.key}')">✕</button>
             </div>`;
         list.appendChild(div);
@@ -631,10 +687,10 @@ window.adminCreateRole = async () => {
     const color = document.getElementById('new-role-color').value;
     if (!name) return;
     const permissions = {
-        manageChannels:  document.getElementById('perm-manage-channels').checked,
-        manageMembers:   document.getElementById('perm-manage-members').checked,
-        deleteMessages:  document.getElementById('perm-delete-messages').checked,
-        sendMessages:    document.getElementById('perm-send-messages').checked,
+        manageChannels: document.getElementById('perm-manage-channels').checked,
+        manageMembers:  document.getElementById('perm-manage-members').checked,
+        deleteMessages: document.getElementById('perm-delete-messages').checked,
+        sendMessages:   document.getElementById('perm-send-messages').checked,
     };
     await push(ref(db, `servers/${currentServerId}/roles`), { name, color, permissions });
     document.getElementById('new-role-name').value = '';
@@ -647,25 +703,11 @@ window.deleteRole = async (roleId) => {
     loadAdminRoles();
 };
 
-window.editRolePermissions = async (roleId) => {
-    const snap = await get(ref(db, `servers/${currentServerId}/roles/${roleId}`));
-    if (!snap.exists()) return;
-    const r = snap.val();
-    // Simple inline update
-    const perms = r.permissions || {};
-    ['manage-channels','manage-members','delete-messages','send-messages'].forEach(p => {
-        const key = p.replace(/-([a-z])/g, (_,c) => c.toUpperCase());
-        const el = document.getElementById(`perm-${p}`);
-        if (el) el.checked = !!perms[key];
-    });
-    showNotif('ℹ️', 'Permissions', `Modifie et recrée le rôle pour l'instant.`);
-};
-
 async function loadAdminMembers() {
-    const snap = await get(ref(db, `servers/${currentServerId}/members`));
+    const snap      = await get(ref(db, `servers/${currentServerId}/members`));
     const rolesSnap = await get(ref(db, `servers/${currentServerId}/roles`));
-    const list = document.getElementById('admin-members-list');
-    list.innerHTML = '';
+    const list      = document.getElementById('admin-members-list');
+    list.innerHTML  = '';
 
     const roles = {};
     rolesSnap.forEach(r => { roles[r.key] = r.val(); });
@@ -676,7 +718,7 @@ async function loadAdminMembers() {
     for (const member of userIds) {
         const userSnap = await get(ref(db, `users/${member.uid}`));
         if (!userSnap.exists()) continue;
-        const u = userSnap.val();
+        const u   = userSnap.val();
         const div = document.createElement('div');
         div.className = 'friend-card';
         div.innerHTML = `
@@ -715,7 +757,7 @@ window.kickMember = async (memberId) => {
 ══════════════════════════════════════════════════════════════ */
 async function generateInviteLink() {
     const snap = await get(ref(db, `servers/${currentServerId}/inviteCode`));
-    let code = snap.val();
+    let code   = snap.val();
     if (!code) {
         code = generateInviteCode();
         await set(ref(db, `servers/${currentServerId}/inviteCode`), code);
@@ -746,7 +788,7 @@ function renderMembersGlobal() {
         const list = document.getElementById('members-list');
         list.innerHTML = '';
         snap.forEach(child => {
-            const u = child.val();
+            const u   = child.val();
             const div = document.createElement('div');
             div.className = 'member-item';
             div.innerHTML = `
@@ -754,34 +796,32 @@ function renderMembersGlobal() {
                     <div class="member-status ${u.status === 'online' ? '' : 'offline'}"></div>
                 </div>
                 <span class="member-name">${esc(u.username)}</span>`;
-            div.onclick = () => openDmWith(child.key, u.username);
+            div.onclick = () => { if (child.key !== uid()) openDmWith(child.key, u.username); };
             list.appendChild(div);
         });
     });
 }
 
 async function renderMembersServer(serverId) {
-    const snap = await get(ref(db, `servers/${serverId}/members`));
+    const snap      = await get(ref(db, `servers/${serverId}/members`));
     const rolesSnap = await get(ref(db, `servers/${serverId}/roles`));
-    const list = document.getElementById('members-list');
-    list.innerHTML = '';
+    const list      = document.getElementById('members-list');
+    list.innerHTML  = '';
 
     const roles = {};
     rolesSnap.forEach(r => { roles[r.key] = r.val(); });
 
     const promises = [];
     snap.forEach(m => {
-        promises.push(
-            get(ref(db, `users/${m.key}`)).then(u => ({ uid: m.key, member: m.val(), user: u.val() }))
-        );
+        promises.push(get(ref(db, `users/${m.key}`)).then(u => ({ uid: m.key, member: m.val(), user: u.val() })));
     });
 
     const all = await Promise.all(promises);
     all.forEach(({ uid: memberId, member, user }) => {
         if (!user) return;
-        const div = document.createElement('div');
+        const div   = document.createElement('div');
         div.className = 'member-item';
-        const role = member.roleId && roles[member.roleId];
+        const role  = member.roleId && roles[member.roleId];
         div.innerHTML = `
             <div class="member-avatar">${esc(user.username[0])}
                 <div class="member-status ${user.status === 'online' ? '' : 'offline'}"></div>
@@ -801,7 +841,6 @@ function renderDmSidebar() {
     list.innerHTML = '<div class="sidebar-section-label"><span>MESSAGES PRIVÉS</span></div>';
     document.getElementById('members-list').innerHTML = '';
 
-    // Listen to friends list to show DM shortcuts
     onValue(ref(db, `users/${uid()}/friends`), async (snap) => {
         list.querySelectorAll('.dm-item').forEach(el => el.remove());
         const promises = [];
@@ -821,7 +860,6 @@ function renderDmSidebar() {
             div.onclick = () => openDmWith(fid, user.username);
             list.appendChild(div);
         });
-
         if (!friends.length) {
             const empty = document.createElement('div');
             empty.className = 'empty-state';
@@ -834,7 +872,7 @@ function renderDmSidebar() {
 
 function openDmWith(userId, username) {
     currentDmUserId = userId;
-    currentView = 'dm';
+    currentView     = 'dm';
 
     document.getElementById('nav-dm').classList.add('active');
     document.getElementById('current-channel-display').textContent = username;
@@ -858,7 +896,7 @@ window.openFriendsModal = () => {
 };
 
 async function loadMyFriends() {
-    const snap = await get(ref(db, `users/${uid()}/friends`));
+    const snap      = await get(ref(db, `users/${uid()}/friends`));
     const container = document.getElementById('tab-myfriends');
     container.innerHTML = '';
 
@@ -866,9 +904,8 @@ async function loadMyFriends() {
 
     const promises = [];
     snap.forEach(child => {
-        if (child.val() === 'accepted') {
+        if (child.val() === 'accepted')
             promises.push(get(ref(db, `users/${child.key}`)).then(u => ({ uid: child.key, user: u.val() })));
-        }
     });
 
     const friends = await Promise.all(promises);
@@ -901,9 +938,8 @@ async function loadFriendRequests() {
 
     const promises = [];
     snap.forEach(child => {
-        if (child.val() === 'pending') {
+        if (child.val() === 'pending')
             promises.push(get(ref(db, `users/${child.key}`)).then(u => ({ uid: child.key, user: u.val() })));
-        }
     });
 
     const reqs = await Promise.all(promises);
@@ -934,13 +970,11 @@ window.searchUsers = async (query) => {
     const snap = await get(ref(db, 'users'));
     results.innerHTML = '';
     let count = 0;
-
     snap.forEach(child => {
         if (child.key === uid()) return;
         const u = child.val();
         if (!u.username?.toLowerCase().includes(query.toLowerCase()) &&
             !u.email?.toLowerCase().includes(query.toLowerCase())) return;
-
         count++;
         const div = document.createElement('div');
         div.className = 'search-result-item';
@@ -950,21 +984,17 @@ window.searchUsers = async (query) => {
             <button class="btn-primary" style="font-size:.8rem;padding:6px 12px" onclick="sendFriendRequest('${child.key}','${esc(u.username)}')">+ Ami</button>`;
         results.appendChild(div);
     });
-
     if (!count) results.innerHTML = '<div class="empty-state">Aucun utilisateur trouvé.</div>';
 };
 
 window.sendFriendRequest = async (targetId, targetName) => {
-    // write request in target's node
     await set(ref(db, `users/${targetId}/friendRequests/${uid()}`), 'pending');
     showNotif('📨', 'Demande envoyée', `Demande d'amitié envoyée à ${targetName}.`);
 };
 
 window.acceptFriendRequest = async (requesterId, requesterName) => {
-    // mutual friendship
     await set(ref(db, `users/${uid()}/friends/${requesterId}`), 'accepted');
     await set(ref(db, `users/${requesterId}/friends/${uid()}`), 'accepted');
-    // clear request
     await remove(ref(db, `users/${uid()}/friendRequests/${requesterId}`));
     showNotif('🎉', 'Ami ajouté !', `${requesterName} est maintenant ton ami.`);
     loadMyFriends();
@@ -984,22 +1014,227 @@ window.removeFriend = async (friendId) => {
     showNotif('👋', 'Ami retiré', 'Cette personne n\'est plus dans ta liste d\'amis.');
 };
 
-/* Listen for new friend requests (real-time) */
 function listenFriendRequests() {
     onChildAdded(ref(db, `users/${uid()}/friendRequests`), async (snap) => {
         if (snap.val() !== 'pending') return;
         const userSnap = await get(ref(db, `users/${snap.key}`));
         if (!userSnap.exists()) return;
-        const u = userSnap.val();
-        showNotif('👥', 'Demande d\'ami', `${u.username} veut être ton ami !`);
+        showNotif('👥', 'Demande d\'ami', `${userSnap.val().username} veut être ton ami !`);
     });
 }
 
 /* ══════════════════════════════════════════════════════════════
-   LEGACY COMPAT (called from HTML if needed)
+   BLABPOINTS — BALANCE
+══════════════════════════════════════════════════════════════ */
+let _currentBP = 0;
+
+function listenBP() {
+    onValue(ref(db, `users/${uid()}/bp`), (snap) => {
+        _currentBP = snap.val() || 0;
+        document.getElementById('user-bp-count').textContent  = `⭐ ${_currentBP}`;
+        const bal = document.getElementById('bp-modal-balance');
+        if (bal) bal.innerHTML = `${_currentBP} <span>BP</span>`;
+    });
+}
+
+async function addBP(amount) {
+    const newVal = _currentBP + amount;
+    await set(ref(db, `users/${uid()}/bp`), newVal);
+}
+
+async function spendBP(amount) {
+    if (_currentBP < amount) return false;
+    await set(ref(db, `users/${uid()}/bp`), _currentBP - amount);
+    return true;
+}
+
+// Small passive reward for sending messages (1 BP every 10 messages, tracked locally)
+let _msgsSinceLastBP = 0;
+async function awardBPForActivity() {
+    _msgsSinceLastBP++;
+    if (_msgsSinceLastBP >= 10) {
+        _msgsSinceLastBP = 0;
+        await addBP(1);
+        showNotif('⭐', '+1 BlabPoint', 'Tu es actif(ve) ! Continue comme ça.');
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BLABPOINTS — DAILY REWARD
+══════════════════════════════════════════════════════════════ */
+window.claimDailyBP = async () => {
+    const today    = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const lastSnap = await get(ref(db, `users/${uid()}/lastDailyClaim`));
+    const last     = lastSnap.val();
+
+    if (last === today) {
+        showNotif('⏳', 'Déjà réclamé', 'Reviens demain pour ta récompense quotidienne.');
+        return;
+    }
+
+    await addBP(5);
+    await set(ref(db, `users/${uid()}/lastDailyClaim`), today);
+    showNotif('🎁', '+5 BlabPoints !', 'Récompense quotidienne réclamée. À demain !');
+    refreshDailyUI(today);
+};
+
+async function refreshDailyUI(todayOverride) {
+    const today    = todayOverride || new Date().toISOString().slice(0, 10);
+    const lastSnap = await get(ref(db, `users/${uid()}/lastDailyClaim`));
+    const last     = lastSnap.val();
+    const claimed  = last === today;
+
+    const btn   = document.getElementById('daily-claim-btn');
+    const label = document.getElementById('daily-reward-label');
+    const sub   = document.getElementById('daily-reward-sub');
+    if (!btn) return;
+
+    if (claimed) {
+        btn.disabled     = true;
+        label.textContent = 'Récompense déjà réclamée aujourd\'hui';
+        sub.textContent   = 'Reviens demain pour +5 BP.';
+    } else {
+        btn.disabled     = false;
+        label.textContent = 'Récompense quotidienne disponible !';
+        sub.textContent   = 'Tu peux récupérer tes 5 BlabPoints aujourd\'hui.';
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BLABPOINTS — SHOP
+══════════════════════════════════════════════════════════════ */
+window.openBPShop = async () => {
+    openModal('modal-bp-shop');
+
+    // Update balance display
+    document.getElementById('bp-modal-balance').innerHTML = `${_currentBP} <span>BP</span>`;
+
+    // Update preview names
+    const previewName = me();
+    ['profile-preview-name','profile-preview-name-font','profile-preview-name-anim'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = previewName;
+    });
+
+    // Load user's existing style + owned items
+    const styleSnap  = await get(ref(db, `users/${uid()}/style`));
+    const style       = styleSnap.exists() ? styleSnap.val() : {};
+    const ownedSnap  = await get(ref(db, `users/${uid()}/owned`));
+    const owned       = ownedSnap.exists() ? ownedSnap.val() : {};
+
+    // Apply current style to previews
+    applyStyleToPreview('profile-preview-name',      style);
+    applyStyleToPreview('profile-preview-name-font', style);
+    applyStyleToPreview('profile-preview-name-anim', style);
+
+    renderColorShop(owned, style);
+    renderFontShop(owned, style);
+    renderAnimShop(owned, style);
+    refreshDailyUI();
+};
+
+function applyStyleToPreview(elId, style) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.style.color   = style.color || '';
+    el.dataset.font  = style.font  || '';
+    el.dataset.anim  = style.anim  || '';
+}
+
+function renderColorShop(owned, style) {
+    const grid = document.getElementById('shop-cosmetics-grid');
+    grid.innerHTML = '';
+    BP_COLORS.forEach(item => {
+        const isOwned    = !!owned[item.id];
+        const isEquipped = style.color === item.color;
+        const div = document.createElement('div');
+        div.className = `shop-item ${isOwned ? 'owned' : ''}`;
+        div.innerHTML = `
+            <div class="shop-item-icon" style="color:${item.color}">🎨</div>
+            <div class="shop-item-name">${esc(item.name)}</div>
+            <div class="shop-item-desc">Couleur de ton pseudo dans le chat.</div>
+            <div class="shop-item-price">⭐ ${item.price} BP</div>
+            ${isOwned
+                ? `<button class="btn-bp" onclick="equipColor('${item.color}')" ${isEquipped ? 'disabled' : ''}>${isEquipped ? 'Équipé' : 'Équiper'}</button>`
+                : `<button class="btn-bp" onclick="buyItem('${item.id}',${item.price},'color','${item.color}')">Acheter</button>`}`;
+        grid.appendChild(div);
+    });
+}
+
+function renderFontShop(owned, style) {
+    const grid = document.getElementById('shop-fonts-grid');
+    grid.innerHTML = '';
+    BP_FONTS.forEach(item => {
+        const isOwned    = !!owned[item.id];
+        const isEquipped = style.font === item.font;
+        const div = document.createElement('div');
+        div.className = `shop-item ${isOwned ? 'owned' : ''}`;
+        div.innerHTML = `
+            <div class="shop-item-icon">✍️</div>
+            <div class="shop-item-name">${esc(item.name)}</div>
+            <div class="shop-item-desc" data-font="${item.font}" style="${item.font === 'syne' ? 'font-family:Syne,sans-serif' : item.font === 'mono' ? 'font-family:monospace' : 'font-family:Georgia,serif'}">${esc(item.preview)}</div>
+            <div class="shop-item-price">⭐ ${item.price} BP</div>
+            ${isOwned
+                ? `<button class="btn-bp" onclick="equipFont('${item.font}')" ${isEquipped ? 'disabled' : ''}>${isEquipped ? 'Équipé' : 'Équiper'}</button>`
+                : `<button class="btn-bp" onclick="buyItem('${item.id}',${item.price},'font','${item.font}')">Acheter</button>`}`;
+        grid.appendChild(div);
+    });
+}
+
+function renderAnimShop(owned, style) {
+    const grid = document.getElementById('shop-anims-grid');
+    grid.innerHTML = '';
+    BP_ANIMS.forEach(item => {
+        const isOwned    = !!owned[item.id];
+        const isEquipped = style.anim === item.anim;
+        const div = document.createElement('div');
+        div.className = `shop-item ${isOwned ? 'owned' : ''}`;
+        div.innerHTML = `
+            <div class="shop-item-icon">${item.emoji}</div>
+            <div class="shop-item-name">${esc(item.name)}</div>
+            <div class="shop-item-desc">Animation appliquée à ton pseudo.</div>
+            <div class="shop-item-price">⭐ ${item.price} BP</div>
+            ${isOwned
+                ? `<button class="btn-bp" onclick="equipAnim('${item.anim}')" ${isEquipped ? 'disabled' : ''}>${isEquipped ? 'Équipé' : 'Équiper'}</button>`
+                : `<button class="btn-bp" onclick="buyItem('${item.id}',${item.price},'anim','${item.anim}')">Acheter</button>`}`;
+        grid.appendChild(div);
+    });
+}
+
+/* Buy → equip immediately */
+window.buyItem = async (itemId, price, type, value) => {
+    const ok = await spendBP(price);
+    if (!ok) { showNotif('❌', 'Pas assez de BP', `Il te faut ${price} BlabPoints.`); return; }
+
+    // Mark as owned
+    await set(ref(db, `users/${uid()}/owned/${itemId}`), true);
+
+    // Equip
+    await update(ref(db, `users/${uid()}/style`), { [type]: value });
+    showNotif('🎉', 'Achat réussi !', 'L\'item a été acheté et équipé.');
+    openBPShop(); // refresh
+};
+
+window.equipColor = async (color) => {
+    await update(ref(db, `users/${uid()}/style`), { color });
+    openBPShop();
+};
+window.equipFont = async (font) => {
+    await update(ref(db, `users/${uid()}/style`), { font });
+    openBPShop();
+};
+window.equipAnim = async (anim) => {
+    await update(ref(db, `users/${uid()}/style`), { anim });
+    openBPShop();
+};
+
+/* ══════════════════════════════════════════════════════════════
+   LEGACY COMPAT
 ══════════════════════════════════════════════════════════════ */
 window.createNewChannel = () => {
     const name = prompt('Nom du salon ?');
     if (!name?.trim()) return;
-    push(ref(db, `servers/${currentServerId}/channels`), { name: name.trim().toLowerCase().replace(/\s+/g,'-'), categoryId: null });
+    push(ref(db, `servers/${currentServerId}/channels`), {
+        name: name.trim().toLowerCase().replace(/\s+/g, '-'), categoryId: null
+    });
 };
