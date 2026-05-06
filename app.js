@@ -68,6 +68,50 @@ function uid() { return auth.currentUser?.uid || null; }
 function me()  { return auth.currentUser?.displayName || '?'; }
 function dmChannelId(uid1, uid2) { return [uid1, uid2].sort().join('__'); }
 
+/* ══════════════════════════════════════════════════════════════
+   VERIFIED BADGE HELPER
+══════════════════════════════════════════════════════════════ */
+/**
+ * Returns an <img> element for the verified badge, or null if not verified.
+ * Usage: const badge = verifiedBadge(isVerified); if (badge) el.appendChild(badge);
+ */
+function verifiedBadge(isVerified = false) {
+    if (!isVerified) return null;
+    const img = document.createElement('img');
+    img.src       = 'verified.png';
+    img.alt       = 'Vérifié';
+    img.title     = 'Compte vérifié';
+    img.className = 'verified-badge';
+    return img;
+}
+
+/**
+ * Returns an HTML string for the verified badge (for use in innerHTML contexts).
+ */
+function verifiedBadgeHTML(isVerified = false) {
+    if (!isVerified) return '';
+    return `<img src="verified.png" alt="Vérifié" title="Compte vérifié" class="verified-badge">`;
+}
+
+// Cache verified status to avoid repeated DB reads
+const _verifiedCache = {};
+
+async function isUserVerified(userId) {
+    if (_verifiedCache[userId] !== undefined) return _verifiedCache[userId];
+    try {
+        const snap = await get(ref(db, `users/${userId}/verified`));
+        _verifiedCache[userId] = snap.val() === true;
+        return _verifiedCache[userId];
+    } catch { return false; }
+}
+
+async function isServerVerified(serverId) {
+    try {
+        const snap = await get(ref(db, `servers/${serverId}/verified`));
+        return snap.val() === true;
+    } catch { return false; }
+}
+
 function showNotif(icon, title, text, duration = 4000) {
     const container = document.getElementById('notif-container');
     const div = document.createElement('div');
@@ -123,7 +167,8 @@ async function handleAuth(type) {
             await updateProfile(res.user, { displayName: user });
             await set(ref(db, `users/${res.user.uid}`), {
                 username: user, email, status: 'online',
-                createdAt: Date.now(), bp: 0
+                createdAt: Date.now(), bp: 0,
+                verified: false  // default: not verified
             });
         } else {
             await signInWithEmailAndPassword(auth, email, pass);
@@ -141,7 +186,7 @@ window.logout = async () => {
 /* ══════════════════════════════════════════════════════════════
    AUTH STATE
 ══════════════════════════════════════════════════════════════ */
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         document.getElementById('page-discover').classList.remove('active');
         document.getElementById('page-app').classList.add('active');
@@ -149,6 +194,17 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('my-avatar').textContent    = user.displayName[0].toUpperCase();
         document.getElementById('drawer-my-name').textContent   = user.displayName;
         document.getElementById('drawer-my-avatar').textContent = user.displayName[0].toUpperCase();
+
+        // Show verified badge next to username in user bar if applicable
+        const verified = await isUserVerified(user.uid);
+        const myNameEl = document.getElementById('my-name');
+        // Remove existing badge if any
+        myNameEl.parentNode.querySelectorAll('.verified-badge').forEach(b => b.remove());
+        if (verified) {
+            const badge = verifiedBadge(true);
+            myNameEl.parentNode.insertBefore(badge, myNameEl.nextSibling);
+        }
+
         initApp();
         listenFriendRequests();
         checkInviteInUrl();
@@ -251,7 +307,15 @@ async function loadServerView(serverId) {
     if (!snap.exists()) return;
     const serverData = snap.val();
 
-    document.getElementById('current-server-name').textContent = serverData.name.toUpperCase();
+    // Server name with optional verified badge
+    const serverNameEl = document.getElementById('current-server-name');
+    serverNameEl.textContent = serverData.name.toUpperCase();
+    // Remove old badge
+    serverNameEl.parentNode.querySelectorAll('.verified-badge').forEach(b => b.remove());
+    if (serverData.verified === true) {
+        const badge = verifiedBadge(true);
+        serverNameEl.parentNode.insertBefore(badge, serverNameEl.nextSibling);
+    }
 
     const memberSnap = await get(ref(db, `servers/${serverId}/members/${uid()}`));
     if (!memberSnap.exists()) {
@@ -337,7 +401,7 @@ async function getUserStyle(senderId) {
     } catch { return {}; }
 }
 
-function buildSenderEl(senderName, senderId, style = {}) {
+function buildSenderEl(senderName, senderId, style = {}, verified = false) {
     const color = style.color || '';
     const font  = style.font  || '';
     const anim  = style.anim  || '';
@@ -347,7 +411,16 @@ function buildSenderEl(senderName, senderId, style = {}) {
     if (color) span.style.color = color;
     if (font)  span.dataset.font = font;
     if (anim)  span.dataset.anim = anim;
-    return span;
+
+    // Wrap sender + badge in a flex container
+    const wrapper = document.createElement('span');
+    wrapper.className = 'msg-sender-wrap';
+    wrapper.appendChild(span);
+    if (verified) {
+        const badge = verifiedBadge(true);
+        wrapper.appendChild(badge);
+    }
+    return wrapper;
 }
 
 function loadMessages(serverId, channelId) {
@@ -383,8 +456,9 @@ function loadMessages(serverId, channelId) {
             ? new Date(m.timestamp).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })
             : '';
 
-        // Fetch style
-        const style = m.senderId ? await getUserStyle(m.senderId) : {};
+        // Fetch style and verified status
+        const style    = m.senderId ? await getUserStyle(m.senderId) : {};
+        const verified = m.senderId ? await isUserVerified(m.senderId) : false;
 
         const msgDiv = document.createElement('div');
         msgDiv.className = `msg-line ${isOwn ? 'own-msg' : ''}`;
@@ -396,7 +470,23 @@ function loadMessages(serverId, channelId) {
             av.className = 'msg-avatar';
             av.textContent = (m.sender || '?')[0].toUpperCase();
             if (style.color) av.style.background = style.color;
-            avatarCol.appendChild(av);
+            // Small verified badge on avatar
+            if (verified) {
+                av.style.position = 'relative';
+                const avWrap = document.createElement('div');
+                avWrap.style.position = 'relative';
+                avWrap.style.display = 'inline-block';
+                avWrap.appendChild(av);
+                const miniVerified = document.createElement('img');
+                miniVerified.src = 'verified.png';
+                miniVerified.className = 'verified-badge-avatar';
+                miniVerified.alt = 'Vérifié';
+                miniVerified.title = 'Compte vérifié';
+                avWrap.appendChild(miniVerified);
+                avatarCol.appendChild(avWrap);
+            } else {
+                avatarCol.appendChild(av);
+            }
         }
 
         const contentCol = document.createElement('div');
@@ -405,7 +495,7 @@ function loadMessages(serverId, channelId) {
         if (showAvatar) {
             const header = document.createElement('div');
             header.className = 'msg-header';
-            const senderEl = buildSenderEl(m.sender || '?', m.senderId, style);
+            const senderEl = buildSenderEl(m.sender || '?', m.senderId, style, verified);
             const timeEl   = document.createElement('span');
             timeEl.className = 'msg-time';
             timeEl.textContent = time;
@@ -484,12 +574,28 @@ function loadServers() {
             if (!isMember) return;
 
             [list, dlist].forEach(container => {
+                const wrap = document.createElement('div');
+                wrap.style.position = 'relative';
+                wrap.style.display  = 'inline-block';
+
                 const div = document.createElement('div');
                 div.className = `server-icon ${currentServerId === child.key ? 'active' : ''}`;
                 div.innerText = s.icon || s.name[0].toUpperCase();
-                div.title     = s.name;
+                div.title     = s.name + (s.verified ? ' ✓ Vérifié' : '');
                 div.onclick   = () => switchView(child.key);
-                container.appendChild(div);
+                wrap.appendChild(div);
+
+                // Verified badge on server icon
+                if (s.verified === true) {
+                    const badge = document.createElement('img');
+                    badge.src = 'verified.png';
+                    badge.className = 'verified-badge-server-icon';
+                    badge.alt = 'Serveur vérifié';
+                    badge.title = 'Serveur vérifié';
+                    wrap.appendChild(badge);
+                }
+
+                container.appendChild(wrap);
             });
         });
     });
@@ -505,7 +611,8 @@ window.createNewServer = async () => {
         owner: uid(),
         createdAt: Date.now(),
         members: { [uid()]: { role: 'owner', joinedAt: Date.now() } },
-        inviteCode: generateInviteCode()
+        inviteCode: generateInviteCode(),
+        verified: false  // default: not verified
     });
     await push(ref(db, `servers/${newRef.key}/channels`), { name: 'général', categoryId: null });
     switchView(newRef.key);
@@ -545,7 +652,12 @@ window.searchServers = async (query) => {
         div.className = 'search-result-item';
         div.innerHTML = `
             <div class="friend-card-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700">${esc(s.icon || s.name[0])}</div>
-            <div style="flex:1"><div style="font-weight:600;font-size:.9rem">${esc(s.name)}</div><div style="font-size:.75rem;color:var(--txt-3)">${Object.keys(s.members||{}).length} membre(s)</div></div>
+            <div style="flex:1">
+                <div style="font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:4px">
+                    ${esc(s.name)}${verifiedBadgeHTML(s.verified)}
+                </div>
+                <div style="font-size:.75rem;color:var(--txt-3)">${Object.keys(s.members||{}).length} membre(s)</div>
+            </div>
             ${isMember
                 ? `<button class="btn-ghost" style="font-size:.8rem" onclick="switchView('${s.id}');closeModal('modal-search-servers')">Accéder</button>`
                 : `<button class="btn-primary" style="font-size:.8rem" onclick="promptJoinServer('${s.id}')">Rejoindre</button>`}`;
@@ -558,7 +670,8 @@ window.promptJoinServer = async (serverId) => {
     if (!snap.exists()) return;
     pendingJoinServer = { id: serverId, data: snap.val() };
     document.getElementById('join-confirm-icon').textContent = snap.val().icon || snap.val().name[0];
-    document.getElementById('join-confirm-name').textContent = snap.val().name;
+    document.getElementById('join-confirm-name').innerHTML =
+        esc(snap.val().name) + verifiedBadgeHTML(snap.val().verified);
     document.getElementById('join-confirm-desc').textContent = `Voulez-vous rejoindre le serveur "${snap.val().name}" ?`;
     closeModal('modal-search-servers');
     openModal('modal-join-confirm');
@@ -590,7 +703,8 @@ window.joinByInviteLink = async () => {
     if (!found) { showNotif('❌', 'Lien invalide', 'Aucun serveur trouvé avec ce code.'); return; }
     pendingJoinServer = found;
     document.getElementById('join-confirm-icon').textContent = found.data.icon || found.data.name[0];
-    document.getElementById('join-confirm-name').textContent = found.data.name;
+    document.getElementById('join-confirm-name').innerHTML =
+        esc(found.data.name) + verifiedBadgeHTML(found.data.verified);
     document.getElementById('join-confirm-desc').textContent = `Voulez-vous rejoindre le serveur "${found.data.name}" ?`;
     closeModal('modal-search-servers');
     openModal('modal-join-confirm');
@@ -724,7 +838,9 @@ async function loadAdminMembers() {
         div.innerHTML = `
             <div class="friend-card-avatar">${esc(u.username[0])}</div>
             <div class="friend-card-info">
-                <div class="friend-card-name">${esc(u.username)}</div>
+                <div class="friend-card-name" style="display:flex;align-items:center;gap:4px">
+                    ${esc(u.username)}${verifiedBadgeHTML(u.verified)}
+                </div>
                 <div class="friend-card-status">${esc(member.role || 'member')}</div>
             </div>
             ${member.uid !== uid() ? `
@@ -795,7 +911,8 @@ function renderMembersGlobal() {
                 <div class="member-avatar">${esc(u.username[0])}
                     <div class="member-status ${u.status === 'online' ? '' : 'offline'}"></div>
                 </div>
-                <span class="member-name">${esc(u.username)}</span>`;
+                <span class="member-name">${esc(u.username)}</span>
+                ${verifiedBadgeHTML(u.verified)}`;
             div.onclick = () => { if (child.key !== uid()) openDmWith(child.key, u.username); };
             list.appendChild(div);
         });
@@ -827,6 +944,7 @@ async function renderMembersServer(serverId) {
                 <div class="member-status ${user.status === 'online' ? '' : 'offline'}"></div>
             </div>
             <span class="member-name">${esc(user.username)}</span>
+            ${verifiedBadgeHTML(user.verified)}
             ${role ? `<span class="member-role-badge" style="background:${esc(role.color)}22;color:${esc(role.color)}">${esc(role.name)}</span>` : ''}`;
         div.onclick = () => { if (memberId !== uid()) openDmWith(memberId, user.username); };
         list.appendChild(div);
@@ -856,7 +974,8 @@ function renderDmSidebar() {
             div.className = `dm-item ${currentDmUserId === fid ? 'active' : ''}`;
             div.innerHTML = `
                 <div class="dm-avatar">${esc(user.username[0])}</div>
-                <span class="dm-name">${esc(user.username)}</span>`;
+                <span class="dm-name">${esc(user.username)}</span>
+                ${verifiedBadgeHTML(user.verified)}`;
             div.onclick = () => openDmWith(fid, user.username);
             list.appendChild(div);
         });
@@ -918,7 +1037,9 @@ async function loadMyFriends() {
         div.innerHTML = `
             <div class="friend-card-avatar">${esc(user.username[0])}</div>
             <div class="friend-card-info">
-                <div class="friend-card-name">${esc(user.username)}</div>
+                <div class="friend-card-name" style="display:flex;align-items:center;gap:4px">
+                    ${esc(user.username)}${verifiedBadgeHTML(user.verified)}
+                </div>
                 <div class="friend-card-status">${user.status === 'online' ? '🟢 En ligne' : '⚫ Hors ligne'}</div>
             </div>
             <div class="friend-card-actions">
@@ -952,7 +1073,9 @@ async function loadFriendRequests() {
         div.innerHTML = `
             <div class="friend-card-avatar">${esc(user.username[0])}</div>
             <div class="friend-card-info">
-                <div class="friend-card-name">${esc(user.username)}</div>
+                <div class="friend-card-name" style="display:flex;align-items:center;gap:4px">
+                    ${esc(user.username)}${verifiedBadgeHTML(user.verified)}
+                </div>
                 <div class="friend-card-status">Demande reçue</div>
             </div>
             <div class="friend-card-actions">
@@ -980,7 +1103,12 @@ window.searchUsers = async (query) => {
         div.className = 'search-result-item';
         div.innerHTML = `
             <div class="friend-card-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700">${esc(u.username[0])}</div>
-            <div style="flex:1"><div style="font-weight:600;font-size:.9rem">${esc(u.username)}</div><div style="font-size:.75rem;color:var(--txt-3)">${esc(u.email || '')}</div></div>
+            <div style="flex:1">
+                <div style="font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:4px">
+                    ${esc(u.username)}${verifiedBadgeHTML(u.verified)}
+                </div>
+                <div style="font-size:.75rem;color:var(--txt-3)">${esc(u.email || '')}</div>
+            </div>
             <button class="btn-primary" style="font-size:.8rem;padding:6px 12px" onclick="sendFriendRequest('${child.key}','${esc(u.username)}')">+ Ami</button>`;
         results.appendChild(div);
     });
