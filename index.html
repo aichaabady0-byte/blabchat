@@ -8,7 +8,6 @@
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        /* ═══════════════════════════════ RESET & VARS ═══════════════════════════════ */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
             --bg-base:     #0d0f13;
@@ -22,6 +21,8 @@
             --green:       #3fd68f;
             --red:         #f05b5b;
             --yellow:      #f0c05b;
+            --bp-gold:     #f5c842;
+            --bp-glow:     #f5c84240;
             --txt-1:       #eef0f6;
             --txt-2:       #8b92a8;
             --txt-3:       #5a6075;
@@ -32,11 +33,10 @@
         }
         body { font-family: 'DM Sans', sans-serif; background: var(--bg-base); color: var(--txt-1); height: 100dvh; overflow: hidden; }
 
-        /* ═══════════════════════════════ PAGE SYSTEM ═══════════════════════════════ */
         .page { display: none; width: 100%; height: 100dvh; }
         .page.active { display: flex; flex-direction: column; }
 
-        /* ═══════════════════════════════ DISCOVER ═══════════════════════════════ */
+        /* DISCOVER */
         #page-discover { background: var(--bg-base); position: relative; overflow: hidden; align-items: center; justify-content: center; }
         .bg-orbs { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
         .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .35; }
@@ -52,7 +52,7 @@
         .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .hero-sub { color: var(--txt-2); font-size: 1.1rem; }
 
-        /* ═══════════════════════════════ BUTTONS ═══════════════════════════════ */
+        /* BUTTONS */
         .btn-primary { background: var(--accent); color: #fff; border: none; padding: 10px 20px; border-radius: var(--radius); font-family: inherit; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; font-size: .95rem; }
         .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
         .btn-primary:active { transform: translateY(0); }
@@ -66,12 +66,15 @@
         .btn-icon:hover { background: var(--bg-high); color: var(--txt-1); }
         .btn-icon-logout { background: none; border: none; color: var(--txt-3); cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 1rem; transition: color .15s; }
         .btn-icon-logout:hover { color: var(--red); }
+        .btn-bp { background: linear-gradient(135deg, #f5c842, #f09d28); color: #1a1200; border: none; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-weight: 700; cursor: pointer; font-size: .85rem; transition: opacity .15s, transform .1s; }
+        .btn-bp:hover { opacity: .9; transform: translateY(-1px); }
+        .btn-bp:disabled { opacity: .4; cursor: not-allowed; transform: none; }
 
-        /* ═══════════════════════════════ APP LAYOUT ═══════════════════════════════ */
+        /* APP */
         #page-app { flex-direction: row; }
         .app-layout { display: flex; flex: 1; overflow: hidden; width: 100%; height: 100dvh; }
 
-        /* ═══════════════════════════════ SIDEBAR SERVERS ═══════════════════════════════ */
+        /* SIDEBAR SERVERS */
         .sidebar-servers { width: var(--server-w); background: var(--bg-base); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 6px; flex-shrink: 0; overflow-y: auto; scrollbar-width: none; }
         .sidebar-servers::-webkit-scrollbar { display: none; }
         .server-home { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: border-radius .2s, background .15s; }
@@ -87,7 +90,11 @@
         .server-dm-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: border-radius .2s, background .15s; }
         .server-dm-btn:hover, .server-dm-btn.active { border-radius: 14px; background: var(--accent2); }
 
-        /* ═══════════════════════════════ SIDEBAR CHANNELS ═══════════════════════════════ */
+        /* BlabPoints button in sidebar */
+        .server-bp-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #f5c84222, #f09d2822); border: 1px solid #f5c84244; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: border-radius .2s, background .15s; }
+        .server-bp-btn:hover { border-radius: 14px; background: linear-gradient(135deg, #f5c842, #f09d28); }
+
+        /* SIDEBAR CHANNELS */
         .sidebar-channels { width: var(--sidebar-w); background: var(--bg-mid); display: flex; flex-direction: column; flex-shrink: 0; }
         .channels-header { padding: 16px 12px; border-bottom: 1px solid var(--border); font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-1); display: flex; align-items: center; justify-content: space-between; }
         .channels-header .header-actions { display: flex; gap: 4px; }
@@ -103,12 +110,14 @@
         .add-ch-btn { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: 1.1rem; padding: 2px 4px; border-radius: 4px; transition: color .12s; }
         .add-ch-btn:hover { color: var(--txt-1); }
         .user-bar { padding: 10px 8px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: var(--bg-base); }
-        .user-bar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
-        .user-bar-info { flex: 1; min-width: 0; }
+        .user-bar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; cursor: pointer; transition: opacity .15s; }
+        .user-bar-avatar:hover { opacity: .8; }
+        .user-bar-info { flex: 1; min-width: 0; cursor: pointer; }
         .user-bar-name { display: block; font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .user-bar-status { font-size: .72rem; color: var(--green); }
+        .user-bp-display { display: flex; align-items: center; gap: 3px; font-size: .7rem; font-weight: 700; color: var(--bp-gold); white-space: nowrap; }
 
-        /* DM list in sidebar */
+        /* DM list */
         .dm-section { padding: 8px 0; }
         .dm-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 12px; margin: 1px 6px; border-radius: 8px; cursor: pointer; transition: background .12s; }
         .dm-item:hover { background: var(--bg-high); }
@@ -119,7 +128,7 @@
         .dm-unread { margin-left: auto; background: var(--red); color: #fff; font-size: .7rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; }
         .sidebar-section-label { padding: 8px 12px 4px; font-size: .7rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
 
-        /* ═══════════════════════════════ MAIN AREA ═══════════════════════════════ */
+        /* MAIN */
         .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-mid); }
         .main-header { padding: 0 16px; height: 52px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg-mid); }
         .main-header-left { display: flex; align-items: center; gap: 10px; }
@@ -133,8 +142,11 @@
         .chat-input-box input::placeholder { color: var(--txt-3); }
         .input-send { background: var(--accent); border: none; color: #fff; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: opacity .15s; }
         .input-send:hover { opacity: .8; }
-        .msg-line { display: flex; gap: 10px; padding: 4px 0; border-radius: 8px; transition: background .1s; }
+
+        /* MESSAGES */
+        .msg-line { display: flex; gap: 10px; padding: 4px 6px; border-radius: 8px; transition: background .1s; position: relative; }
         .msg-line:hover { background: var(--bg-high); }
+        .msg-line:hover .msg-actions { display: flex; }
         .msg-line.own-msg .msg-sender { color: var(--accent); }
         .msg-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
         .msg-avatar-col { width: 34px; flex-shrink: 0; padding-top: 2px; }
@@ -143,12 +155,29 @@
         .msg-text { font-size: .92rem; color: var(--txt-2); line-height: 1.5; word-break: break-word; }
         .msg-text a { color: var(--accent); text-decoration: none; }
         .msg-text a:hover { text-decoration: underline; }
+        .msg-text.deleted { color: var(--txt-3); font-style: italic; }
         .system-msg { padding: 6px 12px; color: var(--txt-3); font-size: .82rem; font-style: italic; text-align: center; }
         .date-divider { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
         .date-divider::before, .date-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
         .date-divider span { font-size: .72rem; color: var(--txt-3); white-space: nowrap; }
+        .msg-actions { display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; gap: 2px; padding: 3px; z-index: 10; }
+        .msg-action-btn { background: none; border: none; color: var(--txt-3); cursor: pointer; padding: 4px 7px; border-radius: 5px; font-size: .8rem; transition: background .12s, color .12s; }
+        .msg-action-btn:hover { background: var(--bg-high); color: var(--red); }
+        .msg-content-col { flex: 1; min-width: 0; }
+        .msg-header { display: flex; align-items: baseline; gap: 4px; }
 
-        /* ═══════════════════════════════ SIDEBAR MEMBERS ═══════════════════════════════ */
+        /* Styled username display */
+        .msg-sender[data-font="syne"] { font-family: 'Syne', sans-serif; }
+        .msg-sender[data-font="mono"] { font-family: monospace; }
+        .msg-sender[data-font="serif"] { font-family: Georgia, serif; }
+        .msg-sender[data-anim="pulse"] { animation: namePulse 2s ease-in-out infinite; }
+        .msg-sender[data-anim="rainbow"] { animation: nameRainbow 3s linear infinite; }
+        .msg-sender[data-anim="glow"] { animation: nameGlow 2s ease-in-out infinite; }
+        @keyframes namePulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+        @keyframes nameRainbow { 0%{color:#f05b5b}16%{color:#f0c05b}33%{color:#3fd68f}50%{color:#5b6af0}66%{color:#e05bf0}83%{color:#f05b8e}100%{color:#f05b5b} }
+        @keyframes nameGlow { 0%,100% { text-shadow: 0 0 6px currentColor; } 50% { text-shadow: 0 0 18px currentColor, 0 0 30px currentColor; } }
+
+        /* SIDEBAR MEMBERS */
         .sidebar-members { width: var(--member-w); background: var(--bg-mid); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .members-label { padding: 16px 12px 8px; font-size: .7rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; }
         .members-list { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; flex: 1; }
@@ -164,11 +193,12 @@
         .friend-zone input::placeholder { color: var(--txt-3); }
         .friend-zone button { background: var(--accent); color: #fff; border: none; border-radius: 8px; width: 32px; cursor: pointer; font-size: 1.1rem; }
 
-        /* ═══════════════════════════════ MODAL ═══════════════════════════════ */
+        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
         .modal-overlay.hidden { display: none; }
         .modal-backdrop { position: absolute; inset: 0; background: #00000080; backdrop-filter: blur(4px); }
         .modal { position: relative; z-index: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 380px; max-width: 95vw; display: flex; flex-direction: column; gap: 12px; max-height: 90dvh; overflow-y: auto; }
+        .modal.wide { width: 520px; }
         .modal-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; }
         .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: .8rem; font-weight: 600; color: var(--txt-2); }
@@ -180,14 +210,14 @@
         .invite-link-box { background: var(--bg-high); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-family: monospace; font-size: .85rem; color: var(--accent); word-break: break-all; cursor: pointer; transition: border-color .15s; }
         .invite-link-box:hover { border-color: var(--accent); }
 
-        /* ═══════════════════════════════ TABS ═══════════════════════════════ */
+        /* TABS */
         .modal-tabs { display: flex; gap: 4px; background: var(--bg-high); border-radius: 10px; padding: 4px; }
         .modal-tab { flex: 1; padding: 8px; border: none; background: none; color: var(--txt-2); font-family: inherit; font-size: .85rem; font-weight: 500; cursor: pointer; border-radius: 8px; transition: background .12s, color .12s; }
         .modal-tab.active { background: var(--bg-card); color: var(--txt-1); font-weight: 700; }
         .tab-content { display: none; }
         .tab-content.active { display: flex; flex-direction: column; gap: 12px; }
 
-        /* ═══════════════════════════════ FRIEND CARDS ═══════════════════════════════ */
+        /* FRIEND CARDS */
         .friend-card { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-high); border-radius: 10px; }
         .friend-card-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
         .friend-card-info { flex: 1; min-width: 0; }
@@ -200,7 +230,7 @@
         .search-result-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg-high); border-radius: 8px; }
         .empty-state { text-align: center; color: var(--txt-3); font-size: .85rem; padding: 20px 0; }
 
-        /* ═══════════════════════════════ ROLE MANAGEMENT ═══════════════════════════════ */
+        /* ROLE MANAGEMENT */
         .role-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg-high); border-radius: 8px; }
         .role-color { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
         .role-name { flex: 1; font-weight: 600; font-size: .9rem; }
@@ -214,7 +244,7 @@
         .toggle input:checked + .toggle-slider { background: var(--accent); }
         .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
 
-        /* ═══════════════════════════════ NOTIFICATIONS ═══════════════════════════════ */
+        /* NOTIFICATIONS */
         .notif-badge { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
         .notif { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; min-width: 240px; max-width: 320px; display: flex; align-items: flex-start; gap: 10px; animation: slideIn .3s ease; box-shadow: 0 8px 24px #00000040; }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -224,20 +254,55 @@
         .notif-text { font-size: .8rem; color: var(--txt-2); }
         .notif-close { background: none; border: none; color: var(--txt-3); cursor: pointer; font-size: .9rem; }
 
-        /* ═══════════════════════════════ JOIN SERVER PROMPT ═══════════════════════════════ */
+        /* JOIN PROMPT */
         .join-prompt { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
         .join-prompt-icon { font-size: 2.5rem; }
         .join-prompt h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; }
 
-        /* ═══════════════════════════════ ADMIN PANEL ═══════════════════════════════ */
+        /* ADMIN */
         .admin-section { border-top: 1px solid var(--border); padding-top: 12px; }
         .admin-section-title { font-size: .8rem; font-weight: 700; letter-spacing: 1px; color: var(--txt-3); text-transform: uppercase; margin-bottom: 8px; }
 
-        /* ═══════════════════════════════ WELCOME SCREEN ═══════════════════════════════ */
+        /* WELCOME */
         .welcome-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--txt-3); }
         .welcome-screen h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; color: var(--txt-2); }
 
-        /* ═══════════════════════════════ MOBILE ═══════════════════════════════ */
+        /* ═══ BLABPOINTS SHOP ═══ */
+        .bp-header { display: flex; align-items: center; gap: 12px; padding: 16px; background: linear-gradient(135deg, #1a1500, #2a2000); border-radius: 12px; border: 1px solid #f5c84233; }
+        .bp-icon-big { font-size: 2.2rem; }
+        .bp-header-info h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; color: var(--bp-gold); }
+        .bp-header-info p { font-size: .8rem; color: var(--txt-3); margin-top: 2px; }
+        .bp-balance { font-size: 1.8rem; font-weight: 800; color: var(--bp-gold); margin-left: auto; }
+        .bp-balance span { font-size: .8rem; font-weight: 500; color: var(--txt-3); }
+
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .shop-item { background: var(--bg-high); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; transition: border-color .15s; position: relative; overflow: hidden; }
+        .shop-item:hover { border-color: var(--bp-gold); }
+        .shop-item.owned { border-color: var(--green); }
+        .shop-item.owned::after { content: 'OBTENU'; position: absolute; top: 8px; right: 8px; font-size: .6rem; font-weight: 800; color: var(--green); background: #3fd68f22; padding: 2px 6px; border-radius: 10px; letter-spacing: 1px; }
+        .shop-item-icon { font-size: 1.6rem; }
+        .shop-item-name { font-weight: 700; font-size: .88rem; color: var(--txt-1); }
+        .shop-item-desc { font-size: .75rem; color: var(--txt-3); line-height: 1.4; }
+        .shop-item-price { display: flex; align-items: center; gap: 5px; font-size: .8rem; font-weight: 700; color: var(--bp-gold); margin-top: auto; }
+
+        /* Daily reward banner */
+        .daily-reward { background: linear-gradient(135deg, #f5c84215, #f09d2815); border: 1px solid #f5c84233; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .daily-reward-info { flex: 1; }
+        .daily-reward-info strong { color: var(--bp-gold); font-size: .9rem; }
+        .daily-reward-info p { font-size: .75rem; color: var(--txt-3); margin-top: 2px; }
+
+        /* Profile preview */
+        .profile-preview { background: var(--bg-high); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border); }
+        .profile-preview-label { font-size: .72rem; color: var(--txt-3); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .profile-preview-name { font-size: 1.1rem; font-weight: 700; color: var(--accent); display: inline-block; }
+        .profile-preview-name[data-font="syne"] { font-family: 'Syne', sans-serif; }
+        .profile-preview-name[data-font="mono"] { font-family: monospace; letter-spacing: 2px; }
+        .profile-preview-name[data-font="serif"] { font-family: Georgia, serif; font-style: italic; }
+        .profile-preview-name[data-anim="pulse"] { animation: namePulse 2s ease-in-out infinite; }
+        .profile-preview-name[data-anim="rainbow"] { animation: nameRainbow 3s linear infinite; }
+        .profile-preview-name[data-anim="glow"] { animation: nameGlow 2s ease-in-out infinite; }
+
+        /* MOBILE */
         .mobile-menu-btn { display: none; }
         .mobile-drawer { display: none; }
         .mobile-drawer-backdrop { display: none; }
@@ -274,10 +339,7 @@
         <div class="orb orb-2"></div>
     </div>
     <nav class="top-nav">
-        <!-- ✅ LOGO : remplacé par logo.png -->
-        <div class="logo">
-            <img src="logo.png" alt="BlabChat">
-        </div>
+        <div class="logo"><img src="logo.png" alt="BlabChat"></div>
         <div class="auth-buttons">
             <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
             <button class="btn-primary" onclick="showAuth('register')">S'inscrire</button>
@@ -323,6 +385,7 @@
         <aside class="sidebar-servers">
             <div class="server-home" onclick="switchView('global')" id="nav-home" title="Accueil">🏠</div>
             <div class="server-dm-btn" onclick="switchView('dm')" id="nav-dm" title="Messages privés">💬</div>
+            <div class="server-bp-btn" onclick="openBPShop()" id="nav-bp" title="BlabPoints">⭐</div>
             <div class="server-divider"></div>
             <div id="server-list" class="server-list"></div>
             <button class="server-add" onclick="createNewServer()" title="Créer un serveur">+</button>
@@ -338,11 +401,12 @@
                 <div id="channel-list"></div>
             </div>
             <div class="user-bar">
-                <div class="user-bar-avatar" id="my-avatar">?</div>
-                <div class="user-bar-info">
+                <div class="user-bar-avatar" id="my-avatar" onclick="openBPShop()" title="Mon profil / BlabPoints">?</div>
+                <div class="user-bar-info" onclick="openBPShop()" title="Mon profil / BlabPoints">
                     <span class="user-bar-name" id="my-name">...</span>
                     <span class="user-bar-status">En ligne</span>
                 </div>
+                <div class="user-bp-display" id="user-bp-count" title="BlabPoints">⭐ 0</div>
                 <button class="btn-icon-logout" onclick="logout()" title="Déconnexion">✕</button>
             </div>
         </aside>
@@ -410,9 +474,9 @@
     <div class="modal">
         <h2 class="modal-title">👥 Amis & Recherche</h2>
         <div class="modal-tabs">
-            <button class="modal-tab active" onclick="switchTab('friends','tab-myfriends')">Mes amis</button>
-            <button class="modal-tab" onclick="switchTab('friends','tab-requests')">Demandes</button>
-            <button class="modal-tab" onclick="switchTab('friends','tab-search')">Rechercher</button>
+            <button class="modal-tab active" onclick="switchTab('friends','tab-myfriends',event)">Mes amis</button>
+            <button class="modal-tab" onclick="switchTab('friends','tab-requests',event)">Demandes</button>
+            <button class="modal-tab" onclick="switchTab('friends','tab-search',event)">Rechercher</button>
         </div>
         <div id="tab-myfriends" class="tab-content active"></div>
         <div id="tab-requests" class="tab-content"></div>
@@ -430,8 +494,8 @@
     <div class="modal">
         <h2 class="modal-title">🔍 Rejoindre un serveur</h2>
         <div class="modal-tabs">
-            <button class="modal-tab active" onclick="switchTab('servers','tab-search-sv')">Rechercher</button>
-            <button class="modal-tab" onclick="switchTab('servers','tab-invite')">Lien d'invitation</button>
+            <button class="modal-tab active" onclick="switchTab('servers','tab-search-sv',event)">Rechercher</button>
+            <button class="modal-tab" onclick="switchTab('servers','tab-invite',event)">Lien d'invitation</button>
         </div>
         <div id="tab-search-sv" class="tab-content active">
             <input class="search-input" id="server-search-input" placeholder="Nom du serveur..." oninput="searchServers(this.value)">
@@ -471,13 +535,11 @@
     <div class="modal">
         <h2 class="modal-title">⚙️ Administration</h2>
         <div class="modal-tabs">
-            <button class="modal-tab active" onclick="switchTab('admin','tab-admin-channels')">Salons</button>
-            <button class="modal-tab" onclick="switchTab('admin','tab-admin-roles')">Rôles</button>
-            <button class="modal-tab" onclick="switchTab('admin','tab-admin-members')">Membres</button>
-            <button class="modal-tab" onclick="switchTab('admin','tab-admin-invite')">Invitation</button>
+            <button class="modal-tab active" onclick="switchTab('admin','tab-admin-channels',event)">Salons</button>
+            <button class="modal-tab" onclick="switchTab('admin','tab-admin-roles',event)">Rôles</button>
+            <button class="modal-tab" onclick="switchTab('admin','tab-admin-members',event)">Membres</button>
+            <button class="modal-tab" onclick="switchTab('admin','tab-admin-invite',event)">Invitation</button>
         </div>
-
-        <!-- Salons & Catégories -->
         <div id="tab-admin-channels" class="tab-content active">
             <div class="admin-section">
                 <div class="admin-section-title">Catégories</div>
@@ -486,31 +548,17 @@
             </div>
             <div class="admin-section">
                 <div class="admin-section-title">Créer un salon</div>
-                <div class="form-group">
-                    <label>Catégorie</label>
-                    <select id="admin-channel-category"></select>
-                </div>
-                <div class="form-group">
-                    <label>Nom du salon</label>
-                    <input type="text" id="admin-channel-name" placeholder="nouveau-salon">
-                </div>
+                <div class="form-group"><label>Catégorie</label><select id="admin-channel-category"></select></div>
+                <div class="form-group"><label>Nom du salon</label><input type="text" id="admin-channel-name" placeholder="nouveau-salon"></div>
                 <button class="btn-primary btn-full" onclick="adminCreateChannel()">Créer le salon</button>
             </div>
         </div>
-
-        <!-- Rôles -->
         <div id="tab-admin-roles" class="tab-content">
             <div id="admin-role-list"></div>
             <div class="admin-section">
                 <div class="admin-section-title">Nouveau rôle</div>
-                <div class="form-group">
-                    <label>Nom du rôle</label>
-                    <input type="text" id="new-role-name" placeholder="ex: Modérateur">
-                </div>
-                <div class="form-group">
-                    <label>Couleur</label>
-                    <input type="color" id="new-role-color" value="#5b6af0">
-                </div>
+                <div class="form-group"><label>Nom du rôle</label><input type="text" id="new-role-name" placeholder="ex: Modérateur"></div>
+                <div class="form-group"><label>Couleur</label><input type="color" id="new-role-color" value="#5b6af0"></div>
                 <div class="admin-section-title" style="margin-top:8px">Permissions</div>
                 <div class="permission-grid">
                     <div class="permission-item"><span class="permission-label">Gérer les salons</span><label class="toggle"><input type="checkbox" id="perm-manage-channels"><span class="toggle-slider"></span></label></div>
@@ -521,21 +569,74 @@
                 <button class="btn-primary btn-full" style="margin-top:8px" onclick="adminCreateRole()">Créer le rôle</button>
             </div>
         </div>
-
-        <!-- Membres -->
-        <div id="tab-admin-members" class="tab-content">
-            <div id="admin-members-list"></div>
-        </div>
-
-        <!-- Invitation -->
+        <div id="tab-admin-members" class="tab-content"><div id="admin-members-list"></div></div>
         <div id="tab-admin-invite" class="tab-content">
             <p class="modal-desc">Partage ce lien pour inviter des gens sur ton serveur :</p>
             <div class="invite-link-box" id="invite-link-display" onclick="copyInviteLink()">Génération...</div>
             <button class="btn-primary btn-full" onclick="copyInviteLink()">📋 Copier le lien</button>
             <button class="btn-ghost btn-full" style="margin-top:4px" onclick="regenerateInvite()">🔄 Nouveau lien</button>
         </div>
-
         <button class="btn-ghost btn-full" onclick="closeModal('modal-admin')">Fermer</button>
+    </div>
+</div>
+
+<!-- ══ MODAL BLABPOINTS SHOP ══ -->
+<div id="modal-bp-shop" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-bp-shop')"></div>
+    <div class="modal wide">
+        <div class="bp-header">
+            <div class="bp-icon-big">⭐</div>
+            <div class="bp-header-info">
+                <h3>BlabPoints</h3>
+                <p>Gagne 5 points par jour, dépense-les en style.</p>
+            </div>
+            <div class="bp-balance" id="bp-modal-balance">0 <span>BP</span></div>
+        </div>
+
+        <!-- Daily reward -->
+        <div class="daily-reward" id="daily-reward-section">
+            <div style="font-size:1.6rem">🎁</div>
+            <div class="daily-reward-info">
+                <strong id="daily-reward-label">Récompense quotidienne disponible !</strong>
+                <p id="daily-reward-sub">Tu peux récupérer tes 5 BlabPoints aujourd'hui.</p>
+            </div>
+            <button class="btn-bp" id="daily-claim-btn" onclick="claimDailyBP()">Récupérer +5</button>
+        </div>
+
+        <div class="modal-tabs">
+            <button class="modal-tab active" onclick="switchTab('bp','tab-bp-cosmetics',event)">🎨 Cosmétiques</button>
+            <button class="modal-tab" onclick="switchTab('bp','tab-bp-fonts',event)">✍️ Polices</button>
+            <button class="modal-tab" onclick="switchTab('bp','tab-bp-anims',event)">✨ Animations</button>
+        </div>
+
+        <!-- Cosmétiques : noms stylés -->
+        <div id="tab-bp-cosmetics" class="tab-content active">
+            <div class="profile-preview">
+                <div class="profile-preview-label">Aperçu de ton nom</div>
+                <div class="profile-preview-name" id="profile-preview-name">Ton pseudo</div>
+            </div>
+            <div class="shop-grid" id="shop-cosmetics-grid"></div>
+        </div>
+
+        <!-- Polices -->
+        <div id="tab-bp-fonts" class="tab-content">
+            <div class="profile-preview">
+                <div class="profile-preview-label">Aperçu de ton nom</div>
+                <div class="profile-preview-name" id="profile-preview-name-font">Ton pseudo</div>
+            </div>
+            <div class="shop-grid" id="shop-fonts-grid"></div>
+        </div>
+
+        <!-- Animations -->
+        <div id="tab-bp-anims" class="tab-content">
+            <div class="profile-preview">
+                <div class="profile-preview-label">Aperçu de l'animation</div>
+                <div class="profile-preview-name" id="profile-preview-name-anim">Ton pseudo</div>
+            </div>
+            <div class="shop-grid" id="shop-anims-grid"></div>
+        </div>
+
+        <button class="btn-ghost btn-full" onclick="closeModal('modal-bp-shop')">Fermer</button>
     </div>
 </div>
 
@@ -551,11 +652,11 @@
     if (!btn || !drawer || !backdrop) return;
     function openDrawer() {
         backdrop.classList.add('visible');
-        requestAnimationFrame(() => { backdrop.classList.add('open'); drawer.classList.add('open'); btn.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); });
+        requestAnimationFrame(() => { backdrop.classList.add('open'); drawer.classList.add('open'); btn.classList.add('is-open'); btn.setAttribute('aria-expanded','true'); });
         document.body.style.overflow = 'hidden';
     }
     function closeDrawer() {
-        backdrop.classList.remove('open'); drawer.classList.remove('open'); btn.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false');
+        backdrop.classList.remove('open'); drawer.classList.remove('open'); btn.classList.remove('is-open'); btn.setAttribute('aria-expanded','false');
         document.body.style.overflow = '';
         setTimeout(() => backdrop.classList.remove('visible'), 320);
     }
