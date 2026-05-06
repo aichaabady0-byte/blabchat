@@ -37,6 +37,46 @@
         .page.active { display: block; }
         #page-app { height: 100dvh; overflow: hidden; }
 
+        /* ══ VERIFIED BADGE ══ */
+        /* Inline badge (next to usernames in chat, members list, etc.) */
+        .verified-badge {
+            width: 14px;
+            height: 14px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 2px;
+            flex-shrink: 0;
+        }
+        /* Badge superposé sur les avatars de message */
+        .verified-badge-avatar {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1.5px solid var(--bg-mid);
+            background: var(--bg-mid);
+        }
+        /* Badge superposé sur les icônes de serveur dans la sidebar */
+        .verified-badge-server-icon {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1.5px solid var(--bg-base);
+            background: var(--bg-base);
+            pointer-events: none;
+        }
+        /* Wrapper flex pour aligner pseudo + badge dans les en-têtes de message */
+        .msg-sender-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
         /* ══ DISCOVER ══ */
         #page-discover { min-height: 100dvh; }
 
@@ -73,7 +113,6 @@
         .orb-3 { width: 300px; height: 300px; background: var(--bp-gold); top: 40%; left: 30%; animation: drift 12s ease-in-out infinite alternate; opacity: .12; }
         @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
 
-        /* Grid noise overlay */
         .hero-section::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
@@ -140,7 +179,6 @@
         .preview-msg-time { font-size: .7rem; color: var(--txt-3); }
         .preview-msg-text { font-size: .88rem; color: var(--txt-2); line-height: 1.5; }
         .preview-msg-text .bp-tag { display: inline-flex; align-items: center; gap: 3px; background: rgba(245,200,66,.15); color: var(--bp-gold); border-radius: 4px; padding: 1px 6px; font-size: .78rem; font-weight: 700; }
-        /* Animated typing indicator */
         .preview-typing { display: flex; align-items: center; gap: 8px; padding: 0 16px 14px; }
         .typing-dots { display: flex; gap: 4px; }
         .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--txt-3); animation: typingBounce 1.2s infinite; }
@@ -151,7 +189,6 @@
         .preview-input span { color: var(--txt-3); font-size: .85rem; flex: 1; }
         .preview-send { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; color: #fff; }
 
-        /* Scroll indicator */
         .scroll-hint {
             position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -177,7 +214,6 @@
         }
         .section-sub { color: var(--txt-2); font-size: 1rem; line-height: 1.7; max-width: 560px; }
 
-        /* Divider */
         .disc-divider {
             height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);
             margin: 0 40px;
@@ -236,7 +272,6 @@
         .bp-earn-title { font-weight: 700; font-size: .9rem; margin-bottom: 4px; color: var(--bp-gold); }
         .bp-earn-desc { font-size: .82rem; color: var(--txt-2); line-height: 1.5; }
 
-        /* BP Shop demo */
         .bp-shop-demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 40px; }
         .demo-shop-item {
             background: var(--bg-card); border: 1px solid var(--border);
@@ -459,7 +494,7 @@
         .msg-action-btn { background: none; border: none; color: var(--txt-3); cursor: pointer; padding: 4px 7px; border-radius: 5px; font-size: .8rem; transition: background .12s, color .12s; }
         .msg-action-btn:hover { background: var(--bg-high); color: var(--red); }
         .msg-content-col { flex: 1; min-width: 0; }
-        .msg-header { display: flex; align-items: baseline; gap: 4px; }
+        .msg-header { display: flex; align-items: center; gap: 4px; }
         .msg-sender[data-font="syne"] { font-family: 'Syne', sans-serif; }
         .msg-sender[data-font="mono"] { font-family: monospace; }
         .msg-sender[data-font="serif"] { font-family: Georgia, serif; }
@@ -804,7 +839,6 @@
                 </div>
             </div>
 
-            <!-- Comment gagner -->
             <div class="section-label">Comment gagner des BlabPoints ?</div>
             <div class="bp-earn-grid">
                 <div class="bp-earn-card">
@@ -837,7 +871,6 @@
                 </div>
             </div>
 
-            <!-- Que faire avec les BP ? -->
             <div class="section-label" style="margin-top:40px">Que faire avec tes BlabPoints ?</div>
             <p class="section-sub" style="margin-bottom:28px">Dépense tes points dans le shop pour personnaliser l'affichage de ton pseudo dans tous les serveurs.</p>
 
@@ -1168,7 +1201,7 @@
     </div>
 </section>
 
-<!-- ══ MODALS (inchangées) ══ -->
+<!-- ══ MODALS ══ -->
 <div id="modal-auth" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-auth')"></div>
     <div class="modal">
