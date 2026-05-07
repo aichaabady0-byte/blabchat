@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlabChat Space</title>
+    <title>BlabChat</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
@@ -30,6 +30,10 @@
             --sidebar-w:   220px;
             --server-w:    64px;
             --member-w:    220px;
+            /* BlabPlus */
+            --bplus-bg:    #0a0a0a;
+            --bplus-border:#2a2a2a;
+            --bplus-glow:  rgba(255,255,255,0.08);
         }
         body { font-family: 'DM Sans', sans-serif; background: var(--bg-base); color: var(--txt-1); overflow-x: hidden; }
 
@@ -37,8 +41,38 @@
         .page.active { display: block; }
         #page-app { height: 100dvh; overflow: hidden; }
 
+        /* ══ BLABPLUS BADGE ══ */
+        .blabplus-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0a;
+            border: 1.5px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 2px 7px;
+            font-family: 'Syne', sans-serif;
+            font-size: .7rem;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        .blabplus-badge.large {
+            font-size: .85rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+        }
+        .blabplus-badge.inline {
+            vertical-align: middle;
+            margin-left: 4px;
+            font-size: .65rem;
+            padding: 1px 6px;
+            border-radius: 7px;
+        }
+
         /* ══ VERIFIED BADGE ══ */
-        /* Inline badge (next to usernames in chat, members list, etc.) */
         .verified-badge {
             width: 14px;
             height: 14px;
@@ -47,7 +81,6 @@
             margin-left: 2px;
             flex-shrink: 0;
         }
-        /* Badge superposé sur les avatars de message */
         .verified-badge-avatar {
             position: absolute;
             bottom: -2px;
@@ -58,7 +91,6 @@
             border: 1.5px solid var(--bg-mid);
             background: var(--bg-mid);
         }
-        /* Badge superposé sur les icônes de serveur dans la sidebar */
         .verified-badge-server-icon {
             position: absolute;
             bottom: -2px;
@@ -70,7 +102,6 @@
             background: var(--bg-base);
             pointer-events: none;
         }
-        /* Wrapper flex pour aligner pseudo + badge dans les en-têtes de message */
         .msg-sender-wrap {
             display: inline-flex;
             align-items: center;
@@ -298,6 +329,210 @@
         @keyframes nameRainbow { 0%{color:#f05b5b}16%{color:#f0c05b}33%{color:#3fd68f}50%{color:#5b6af0}66%{color:#e05bf0}83%{color:#f05b8e}100%{color:#f05b5b} }
         @keyframes nameGlow { 0%,100% { text-shadow: 0 0 6px currentColor; } 50% { text-shadow: 0 0 20px currentColor, 0 0 36px currentColor; } }
 
+        /* ══ BLABPLUS SECTION ══ */
+        .blabplus-section-wrap {
+            background: linear-gradient(135deg, rgba(10,10,10,0.98), rgba(20,20,22,0.98));
+            border-top: 1px solid #222;
+            border-bottom: 1px solid #222;
+            position: relative;
+            overflow: hidden;
+        }
+        .blabplus-section-wrap::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 70%),
+                        radial-gradient(ellipse at 80% 20%, rgba(91,106,240,0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .blabplus-section-inner {
+            max-width: 1100px; margin: 0 auto; padding: 96px 40px;
+            position: relative; z-index: 1;
+        }
+        .blabplus-hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+            margin-bottom: 64px;
+        }
+        .blabplus-hero-left {}
+        .blabplus-hero-left .section-label { color: #888; }
+        .blabplus-hero-left h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+        .blabplus-hero-left p {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+        .blabplus-price-block {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+        .blabplus-price-amount {
+            font-family: 'Syne', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+        .blabplus-price-detail {
+            font-size: .9rem;
+            color: #555;
+            line-height: 1.4;
+        }
+        .blabplus-price-detail span { display: block; }
+        .blabplus-hero-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
+        }
+        /* The big BlabPlus badge visual */
+        .blabplus-big-badge {
+            background: #080808;
+            border: 2px solid #2a2a2a;
+            border-radius: 20px;
+            padding: 28px 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -1px;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04),
+                0 20px 60px rgba(0,0,0,0.8),
+                inset 0 1px 0 rgba(255,255,255,0.06);
+            position: relative;
+            transition: transform .3s, box-shadow .3s;
+        }
+        .blabplus-big-badge:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08),
+                0 30px 80px rgba(0,0,0,0.9),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .blabplus-badge-perks {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+        .blabplus-badge-perk {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .85rem;
+            color: #999;
+        }
+        .blabplus-badge-perk-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #111;
+            border: 1px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+        /* Perks grid */
+        .blabplus-perks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+        }
+        .blabplus-perk-card {
+            background: #0d0d0d;
+            border: 1px solid #1e1e1e;
+            border-radius: 16px;
+            padding: 24px;
+            transition: border-color .2s, transform .2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .blabplus-perk-card:hover {
+            border-color: #333;
+            transform: translateY(-2px);
+        }
+        .blabplus-perk-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, #222, #444, #222);
+            opacity: 0; transition: opacity .2s;
+        }
+        .blabplus-perk-card:hover::before { opacity: 1; }
+        .blabplus-perk-icon { font-size: 1.8rem; margin-bottom: 14px; }
+        .blabplus-perk-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .blabplus-perk-desc { font-size: .85rem; color: #555; line-height: 1.6; }
+        .blabplus-perk-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 10px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #888;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 2px 8px;
+            letter-spacing: .5px;
+        }
+        .blabplus-subscribe-box {
+            background: #0d0d0d;
+            border: 1px solid #1e1e1e;
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            margin-top: 48px;
+        }
+        .blabplus-subscribe-box h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .blabplus-subscribe-box p {
+            color: #555;
+            font-size: .9rem;
+            margin-bottom: 24px;
+        }
+        .btn-blabplus {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity .15s, transform .1s;
+            letter-spacing: -0.3px;
+        }
+        .btn-blabplus:hover { opacity: .88; transform: translateY(-2px); }
+
         /* ══ HOW IT WORKS ══ */
         .steps-list { display: flex; flex-direction: column; gap: 0; margin-top: 48px; position: relative; }
         .steps-list::before {
@@ -432,6 +667,24 @@
         .server-dm-btn:hover, .server-dm-btn.active { border-radius: 14px; background: var(--accent2); }
         .server-bp-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #f5c84222, #f09d2822); border: 1px solid #f5c84244; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: border-radius .2s, background .15s; }
         .server-bp-btn:hover { border-radius: 14px; background: linear-gradient(135deg, #f5c842, #f09d28); }
+        /* BlabPlus sidebar button */
+        .server-bplus-btn {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: #0d0d0d;
+            border: 1.5px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            font-size: .55rem;
+            font-weight: 800;
+            color: #fff;
+            transition: border-radius .2s, border-color .15s;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+            text-align: center;
+        }
+        .server-bplus-btn:hover { border-radius: 14px; border-color: #444; background: #111; }
 
         /* SIDEBAR CHANNELS */
         .sidebar-channels { width: var(--sidebar-w); background: var(--bg-mid); display: flex; flex-direction: column; flex-shrink: 0; }
@@ -588,6 +841,12 @@
         .shop-item-name { font-weight: 700; font-size: .88rem; color: var(--txt-1); }
         .shop-item-desc { font-size: .75rem; color: var(--txt-3); line-height: 1.4; }
         .shop-item-price { display: flex; align-items: center; gap: 5px; font-size: .8rem; font-weight: 700; color: var(--bp-gold); margin-top: auto; }
+        .shop-item-price.bplus-price { color: #aaa; }
+        .shop-item-price.bplus-price .bplus-discount {
+            font-size: .7rem; color: #555;
+            text-decoration: line-through;
+            margin-left: 2px;
+        }
         .daily-reward { background: linear-gradient(135deg, #f5c84215, #f09d2815); border: 1px solid #f5c84233; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
         .daily-reward-info { flex: 1; }
         .daily-reward-info strong { color: var(--bp-gold); font-size: .9rem; }
@@ -601,10 +860,89 @@
         .profile-preview-name[data-anim="pulse"] { animation: namePulse 2s ease-in-out infinite; }
         .profile-preview-name[data-anim="rainbow"] { animation: nameRainbow 3s linear infinite; }
         .profile-preview-name[data-anim="glow"] { animation: nameGlow 2s ease-in-out infinite; }
+
+        /* BlabPlus modal */
+        .modal-blabplus {
+            background: #080808;
+            border-color: #1e1e1e;
+        }
+        .modal-blabplus .modal-title { color: #fff; }
+        .bplus-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #0d0d0d;
+            border: 1px solid #1e1e1e;
+            border-radius: 12px;
+        }
+        .bplus-modal-badge-big {
+            background: #0a0a0a;
+            border: 2px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+            white-space: nowrap;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .bplus-modal-info h3 { font-family: 'Syne', sans-serif; font-size: 1rem; color: #fff; margin-bottom: 2px; }
+        .bplus-modal-info p { font-size: .8rem; color: #555; }
+        .bplus-perks-list { display: flex; flex-direction: column; gap: 8px; }
+        .bplus-perk-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            border-radius: 10px;
+        }
+        .bplus-perk-row-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+        .bplus-perk-row-text { flex: 1; }
+        .bplus-perk-row-title { font-size: .88rem; font-weight: 600; color: #ddd; }
+        .bplus-perk-row-desc { font-size: .75rem; color: #555; margin-top: 1px; }
+        .bplus-free-skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+        .bplus-skin-option {
+            background: #0d0d0d;
+            border: 1px solid #1e1e1e;
+            border-radius: 10px;
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .15s;
+            font-size: .78rem;
+            color: #888;
+        }
+        .bplus-skin-option:hover { border-color: #333; color: #ccc; }
+        .bplus-skin-option .skin-preview { font-size: 1.4rem; margin-bottom: 4px; }
+        .btn-blabplus-modal {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: .95rem;
+            cursor: pointer;
+            transition: opacity .15s, transform .1s;
+            width: 100%;
+            margin-top: 4px;
+        }
+        .btn-blabplus-modal:hover { opacity: .88; transform: translateY(-1px); }
+        .btn-blabplus-modal:disabled { opacity: .4; cursor: not-allowed; transform: none; background: #333; color: #888; }
+
         .mobile-menu-btn { display: none; }
         .mobile-drawer { display: none; }
         .mobile-drawer-backdrop { display: none; }
         @media (max-width: 960px) { .sidebar-members { display: none; } }
+        @media (max-width: 768px) {
+            .blabplus-hero { grid-template-columns: 1fr; gap: 40px; }
+        }
         @media (max-width: 600px) {
             .sidebar-channels, .sidebar-servers { display: none; }
             .mobile-menu-btn { display: flex; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 6px; }
@@ -628,6 +966,7 @@
             .nav-links { display: none; }
             section.disc-section { padding: 64px 20px; }
             .bp-section-inner { padding: 64px 20px; }
+            .blabplus-section-inner { padding: 64px 20px; }
             footer { padding: 28px 20px; }
             .cta-section { padding: 64px 20px; }
         }
@@ -647,6 +986,7 @@
         <div class="nav-links">
             <span class="nav-link" onclick="document.getElementById('features-section').scrollIntoView({behavior:'smooth'})">Fonctionnalités</span>
             <span class="nav-link" onclick="document.getElementById('bp-section').scrollIntoView({behavior:'smooth'})">BlabPoints</span>
+            <span class="nav-link" onclick="document.getElementById('blabplus-section').scrollIntoView({behavior:'smooth'})">Blab+</span>
             <span class="nav-link" onclick="document.getElementById('servers-section').scrollIntoView({behavior:'smooth'})">Serveurs</span>
             <span class="nav-link" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'})">Comment ça marche</span>
         </div>
@@ -667,7 +1007,7 @@
         <div class="hero-content">
             <div class="hero-badge">
                 <div class="badge-dot"></div>
-                Nouveau · BlabPoints v2 disponible
+                Nouveau · <span class="blabplus-badge" style="font-size:.65rem;padding:1px 6px;border-radius:6px">Blab+</span>&nbsp;disponible dès maintenant
             </div>
 
             <h1 class="hero-title">
@@ -681,7 +1021,7 @@
 
             <div class="hero-actions">
                 <button class="btn-primary btn-large" onclick="showAuth('register')">Commencer gratuitement</button>
-                <button class="btn-ghost btn-large" onclick="document.getElementById('bp-section').scrollIntoView({behavior:'smooth'})">Découvrir les BlabPoints ⭐</button>
+                <button class="btn-ghost btn-large" onclick="document.getElementById('blabplus-section').scrollIntoView({behavior:'smooth'})">Découvrir Blab+ →</button>
             </div>
 
             <!-- Fake chat preview -->
@@ -700,6 +1040,7 @@
                         <div class="preview-msg-body">
                             <div class="preview-msg-header">
                                 <span class="preview-msg-name" style="color:#5b6af0;animation:nameGlow 2s ease-in-out infinite">Luxen</span>
+                                <span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px;margin-left:4px">Blab+</span>
                                 <span class="preview-msg-time">aujourd'hui à 18:42</span>
                             </div>
                             <div class="preview-msg-text">Quelqu'un dispo pour une partie ce soir ? 👾</div>
@@ -817,10 +1158,12 @@
                 <div class="feature-title">Notifications en temps réel</div>
                 <div class="feature-desc">Sois alerté instantanément des nouveaux messages, demandes d'amis, et activités sur tes serveurs. Ne rate rien.</div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <div class="feature-title">Responsive & mobile</div>
-                <div class="feature-desc">Interface fluide sur téléphone, tablette et desktop. Le drawer mobile rend la navigation aussi intuitive que sur ordinateur.</div>
+            <div class="feature-card" style="border-color:#222;background:#0d0d0d;">
+                <div class="feature-icon" style="display:flex;align-items:center;gap:10px">
+                    <span class="blabplus-badge large">Blab+</span>
+                </div>
+                <div class="feature-title" style="color:#fff">BlabPlus — Passe Premium</div>
+                <div class="feature-desc" style="color:#555">100 BP/mois, skin de profil gratuit, −20% dans le shop. Affiche ton badge <span class="blabplus-badge" style="font-size:.65rem;padding:1px 6px">Blab+</span> partout dans le chat.</div>
             </div>
         </div>
     </section>
@@ -859,14 +1202,14 @@
                     <div class="bp-earn-icon">👥</div>
                     <div>
                         <div class="bp-earn-title">Inviter des amis · +10 BP</div>
-                        <div class="bp-earn-desc">Quand quelqu'un rejoint BlabChat via ton lien d'invitation, tu empochees 10 points bonus. Plus ta communauté grandit, plus tu gagnes.</div>
+                        <div class="bp-earn-desc">Quand quelqu'un rejoint BlabChat via ton lien d'invitation, tu empoches 10 points bonus. Plus ta communauté grandit, plus tu gagnes.</div>
                     </div>
                 </div>
-                <div class="bp-earn-card">
+                <div class="bp-earn-card" style="border-color:#1e1e1e;background:#0d0d0d">
                     <div class="bp-earn-icon">🏆</div>
                     <div>
-                        <div class="bp-earn-title">Défis hebdomadaires · jusqu'à +50 BP</div>
-                        <div class="bp-earn-desc">Chaque semaine, de nouveaux défis apparaissent dans le shop. Complète-les pour décrocher des lots de points exceptionnels.</div>
+                        <div class="bp-earn-title" style="color:#888">Blab+ · +100 BP/mois automatiques</div>
+                        <div class="bp-earn-desc" style="color:#444">Les abonnés <span class="blabplus-badge" style="font-size:.62rem;padding:1px 5px">Blab+</span> reçoivent 100 BlabPoints chaque mois, plus une réduction de 20% sur tous les achats dans le shop.</div>
                     </div>
                 </div>
             </div>
@@ -933,6 +1276,87 @@
 
     <div class="disc-divider"></div>
 
+    <!-- ══ BLABPLUS SECTION ══ -->
+    <div class="blabplus-section-wrap" id="blabplus-section">
+        <div class="blabplus-section-inner">
+
+            <div class="blabplus-hero">
+                <div class="blabplus-hero-left">
+                    <div class="section-label" style="color:#666;letter-spacing:3px">ABONNEMENT PREMIUM</div>
+                    <h2>Passe au niveau<br>supérieur avec<br><span style="color:#fff">Blab+</span></h2>
+                    <p>100 BlabPoints chaque mois, un skin gratuit, −20% partout dans le shop — et ton badge exclusif affiché dans tout le chat.</p>
+                    <div class="blabplus-price-block">
+                        <div class="blabplus-price-amount">100</div>
+                        <div class="blabplus-price-detail">
+                            <span style="color:#777">BlabPoints</span>
+                            <span style="color:#444">par mois · automatiques</span>
+                        </div>
+                    </div>
+                    <button class="btn-blabplus" onclick="showAuth('register')">S'abonner à Blab+ →</button>
+                    <p style="font-size:.75rem;color:#333;margin-top:10px">Annulable à tout moment · Paiement mensuel</p>
+                </div>
+                <div class="blabplus-hero-right">
+                    <div class="blabplus-big-badge">Blab+</div>
+                    <div class="blabplus-badge-perks">
+                        <div class="blabplus-badge-perk">
+                            <div class="blabplus-badge-perk-icon">⭐</div>
+                            <span>+100 BlabPoints automatiques chaque mois</span>
+                        </div>
+                        <div class="blabplus-badge-perk">
+                            <div class="blabplus-badge-perk-icon">🎨</div>
+                            <span>1 skin de profil gratuit par mois à choisir</span>
+                        </div>
+                        <div class="blabplus-badge-perk">
+                            <div class="blabplus-badge-perk-icon">🏷️</div>
+                            <span>−20% sur tous les achats dans le shop</span>
+                        </div>
+                        <div class="blabplus-badge-perk">
+                            <div class="blabplus-badge-perk-icon" style="font-family:'Syne',sans-serif;font-size:.6rem;font-weight:800;color:#fff;letter-spacing:-.3px">Blab+</div>
+                            <span>Badge exclusif visible dans tout le chat</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-label" style="color:#444;margin-bottom:24px">CE QUE TU OBTIENS</div>
+            <div class="blabplus-perks-grid">
+                <div class="blabplus-perk-card">
+                    <div class="blabplus-perk-icon">⭐</div>
+                    <div class="blabplus-perk-title">100 BlabPoints / mois</div>
+                    <div class="blabplus-perk-desc">Reçois automatiquement 100 BP à chaque renouvellement d'abonnement. Accumule-les pour débloquer des cosmétiques premium sans effort.</div>
+                    <div class="blabplus-perk-tag">AUTOMATIQUE</div>
+                </div>
+                <div class="blabplus-perk-card">
+                    <div class="blabplus-perk-icon">🎨</div>
+                    <div class="blabplus-perk-title">1 skin gratuit par mois</div>
+                    <div class="blabplus-perk-desc">Chaque mois, choisis un skin de profil dans la boutique et débloque-le gratuitement — couleur, police ou animation, c'est toi qui choisis.</div>
+                    <div class="blabplus-perk-tag">VALEUR JUSQU'À 35 BP</div>
+                </div>
+                <div class="blabplus-perk-card">
+                    <div class="blabplus-perk-icon">🏷️</div>
+                    <div class="blabplus-perk-title">−20% dans le shop</div>
+                    <div class="blabplus-perk-desc">Tous les achats dans la boutique BlabPoints sont réduits de 20% automatiquement. Tes points s'étendent plus loin, tu en profites davantage.</div>
+                    <div class="blabplus-perk-tag">SUR TOUT LE SHOP</div>
+                </div>
+                <div class="blabplus-perk-card">
+                    <div class="blabplus-perk-icon" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;background:#0a0a0a;border:1.5px solid #2a2a2a;border-radius:8px;display:inline-flex;padding:4px 10px;margin-bottom:14px">Blab+</div>
+                    <div class="blabplus-perk-title">Badge exclusif partout</div>
+                    <div class="blabplus-perk-desc">Ton badge Blab+ s'affiche dans le chat, dans les listes de membres, dans les DMs. Tout le monde voit que tu soutiens BlabChat.</div>
+                    <div class="blabplus-perk-tag">VISIBLE PARTOUT</div>
+                </div>
+            </div>
+
+            <div class="blabplus-subscribe-box">
+                <h3>Rejoins Blab+ aujourd'hui</h3>
+                <p>100 BP par mois · 1 skin gratuit · −20% shop · badge exclusif</p>
+                <button class="btn-blabplus" onclick="showAuth('register')">Commencer mon abonnement Blab+ →</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="disc-divider"></div>
+
     <!-- HOW IT WORKS -->
     <section class="disc-section" id="how-section">
         <div class="section-label">Comment ça marche</div>
@@ -956,7 +1380,7 @@
                 <div class="step-num">3</div>
                 <div class="step-content">
                     <div class="step-title">Chatte, accumule, personnalise</div>
-                    <div class="step-desc">Envoie des messages, parle en DMs, réclame tes BlabPoints quotidiens. Dépense-les dans la boutique pour rendre ton pseudo unique et te démarquer sur tous les serveurs.</div>
+                    <div class="step-desc">Envoie des messages, parle en DMs, réclame tes BlabPoints quotidiens. Dépense-les dans la boutique pour rendre ton pseudo unique et te démarquer sur tous les serveurs. Ou passe à <span style="font-family:'Syne',sans-serif;font-weight:800;color:#888">Blab+</span> pour encore plus d'avantages.</div>
                 </div>
             </div>
         </div>
@@ -1051,14 +1475,14 @@
                 <div class="testimonial-author">
                     <div class="testimonial-avatar" style="background:#5b6af0">Lx</div>
                     <div>
-                        <div class="testimonial-name">Luxen_GG</div>
+                        <div class="testimonial-name" style="display:flex;align-items:center;gap:6px">Luxen_GG <span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px">Blab+</span></div>
                         <div class="testimonial-meta">Serveur Gaming Zone · 420 BP collectés</div>
                     </div>
                 </div>
             </div>
             <div class="testimonial-card">
                 <div class="stars">★★★★★</div>
-                <div class="testimonial-text">J'ai migré ma commu Discord ici et franchement l'interface est bien plus propre. La création de rôles est ultra intuitive et les liens d'invitation fonctionnent parfaitement.</div>
+                <div class="testimonial-text">Le skin gratuit Blab+ chaque mois c'est génial. J'ai migré ma commu Discord ici et l'interface est bien plus propre. La création de rôles est ultra intuitive.</div>
                 <div class="testimonial-author">
                     <div class="testimonial-avatar" style="background:#e05bf0">Nv</div>
                     <div>
@@ -1069,11 +1493,11 @@
             </div>
             <div class="testimonial-card">
                 <div class="stars">★★★★☆</div>
-                <div class="testimonial-text">L'effet néon sur mon pseudo vaut vraiment ses 25 points. Ça change tout dans les conversations — les gens demandent toujours comment j'ai fait ça.</div>
+                <div class="testimonial-text">L'effet néon sur mon pseudo vaut vraiment ses 25 points. Avec Blab+ j'ai la réduction de 20%, donc je l'ai eu pour 20 BP. Les gens demandent toujours comment j'ai fait ça.</div>
                 <div class="testimonial-author">
                     <div class="testimonial-avatar" style="background:#3fd68f">Zk</div>
                     <div>
-                        <div class="testimonial-name">Zenko</div>
+                        <div class="testimonial-name" style="display:flex;align-items:center;gap:6px">Zenko <span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px">Blab+</span></div>
                         <div class="testimonial-meta">Dev & Tech · 210 BP dépensés</div>
                     </div>
                 </div>
@@ -1086,13 +1510,13 @@
         <div class="cta-content">
             <div class="hero-badge">
                 <div class="badge-dot"></div>
-                Gratuit pour toujours · Aucune CB requise
+                Gratuit pour toujours · Blab+ disponible
             </div>
             <h2 class="cta-title">Prêt à <span class="gradient-text">rejoindre</span><br>l'aventure ?</h2>
             <p class="cta-sub">Crée ton compte en 30 secondes, rejoins des milliers de communautés et commence à gagner tes premiers BlabPoints dès aujourd'hui.</p>
             <div class="cta-actions">
                 <button class="btn-primary btn-large" onclick="showAuth('register')">Créer mon compte gratuit</button>
-                <button class="btn-ghost btn-large" onclick="showAuth('login')">J'ai déjà un compte</button>
+                <button class="btn-ghost btn-large" onclick="document.getElementById('blabplus-section').scrollIntoView({behavior:'smooth'})">Découvrir Blab+</button>
             </div>
         </div>
     </div>
@@ -1147,6 +1571,7 @@
             <div class="server-home" onclick="switchView('global')" id="nav-home" title="Accueil">🏠</div>
             <div class="server-dm-btn" onclick="switchView('dm')" id="nav-dm" title="Messages privés">💬</div>
             <div class="server-bp-btn" onclick="openBPShop()" id="nav-bp" title="BlabPoints">⭐</div>
+            <div class="server-bplus-btn" onclick="openBlabPlusModal()" id="nav-bplus" title="Blab+">Blab+</div>
             <div class="server-divider"></div>
             <div id="server-list" class="server-list"></div>
             <button class="server-add" onclick="createNewServer()" title="Créer un serveur">+</button>
@@ -1345,6 +1770,14 @@
             </div>
             <button class="btn-bp" id="daily-claim-btn" onclick="claimDailyBP()">Récupérer +5</button>
         </div>
+        <!-- BlabPlus upsell strip -->
+        <div id="bplus-upsell-strip" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px;cursor:pointer" onclick="openBlabPlusModal()">
+            <div class="blabplus-badge large">Blab+</div>
+            <div style="flex:1">
+                <div style="font-size:.85rem;font-weight:700;color:#ccc">Passe à Blab+ · 100 BP/mois + skin gratuit + −20%</div>
+                <div style="font-size:.75rem;color:#444;margin-top:2px">Clique pour en savoir plus →</div>
+            </div>
+        </div>
         <div class="modal-tabs">
             <button class="modal-tab active" onclick="switchTab('bp','tab-bp-cosmetics',event)">🎨 Cosmétiques</button>
             <button class="modal-tab" onclick="switchTab('bp','tab-bp-fonts',event)">✍️ Polices</button>
@@ -1372,6 +1805,75 @@
             <div class="shop-grid" id="shop-anims-grid"></div>
         </div>
         <button class="btn-ghost btn-full" onclick="closeModal('modal-bp-shop')">Fermer</button>
+    </div>
+</div>
+
+<!-- ══ MODAL BLAB+ ══ -->
+<div id="modal-blabplus" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal('modal-blabplus')"></div>
+    <div class="modal wide modal-blabplus">
+        <div class="bplus-modal-header">
+            <div class="bplus-modal-badge-big">Blab+</div>
+            <div class="bplus-modal-info">
+                <h3>Abonnement BlabPlus</h3>
+                <p>100 BlabPoints/mois · skin gratuit · −20% shop · badge exclusif</p>
+            </div>
+            <div style="margin-left:auto;font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;line-height:1;text-align:right">
+                100 <span style="font-size:.75rem;color:#444;font-weight:400;display:block">BP/mois</span>
+            </div>
+        </div>
+
+        <!-- Abonné ou non -->
+        <div id="bplus-subscribed-view" style="display:none;flex-direction:column;gap:10px">
+            <div style="text-align:center;padding:12px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px">
+                <div style="font-size:1.4rem;margin-bottom:6px">✓</div>
+                <div style="font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:1rem">Tu es abonné Blab+ !</div>
+                <div style="font-size:.8rem;color:#555;margin-top:4px">Renouvellement automatique chaque mois.</div>
+            </div>
+            <!-- Free monthly skin -->
+            <div style="font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:#444;text-transform:uppercase;margin-top:4px">TON SKIN GRATUIT DU MOIS</div>
+            <div class="bplus-free-skin-grid" id="bplus-free-skin-grid"></div>
+            <button class="btn-blabplus-modal" id="bplus-claim-skin-btn" onclick="claimFreeSkin()">Choisir mon skin gratuit</button>
+            <button class="btn-ghost btn-full" onclick="cancelBlabPlus()" style="border-color:#1e1e1e;color:#333;font-size:.8rem">Annuler l'abonnement</button>
+        </div>
+
+        <!-- Non abonné -->
+        <div id="bplus-unsubscribed-view" style="display:flex;flex-direction:column;gap:10px">
+            <div class="bplus-perks-list">
+                <div class="bplus-perk-row">
+                    <div class="bplus-perk-row-icon">⭐</div>
+                    <div class="bplus-perk-row-text">
+                        <div class="bplus-perk-row-title">+100 BlabPoints chaque mois</div>
+                        <div class="bplus-perk-row-desc">Crédités automatiquement à chaque renouvellement</div>
+                    </div>
+                </div>
+                <div class="bplus-perk-row">
+                    <div class="bplus-perk-row-icon">🎨</div>
+                    <div class="bplus-perk-row-text">
+                        <div class="bplus-perk-row-title">1 skin de profil gratuit / mois</div>
+                        <div class="bplus-perk-row-desc">Couleur, police ou animation — ton choix chaque mois</div>
+                    </div>
+                </div>
+                <div class="bplus-perk-row">
+                    <div class="bplus-perk-row-icon">🏷️</div>
+                    <div class="bplus-perk-row-text">
+                        <div class="bplus-perk-row-title">−20% sur tout le shop</div>
+                        <div class="bplus-perk-row-desc">Réduction appliquée automatiquement à chaque achat</div>
+                    </div>
+                </div>
+                <div class="bplus-perk-row">
+                    <div class="bplus-perk-row-icon" style="font-family:'Syne',sans-serif;font-size:.55rem;font-weight:800;color:#fff;background:#0a0a0a;border:1.5px solid #2a2a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;letter-spacing:-.2px;padding:2px 4px">Blab+</div>
+                    <div class="bplus-perk-row-text">
+                        <div class="bplus-perk-row-title">Badge exclusif dans tout le chat</div>
+                        <div class="bplus-perk-row-desc">Visible dans les messages, listes de membres et DMs</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-blabplus-modal" onclick="subscribeBlabPlus()">S'abonner à Blab+ — 100 BP/mois →</button>
+            <p style="text-align:center;font-size:.72rem;color:#333">Annulable à tout moment · Pas de CB nécessaire en démo</p>
+        </div>
+
+        <button class="btn-ghost btn-full" onclick="closeModal('modal-blabplus')" style="border-color:#1a1a1a;color:#444">Fermer</button>
     </div>
 </div>
 
