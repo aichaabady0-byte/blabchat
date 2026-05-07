@@ -45,15 +45,15 @@ const BP_COLORS = [
 ];
 
 const BP_FONTS = [
-    { id: 'font-syne',  name: 'Syne Bold',   font: 'syne',  price: 20, preview: 'Syne' },
-    { id: 'font-mono',  name: 'Monospace',   font: 'mono',  price: 15, preview: 'Mono' },
-    { id: 'font-serif', name: 'Serif Élégant', font: 'serif', price: 15, preview: 'Serif' },
+    { id: 'font-syne',  name: 'Syne Bold',     font: 'syne',  price: 20, preview: 'Syne' },
+    { id: 'font-mono',  name: 'Monospace',      font: 'mono',  price: 15, preview: 'Mono' },
+    { id: 'font-serif', name: 'Serif Élégant',  font: 'serif', price: 15, preview: 'Serif' },
 ];
 
 const BP_ANIMS = [
-    { id: 'anim-pulse',   name: 'Pulsation',  anim: 'pulse',   price: 25, emoji: '💓' },
+    { id: 'anim-pulse',   name: 'Pulsation',   anim: 'pulse',   price: 25, emoji: '💓' },
     { id: 'anim-rainbow', name: 'Arc-en-ciel', anim: 'rainbow', price: 35, emoji: '🌈' },
-    { id: 'anim-glow',    name: 'Halo',       anim: 'glow',    price: 30, emoji: '✨' },
+    { id: 'anim-glow',    name: 'Halo',        anim: 'glow',    price: 30, emoji: '✨' },
 ];
 
 /* ══════════════════════════════════════════════════════════════
@@ -64,17 +64,27 @@ function esc(str = '') {
         .replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function uid() { return auth.currentUser?.uid || null; }
-function me()  { return auth.currentUser?.displayName || '?'; }
+function uid()  { return auth.currentUser?.uid || null; }
+function me()   { return auth.currentUser?.displayName || '?'; }
 function dmChannelId(uid1, uid2) { return [uid1, uid2].sort().join('__'); }
+
+/* ── Fermer le drawer mobile après navigation ── */
+function closeMobileDrawer() {
+    const drawer   = document.querySelector('.mobile-drawer');
+    const backdrop = document.querySelector('.mobile-drawer-backdrop');
+    const btn      = document.querySelector('.mobile-menu-btn');
+    if (!drawer || !backdrop || !btn) return;
+    backdrop.classList.remove('open');
+    drawer.classList.remove('open');
+    btn.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    setTimeout(() => backdrop.classList.remove('visible'), 320);
+}
 
 /* ══════════════════════════════════════════════════════════════
    VERIFIED BADGE HELPER
 ══════════════════════════════════════════════════════════════ */
-/**
- * Returns an <img> element for the verified badge, or null if not verified.
- * Usage: const badge = verifiedBadge(isVerified); if (badge) el.appendChild(badge);
- */
 function verifiedBadge(isVerified = false) {
     if (!isVerified) return null;
     const img = document.createElement('img');
@@ -85,15 +95,11 @@ function verifiedBadge(isVerified = false) {
     return img;
 }
 
-/**
- * Returns an HTML string for the verified badge (for use in innerHTML contexts).
- */
 function verifiedBadgeHTML(isVerified = false) {
     if (!isVerified) return '';
     return `<img src="verified.png" alt="Vérifié" title="Compte vérifié" class="verified-badge">`;
 }
 
-// Cache verified status to avoid repeated DB reads
 const _verifiedCache = {};
 
 async function isUserVerified(userId) {
@@ -114,6 +120,7 @@ async function isServerVerified(serverId) {
 
 function showNotif(icon, title, text, duration = 4000) {
     const container = document.getElementById('notif-container');
+    if (!container) return;
     const div = document.createElement('div');
     div.className = 'notif';
     div.innerHTML = `
@@ -135,8 +142,8 @@ function stopListeners() {
 /* ══════════════════════════════════════════════════════════════
    MODAL SYSTEM
 ══════════════════════════════════════════════════════════════ */
-window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+window.closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
+function openModal(id)  { document.getElementById(id)?.classList.remove('hidden'); }
 
 window.switchTab = (group, targetId, evt) => {
     const modal = document.getElementById(targetId)?.closest('.modal');
@@ -152,23 +159,25 @@ window.switchTab = (group, targetId, evt) => {
 ══════════════════════════════════════════════════════════════ */
 window.showAuth = (type) => {
     openModal('modal-auth');
-    document.getElementById('group-user').style.display = type === 'login' ? 'none' : 'block';
-    document.getElementById('modal-title').textContent = type === 'login' ? 'Connexion' : 'Créer un compte';
-    document.getElementById('auth-submit').onclick = () => handleAuth(type);
+    const groupUser = document.getElementById('group-user');
+    if (groupUser) groupUser.style.display = type === 'login' ? 'none' : 'block';
+    const modalTitle = document.getElementById('modal-title');
+    if (modalTitle) modalTitle.textContent = type === 'login' ? 'Connexion' : 'Créer un compte';
+    const authSubmit = document.getElementById('auth-submit');
+    if (authSubmit) authSubmit.onclick = () => handleAuth(type);
 };
 
 async function handleAuth(type) {
-    const email = document.getElementById('auth-email').value.trim();
-    const pass  = document.getElementById('auth-pass').value;
-    const user  = document.getElementById('auth-user').value.trim();
+    const email = document.getElementById('auth-email')?.value.trim();
+    const pass  = document.getElementById('auth-pass')?.value;
+    const user  = document.getElementById('auth-user')?.value.trim();
     try {
         if (type === 'register') {
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await updateProfile(res.user, { displayName: user });
             await set(ref(db, `users/${res.user.uid}`), {
                 username: user, email, status: 'online',
-                createdAt: Date.now(), bp: 0,
-                verified: false  // default: not verified
+                createdAt: Date.now(), bp: 0, verified: false
             });
         } else {
             await signInWithEmailAndPassword(auth, email, pass);
@@ -188,21 +197,29 @@ window.logout = async () => {
 ══════════════════════════════════════════════════════════════ */
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        document.getElementById('page-discover').classList.remove('active');
-        document.getElementById('page-app').classList.add('active');
-        document.getElementById('my-name').textContent      = user.displayName;
-        document.getElementById('my-avatar').textContent    = user.displayName[0].toUpperCase();
-        document.getElementById('drawer-my-name').textContent   = user.displayName;
-        document.getElementById('drawer-my-avatar').textContent = user.displayName[0].toUpperCase();
+        document.getElementById('page-discover')?.classList.remove('active');
+        document.getElementById('page-app')?.classList.add('active');
 
-        // Show verified badge next to username in user bar if applicable
+        // Sidebar principale
+        const myNameEl   = document.getElementById('my-name');
+        const myAvatarEl = document.getElementById('my-avatar');
+        if (myNameEl)   myNameEl.textContent   = user.displayName;
+        if (myAvatarEl) myAvatarEl.textContent = user.displayName[0].toUpperCase();
+
+        // Drawer mobile
+        const drawerNameEl   = document.getElementById('drawer-my-name');
+        const drawerAvatarEl = document.getElementById('drawer-my-avatar');
+        if (drawerNameEl)   drawerNameEl.textContent   = user.displayName;
+        if (drawerAvatarEl) drawerAvatarEl.textContent = user.displayName[0].toUpperCase();
+
+        // Badge vérifié dans la barre utilisateur
         const verified = await isUserVerified(user.uid);
-        const myNameEl = document.getElementById('my-name');
-        // Remove existing badge if any
-        myNameEl.parentNode.querySelectorAll('.verified-badge').forEach(b => b.remove());
-        if (verified) {
-            const badge = verifiedBadge(true);
-            myNameEl.parentNode.insertBefore(badge, myNameEl.nextSibling);
+        if (myNameEl) {
+            myNameEl.parentNode.querySelectorAll('.verified-badge').forEach(b => b.remove());
+            if (verified) {
+                const badge = verifiedBadge(true);
+                myNameEl.parentNode.insertBefore(badge, myNameEl.nextSibling);
+            }
         }
 
         initApp();
@@ -210,8 +227,8 @@ onAuthStateChanged(auth, async (user) => {
         checkInviteInUrl();
         listenBP();
     } else {
-        document.getElementById('page-discover').classList.add('active');
-        document.getElementById('page-app').classList.remove('active');
+        document.getElementById('page-discover')?.classList.add('active');
+        document.getElementById('page-app')?.classList.remove('active');
     }
 });
 
@@ -230,56 +247,75 @@ window.switchView = (view) => {
     currentView = view;
     stopListeners();
 
+    // Mise à jour nav principale
     document.getElementById('nav-home')?.classList.toggle('active', view === 'global');
     document.getElementById('nav-dm')?.classList.toggle('active', view === 'dm');
 
+    // Mise à jour nom serveur dans le drawer mobile
+    const drawerServerName = document.getElementById('drawer-server-name');
+
     if (view === 'dm') {
+        if (drawerServerName) drawerServerName.textContent = 'MESSAGES';
         renderDmSidebar();
+        renderDmDrawer();
         showWelcomeScreen('💬', 'Messages privés', 'Sélectionne un ami pour lui écrire.');
-        document.getElementById('current-server-name').textContent = 'MESSAGES';
+        const csn = document.getElementById('current-server-name');
+        if (csn) csn.textContent = 'MESSAGES';
+        // Nettoyage badge serveur vérifié
+        csn?.parentNode?.querySelectorAll('.verified-badge').forEach(b => b.remove());
         document.getElementById('channel-header-actions').innerHTML = '';
-        document.getElementById('main-header-actions').innerHTML = '';
-        document.getElementById('members-list').innerHTML = '';
+        document.getElementById('main-header-actions').innerHTML    = '';
+        document.getElementById('members-list').innerHTML           = '';
     } else if (view === 'global') {
         currentServerId = 'global';
-        document.getElementById('current-server-name').textContent = 'GLOBAL';
+        if (drawerServerName) drawerServerName.textContent = 'GLOBAL';
+        const csn = document.getElementById('current-server-name');
+        if (csn) csn.textContent = 'GLOBAL';
+        csn?.parentNode?.querySelectorAll('.verified-badge').forEach(b => b.remove());
         document.getElementById('channel-header-actions').innerHTML =
             `<button class="btn-icon" onclick="openSearchServers()" title="Rejoindre un serveur">🔍</button>`;
-        renderGlobalChannels();
-        renderMembersGlobal();
         document.getElementById('main-header-actions').innerHTML = '';
+        renderGlobalChannels();
+        renderGlobalDrawerChannels();
+        renderMembersGlobal();
     } else {
         currentServerId = view;
         loadServerView(view);
     }
+
+    closeMobileDrawer();
 };
 
 function showWelcomeScreen(icon, title, sub) {
     const box = document.getElementById('chat-messages');
+    if (!box) return;
     box.innerHTML = `<div class="welcome-screen"><div style="font-size:3rem">${icon}</div><h2>${esc(title)}</h2><p style="color:var(--txt-3)">${esc(sub)}</p></div>`;
-    document.getElementById('current-channel-display').textContent = title;
-    document.getElementById('chat-input-area').style.display = 'none';
+    const ccd = document.getElementById('current-channel-display');
+    if (ccd) ccd.textContent = title;
+    const cia = document.getElementById('chat-input-area');
+    if (cia) cia.style.display = 'none';
 }
 
 /* ══════════════════════════════════════════════════════════════
    GLOBAL CHANNELS
 ══════════════════════════════════════════════════════════════ */
+const GLOBAL_CHANNELS = [
+    { id: 'general',  name: 'général' },
+    { id: 'random',   name: 'random' },
+    { id: 'annonces', name: 'annonces' },
+];
+
 function renderGlobalChannels() {
     const list = document.getElementById('channel-list');
+    if (!list) return;
     list.innerHTML = '';
-
-    const defaults = [
-        { id: 'general',  name: 'général' },
-        { id: 'random',   name: 'random' },
-        { id: 'annonces', name: 'annonces' },
-    ];
 
     const label = document.createElement('div');
     label.className = 'sidebar-section-label';
     label.innerHTML = '<span>SALONS</span>';
     list.appendChild(label);
 
-    defaults.forEach(ch => {
+    GLOBAL_CHANNELS.forEach(ch => {
         const div = document.createElement('div');
         div.className = `channel-item ${currentChannelId === ch.id ? 'active' : ''}`;
         div.innerHTML = `<span class="channel-hash">#</span> ${esc(ch.name)}`;
@@ -287,16 +323,48 @@ function renderGlobalChannels() {
             currentChannelId = ch.id;
             document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
             div.classList.add('active');
-            document.getElementById('current-channel-display').textContent = ch.name;
+            const ccd = document.getElementById('current-channel-display');
+            if (ccd) ccd.textContent = ch.name;
             loadMessages('global', ch.id);
+            closeMobileDrawer();
         };
         list.appendChild(div);
     });
 
     currentChannelId = 'general';
-    document.getElementById('current-channel-display').textContent = 'général';
+    const ccd = document.getElementById('current-channel-display');
+    if (ccd) ccd.textContent = 'général';
     loadMessages('global', 'general');
-    document.getElementById('chat-input-area').style.display = '';
+    const cia = document.getElementById('chat-input-area');
+    if (cia) cia.style.display = '';
+}
+
+/* ── Drawer mobile : canaux global ── */
+function renderGlobalDrawerChannels() {
+    const drawerList = document.getElementById('drawer-channel-list');
+    if (!drawerList) return;
+    drawerList.innerHTML = '';
+
+    const label = document.createElement('div');
+    label.className = 'sidebar-section-label';
+    label.innerHTML = '<span>SALONS</span>';
+    drawerList.appendChild(label);
+
+    GLOBAL_CHANNELS.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = `channel-item ${currentChannelId === ch.id ? 'active' : ''}`;
+        div.innerHTML = `<span class="channel-hash">#</span> ${esc(ch.name)}`;
+        div.onclick = () => {
+            currentChannelId = ch.id;
+            document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
+            div.classList.add('active');
+            const ccd = document.getElementById('current-channel-display');
+            if (ccd) ccd.textContent = ch.name;
+            loadMessages('global', ch.id);
+            closeMobileDrawer();
+        };
+        drawerList.appendChild(div);
+    });
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -307,20 +375,26 @@ async function loadServerView(serverId) {
     if (!snap.exists()) return;
     const serverData = snap.val();
 
-    // Server name with optional verified badge
+    // Nom serveur + badge vérifié (sidebar)
     const serverNameEl = document.getElementById('current-server-name');
-    serverNameEl.textContent = serverData.name.toUpperCase();
-    // Remove old badge
-    serverNameEl.parentNode.querySelectorAll('.verified-badge').forEach(b => b.remove());
-    if (serverData.verified === true) {
-        const badge = verifiedBadge(true);
-        serverNameEl.parentNode.insertBefore(badge, serverNameEl.nextSibling);
+    if (serverNameEl) {
+        serverNameEl.textContent = serverData.name.toUpperCase();
+        serverNameEl.parentNode.querySelectorAll('.verified-badge').forEach(b => b.remove());
+        if (serverData.verified === true) {
+            const badge = verifiedBadge(true);
+            serverNameEl.parentNode.insertBefore(badge, serverNameEl.nextSibling);
+        }
     }
+
+    // Nom serveur dans le drawer mobile
+    const drawerServerName = document.getElementById('drawer-server-name');
+    if (drawerServerName) drawerServerName.textContent = serverData.name.toUpperCase();
 
     const memberSnap = await get(ref(db, `servers/${serverId}/members/${uid()}`));
     if (!memberSnap.exists()) {
         showWelcomeScreen('🔒', 'Accès refusé', 'Tu n\'es pas membre de ce serveur.');
-        document.getElementById('channel-list').innerHTML = '';
+        document.getElementById('channel-list').innerHTML    = '';
+        document.getElementById('drawer-channel-list').innerHTML = '';
         return;
     }
 
@@ -335,8 +409,11 @@ async function loadServerView(serverId) {
 }
 
 function renderServerChannels(serverId) {
-    const list = document.getElementById('channel-list');
+    const list       = document.getElementById('channel-list');
+    const drawerList = document.getElementById('drawer-channel-list');
+    if (!list) return;
     list.innerHTML = '';
+    if (drawerList) drawerList.innerHTML = '';
 
     onValue(ref(db, `servers/${serverId}/categories`), (catSnap) => {
         const categories = {};
@@ -344,35 +421,40 @@ function renderServerChannels(serverId) {
 
         onValue(ref(db, `servers/${serverId}/channels`), (chanSnap) => {
             list.innerHTML = '';
+            if (drawerList) drawerList.innerHTML = '';
 
             const byCat = {};
             chanSnap.forEach(ch => {
-                const d = ch.val();
+                const d   = ch.val();
                 const cat = d.categoryId || 'none';
                 if (!byCat[cat]) byCat[cat] = [];
                 byCat[cat].push({ id: ch.key, ...d });
             });
 
-            Object.entries(categories).forEach(([catId, catData]) => {
-                const catDiv = document.createElement('div');
-                catDiv.className = 'channel-category';
-                catDiv.innerHTML = `<span class="channel-category-name">▾ ${esc(catData.name)}</span>`;
-                list.appendChild(catDiv);
-                (byCat[catId] || []).forEach(ch => appendChannelItem(list, ch, serverId));
-            });
+            const renderInto = (container) => {
+                Object.entries(categories).forEach(([catId, catData]) => {
+                    const catDiv = document.createElement('div');
+                    catDiv.className = 'channel-category';
+                    catDiv.innerHTML = `<span class="channel-category-name">▾ ${esc(catData.name)}</span>`;
+                    container.appendChild(catDiv);
+                    (byCat[catId] || []).forEach(ch => appendChannelItem(container, ch, serverId));
+                });
 
-            if (byCat['none']?.length) {
-                const noCatLabel = document.createElement('div');
-                noCatLabel.className = 'channel-category';
-                noCatLabel.innerHTML = '<span class="channel-category-name">▾ GÉNÉRAL</span>';
-                list.appendChild(noCatLabel);
-                byCat['none'].forEach(ch => appendChannelItem(list, ch, serverId));
-            }
+                if (byCat['none']?.length) {
+                    const noCatLabel = document.createElement('div');
+                    noCatLabel.className = 'channel-category';
+                    noCatLabel.innerHTML = '<span class="channel-category-name">▾ GÉNÉRAL</span>';
+                    container.appendChild(noCatLabel);
+                    byCat['none'].forEach(ch => appendChannelItem(container, ch, serverId));
+                }
+            };
 
-            if (!currentChannelId || list.querySelector('.channel-item')) {
-                const first = list.querySelector('.channel-item');
-                if (first) first.click();
-            }
+            renderInto(list);
+            if (drawerList) renderInto(drawerList);
+
+            // Clic automatique sur le premier salon
+            const first = list.querySelector('.channel-item');
+            if (first) first.click();
         });
     });
 }
@@ -385,8 +467,10 @@ function appendChannelItem(list, ch, serverId) {
         currentChannelId = ch.id;
         document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
         div.classList.add('active');
-        document.getElementById('current-channel-display').textContent = ch.name;
+        const ccd = document.getElementById('current-channel-display');
+        if (ccd) ccd.textContent = ch.name;
         loadMessages(serverId, ch.id);
+        closeMobileDrawer();
     };
     list.appendChild(div);
 }
@@ -402,17 +486,16 @@ async function getUserStyle(senderId) {
 }
 
 function buildSenderEl(senderName, senderId, style = {}, verified = false) {
-    const color = style.color || '';
-    const font  = style.font  || '';
-    const anim  = style.anim  || '';
-    const span  = document.createElement('span');
-    span.className = 'msg-sender';
+    const color  = style.color || '';
+    const font   = style.font  || '';
+    const anim   = style.anim  || '';
+    const span   = document.createElement('span');
+    span.className   = 'msg-sender';
     span.textContent = senderName;
     if (color) span.style.color = color;
     if (font)  span.dataset.font = font;
     if (anim)  span.dataset.anim = anim;
 
-    // Wrap sender + badge in a flex container
     const wrapper = document.createElement('span');
     wrapper.className = 'msg-sender-wrap';
     wrapper.appendChild(span);
@@ -426,10 +509,12 @@ function buildSenderEl(senderName, senderId, style = {}, verified = false) {
 function loadMessages(serverId, channelId) {
     stopListeners();
     const chatBox = document.getElementById('chat-messages');
+    if (!chatBox) return;
     chatBox.innerHTML = '';
-    document.getElementById('chat-input-area').style.display = '';
+    const cia = document.getElementById('chat-input-area');
+    if (cia) cia.style.display = '';
 
-    const msgPath = `messages/${serverId}/${channelId}`;
+    const msgPath  = `messages/${serverId}/${channelId}`;
     let lastDate   = null;
     let lastSender = null;
 
@@ -437,7 +522,7 @@ function loadMessages(serverId, channelId) {
         const m = snap.val();
         if (!m) return;
 
-        // Date divider
+        // Séparateur de date
         const msgDate = m.timestamp
             ? new Date(m.timestamp).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })
             : null;
@@ -449,14 +534,13 @@ function loadMessages(serverId, channelId) {
             lastDate = msgDate;
         }
 
-        const isOwn     = m.senderId === uid();
+        const isOwn      = m.senderId === uid();
         const showAvatar = m.sender !== lastSender;
         lastSender = m.sender;
         const time = m.timestamp
             ? new Date(m.timestamp).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })
             : '';
 
-        // Fetch style and verified status
         const style    = m.senderId ? await getUserStyle(m.senderId) : {};
         const verified = m.senderId ? await isUserVerified(m.senderId) : false;
 
@@ -465,23 +549,23 @@ function loadMessages(serverId, channelId) {
 
         const avatarCol = document.createElement('div');
         avatarCol.className = 'msg-avatar-col';
+
         if (showAvatar) {
             const av = document.createElement('div');
-            av.className = 'msg-avatar';
+            av.className   = 'msg-avatar';
             av.textContent = (m.sender || '?')[0].toUpperCase();
             if (style.color) av.style.background = style.color;
-            // Small verified badge on avatar
+
             if (verified) {
-                av.style.position = 'relative';
                 const avWrap = document.createElement('div');
                 avWrap.style.position = 'relative';
-                avWrap.style.display = 'inline-block';
+                avWrap.style.display  = 'inline-block';
                 avWrap.appendChild(av);
-                const miniVerified = document.createElement('img');
-                miniVerified.src = 'verified.png';
+                const miniVerified    = document.createElement('img');
+                miniVerified.src      = 'verified.png';
                 miniVerified.className = 'verified-badge-avatar';
-                miniVerified.alt = 'Vérifié';
-                miniVerified.title = 'Compte vérifié';
+                miniVerified.alt      = 'Vérifié';
+                miniVerified.title    = 'Compte vérifié';
                 avWrap.appendChild(miniVerified);
                 avatarCol.appendChild(avWrap);
             } else {
@@ -493,11 +577,11 @@ function loadMessages(serverId, channelId) {
         contentCol.className = 'msg-content-col';
 
         if (showAvatar) {
-            const header = document.createElement('div');
+            const header   = document.createElement('div');
             header.className = 'msg-header';
             const senderEl = buildSenderEl(m.sender || '?', m.senderId, style, verified);
             const timeEl   = document.createElement('span');
-            timeEl.className = 'msg-time';
+            timeEl.className   = 'msg-time';
             timeEl.textContent = time;
             header.appendChild(senderEl);
             header.appendChild(timeEl);
@@ -509,7 +593,6 @@ function loadMessages(serverId, channelId) {
         textEl.innerHTML = formatMessage(m.text);
         contentCol.appendChild(textEl);
 
-        // Message actions (delete for own messages)
         if (isOwn) {
             const actions = document.createElement('div');
             actions.className = 'msg-actions';
@@ -536,12 +619,16 @@ function formatMessage(text) {
     return esc(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
 }
 
-document.getElementById('sendBtn').onclick   = sendMessage;
-document.getElementById('msgInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+// Envoi de messages
+const sendBtn  = document.getElementById('sendBtn');
+const msgInput = document.getElementById('msgInput');
+if (sendBtn)  sendBtn.onclick = sendMessage;
+if (msgInput) msgInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 
 function sendMessage() {
     const input = document.getElementById('msgInput');
-    const text  = input.value.trim();
+    if (!input) return;
+    const text = input.value.trim();
     if (!text || !auth.currentUser) return;
 
     if (currentDmUserId && currentView === 'dm') {
@@ -559,21 +646,25 @@ function sendMessage() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SERVERS
+   SERVERS — chargement & affichage
 ══════════════════════════════════════════════════════════════ */
 function loadServers() {
     onValue(ref(db, 'servers'), (snap) => {
         const list  = document.getElementById('server-list');
         const dlist = document.getElementById('drawer-server-list');
-        list.innerHTML  = '';
-        dlist.innerHTML = '';
+        if (list)  list.innerHTML  = '';
+        if (dlist) dlist.innerHTML = '';
 
         snap.forEach(child => {
-            const s = child.val();
+            const s        = child.val();
             const isMember = s.members && s.members[uid()];
             if (!isMember) return;
 
-            [list, dlist].forEach(container => {
+            const targets = [];
+            if (list)  targets.push(list);
+            if (dlist) targets.push(dlist);
+
+            targets.forEach(container => {
                 const wrap = document.createElement('div');
                 wrap.style.position = 'relative';
                 wrap.style.display  = 'inline-block';
@@ -585,16 +676,14 @@ function loadServers() {
                 div.onclick   = () => switchView(child.key);
                 wrap.appendChild(div);
 
-                // Verified badge on server icon
                 if (s.verified === true) {
-                    const badge = document.createElement('img');
-                    badge.src = 'verified.png';
-                    badge.className = 'verified-badge-server-icon';
-                    badge.alt = 'Serveur vérifié';
-                    badge.title = 'Serveur vérifié';
+                    const badge       = document.createElement('img');
+                    badge.src         = 'verified.png';
+                    badge.className   = 'verified-badge-server-icon';
+                    badge.alt         = 'Serveur vérifié';
+                    badge.title       = 'Serveur vérifié';
                     wrap.appendChild(badge);
                 }
-
                 container.appendChild(wrap);
             });
         });
@@ -612,7 +701,7 @@ window.createNewServer = async () => {
         createdAt: Date.now(),
         members: { [uid()]: { role: 'owner', joinedAt: Date.now() } },
         inviteCode: generateInviteCode(),
-        verified: false  // default: not verified
+        verified: false
     });
     await push(ref(db, `servers/${newRef.key}/channels`), { name: 'général', categoryId: null });
     switchView(newRef.key);
@@ -628,16 +717,19 @@ function generateInviteCode(len = 8) {
 ══════════════════════════════════════════════════════════════ */
 window.openSearchServers = () => {
     openModal('modal-search-servers');
-    document.getElementById('server-search-results').innerHTML = '<div class="empty-state">Tape pour chercher...</div>';
-    document.getElementById('server-search-input').value = '';
+    const results = document.getElementById('server-search-results');
+    if (results) results.innerHTML = '<div class="empty-state">Tape pour chercher...</div>';
+    const input = document.getElementById('server-search-input');
+    if (input) input.value = '';
 };
 
 window.searchServers = async (query) => {
     const results = document.getElementById('server-search-results');
+    if (!results) return;
     if (!query.trim()) { results.innerHTML = '<div class="empty-state">Tape pour chercher...</div>'; return; }
     results.innerHTML = '<div class="empty-state">Recherche...</div>';
 
-    const snap = await get(ref(db, 'servers'));
+    const snap  = await get(ref(db, 'servers'));
     const found = [];
     snap.forEach(child => {
         const s = child.val();
@@ -669,10 +761,12 @@ window.promptJoinServer = async (serverId) => {
     const snap = await get(ref(db, `servers/${serverId}`));
     if (!snap.exists()) return;
     pendingJoinServer = { id: serverId, data: snap.val() };
-    document.getElementById('join-confirm-icon').textContent = snap.val().icon || snap.val().name[0];
-    document.getElementById('join-confirm-name').innerHTML =
-        esc(snap.val().name) + verifiedBadgeHTML(snap.val().verified);
-    document.getElementById('join-confirm-desc').textContent = `Voulez-vous rejoindre le serveur "${snap.val().name}" ?`;
+    const icon = document.getElementById('join-confirm-icon');
+    const name = document.getElementById('join-confirm-name');
+    const desc = document.getElementById('join-confirm-desc');
+    if (icon) icon.textContent = snap.val().icon || snap.val().name[0];
+    if (name) name.innerHTML   = esc(snap.val().name) + verifiedBadgeHTML(snap.val().verified);
+    if (desc) desc.textContent = `Voulez-vous rejoindre le serveur "${snap.val().name}" ?`;
     closeModal('modal-search-servers');
     openModal('modal-join-confirm');
 };
@@ -689,12 +783,12 @@ window.confirmJoinServer = async () => {
 };
 
 window.joinByInviteLink = async () => {
-    const raw  = document.getElementById('invite-link-input').value.trim();
+    const raw  = document.getElementById('invite-link-input')?.value.trim();
+    if (!raw) return;
     const code = raw.includes('/') ? raw.split('/').pop() : raw;
-    if (!code) return;
 
     const snap = await get(ref(db, 'servers'));
-    let found = null;
+    let found  = null;
     snap.forEach(child => {
         const s = child.val();
         if (s.inviteCode === code.toUpperCase()) found = { id: child.key, data: s };
@@ -702,10 +796,12 @@ window.joinByInviteLink = async () => {
 
     if (!found) { showNotif('❌', 'Lien invalide', 'Aucun serveur trouvé avec ce code.'); return; }
     pendingJoinServer = found;
-    document.getElementById('join-confirm-icon').textContent = found.data.icon || found.data.name[0];
-    document.getElementById('join-confirm-name').innerHTML =
-        esc(found.data.name) + verifiedBadgeHTML(found.data.verified);
-    document.getElementById('join-confirm-desc').textContent = `Voulez-vous rejoindre le serveur "${found.data.name}" ?`;
+    const icon = document.getElementById('join-confirm-icon');
+    const name = document.getElementById('join-confirm-name');
+    const desc = document.getElementById('join-confirm-desc');
+    if (icon) icon.textContent = found.data.icon || found.data.name[0];
+    if (name) name.innerHTML   = esc(found.data.name) + verifiedBadgeHTML(found.data.verified);
+    if (desc) desc.textContent = `Voulez-vous rejoindre le serveur "${found.data.name}" ?`;
     closeModal('modal-search-servers');
     openModal('modal-join-confirm');
 };
@@ -714,10 +810,14 @@ function checkInviteInUrl() {
     const params = new URLSearchParams(window.location.search);
     const code   = params.get('invite');
     if (code) {
-        document.getElementById('invite-link-input').value = code;
+        const input = document.getElementById('invite-link-input');
+        if (input) input.value = code;
         openModal('modal-search-servers');
-        document.getElementById('tab-search-sv').classList.remove('active');
-        document.getElementById('tab-invite').classList.add('active');
+        // Activer l'onglet "Lien d'invitation"
+        const tabSearch = document.getElementById('tab-search-sv');
+        const tabInvite = document.getElementById('tab-invite');
+        if (tabSearch) tabSearch.classList.remove('active');
+        if (tabInvite) tabInvite.classList.add('active');
     }
 }
 
@@ -736,6 +836,7 @@ async function loadAdminCategories() {
     const snap   = await get(ref(db, `servers/${currentServerId}/categories`));
     const list   = document.getElementById('admin-category-list');
     const select = document.getElementById('admin-channel-category');
+    if (!list || !select) return;
     list.innerHTML   = '';
     select.innerHTML = '<option value="">Sans catégorie</option>';
 
@@ -767,19 +868,22 @@ window.deleteCategory = async (catId) => {
 };
 
 window.adminCreateChannel = async () => {
-    const name       = document.getElementById('admin-channel-name').value.trim();
-    const categoryId = document.getElementById('admin-channel-category').value || null;
+    const nameEl     = document.getElementById('admin-channel-name');
+    const categoryEl = document.getElementById('admin-channel-category');
+    const name       = nameEl?.value.trim();
+    const categoryId = categoryEl?.value || null;
     if (!name) return;
     await push(ref(db, `servers/${currentServerId}/channels`), {
         name: name.toLowerCase().replace(/\s+/g, '-'), categoryId
     });
-    document.getElementById('admin-channel-name').value = '';
+    if (nameEl) nameEl.value = '';
     showNotif('✅', 'Salon créé', `#${name} a été créé.`);
 };
 
 async function loadAdminRoles() {
     const snap = await get(ref(db, `servers/${currentServerId}/roles`));
     const list = document.getElementById('admin-role-list');
+    if (!list) return;
     list.innerHTML = '';
     if (!snap.exists()) { list.innerHTML = '<div class="empty-state">Aucun rôle créé.</div>'; return; }
     snap.forEach(child => {
@@ -797,17 +901,19 @@ async function loadAdminRoles() {
 }
 
 window.adminCreateRole = async () => {
-    const name  = document.getElementById('new-role-name').value.trim();
-    const color = document.getElementById('new-role-color').value;
+    const nameEl  = document.getElementById('new-role-name');
+    const colorEl = document.getElementById('new-role-color');
+    const name    = nameEl?.value.trim();
+    const color   = colorEl?.value || '#5b6af0';
     if (!name) return;
     const permissions = {
-        manageChannels: document.getElementById('perm-manage-channels').checked,
-        manageMembers:  document.getElementById('perm-manage-members').checked,
-        deleteMessages: document.getElementById('perm-delete-messages').checked,
-        sendMessages:   document.getElementById('perm-send-messages').checked,
+        manageChannels: document.getElementById('perm-manage-channels')?.checked ?? false,
+        manageMembers:  document.getElementById('perm-manage-members')?.checked ?? false,
+        deleteMessages: document.getElementById('perm-delete-messages')?.checked ?? false,
+        sendMessages:   document.getElementById('perm-send-messages')?.checked ?? true,
     };
     await push(ref(db, `servers/${currentServerId}/roles`), { name, color, permissions });
-    document.getElementById('new-role-name').value = '';
+    if (nameEl) nameEl.value = '';
     showNotif('✅', 'Rôle créé', `Le rôle "${name}" a été créé.`);
     loadAdminRoles();
 };
@@ -821,7 +927,8 @@ async function loadAdminMembers() {
     const snap      = await get(ref(db, `servers/${currentServerId}/members`));
     const rolesSnap = await get(ref(db, `servers/${currentServerId}/roles`));
     const list      = document.getElementById('admin-members-list');
-    list.innerHTML  = '';
+    if (!list) return;
+    list.innerHTML = '';
 
     const roles = {};
     rolesSnap.forEach(r => { roles[r.key] = r.val(); });
@@ -879,7 +986,8 @@ async function generateInviteLink() {
         await set(ref(db, `servers/${currentServerId}/inviteCode`), code);
     }
     const link = `${window.location.origin}${window.location.pathname}?invite=${code}`;
-    document.getElementById('invite-link-display').textContent = link;
+    const el   = document.getElementById('invite-link-display');
+    if (el) el.textContent = link;
     return link;
 }
 
@@ -902,6 +1010,7 @@ window.regenerateInvite = async () => {
 function renderMembersGlobal() {
     onValue(ref(db, 'users'), (snap) => {
         const list = document.getElementById('members-list');
+        if (!list) return;
         list.innerHTML = '';
         snap.forEach(child => {
             const u   = child.val();
@@ -923,7 +1032,8 @@ async function renderMembersServer(serverId) {
     const snap      = await get(ref(db, `servers/${serverId}/members`));
     const rolesSnap = await get(ref(db, `servers/${serverId}/roles`));
     const list      = document.getElementById('members-list');
-    list.innerHTML  = '';
+    if (!list) return;
+    list.innerHTML = '';
 
     const roles = {};
     rolesSnap.forEach(r => { roles[r.key] = r.val(); });
@@ -936,9 +1046,9 @@ async function renderMembersServer(serverId) {
     const all = await Promise.all(promises);
     all.forEach(({ uid: memberId, member, user }) => {
         if (!user) return;
-        const div   = document.createElement('div');
+        const div  = document.createElement('div');
         div.className = 'member-item';
-        const role  = member.roleId && roles[member.roleId];
+        const role = member.roleId && roles[member.roleId];
         div.innerHTML = `
             <div class="member-avatar">${esc(user.username[0])}
                 <div class="member-status ${user.status === 'online' ? '' : 'offline'}"></div>
@@ -956,11 +1066,26 @@ async function renderMembersServer(serverId) {
 ══════════════════════════════════════════════════════════════ */
 function renderDmSidebar() {
     const list = document.getElementById('channel-list');
+    if (!list) return;
     list.innerHTML = '<div class="sidebar-section-label"><span>MESSAGES PRIVÉS</span></div>';
-    document.getElementById('members-list').innerHTML = '';
+    const membersList = document.getElementById('members-list');
+    if (membersList) membersList.innerHTML = '';
+    _renderDmFriends(list);
+}
 
+/* Drawer mobile : DM */
+function renderDmDrawer() {
+    const drawerList = document.getElementById('drawer-channel-list');
+    if (!drawerList) return;
+    drawerList.innerHTML = '<div class="sidebar-section-label"><span>MESSAGES PRIVÉS</span></div>';
+    _renderDmFriends(drawerList);
+}
+
+function _renderDmFriends(container) {
     onValue(ref(db, `users/${uid()}/friends`), async (snap) => {
-        list.querySelectorAll('.dm-item').forEach(el => el.remove());
+        // Supprimer les éléments DM existants (en dessous du label)
+        container.querySelectorAll('.dm-item, .empty-state').forEach(el => el.remove());
+
         const promises = [];
         snap.forEach(child => {
             if (child.val() === 'accepted') {
@@ -977,14 +1102,14 @@ function renderDmSidebar() {
                 <span class="dm-name">${esc(user.username)}</span>
                 ${verifiedBadgeHTML(user.verified)}`;
             div.onclick = () => openDmWith(fid, user.username);
-            list.appendChild(div);
+            container.appendChild(div);
         });
         if (!friends.length) {
             const empty = document.createElement('div');
-            empty.className = 'empty-state';
+            empty.className    = 'empty-state';
             empty.style.padding = '20px 12px';
-            empty.textContent = 'Aucun ami encore. Ajoutes-en !';
-            list.appendChild(empty);
+            empty.textContent  = 'Aucun ami encore. Ajoutes-en !';
+            container.appendChild(empty);
         }
     });
 }
@@ -993,9 +1118,11 @@ function openDmWith(userId, username) {
     currentDmUserId = userId;
     currentView     = 'dm';
 
-    document.getElementById('nav-dm').classList.add('active');
-    document.getElementById('current-channel-display').textContent = username;
-    document.getElementById('chat-input-area').style.display = '';
+    document.getElementById('nav-dm')?.classList.add('active');
+    const ccd = document.getElementById('current-channel-display');
+    if (ccd) ccd.textContent = username;
+    const cia = document.getElementById('chat-input-area');
+    if (cia) cia.style.display = '';
     document.getElementById('main-header-actions').innerHTML =
         `<span style="font-size:.8rem;color:var(--txt-3)">💬 Message privé</span>`;
 
@@ -1003,6 +1130,7 @@ function openDmWith(userId, username) {
 
     const dmId = dmChannelId(uid(), userId);
     loadMessages('dm', dmId);
+    closeMobileDrawer();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1017,6 +1145,7 @@ window.openFriendsModal = () => {
 async function loadMyFriends() {
     const snap      = await get(ref(db, `users/${uid()}/friends`));
     const container = document.getElementById('tab-myfriends');
+    if (!container) return;
     container.innerHTML = '';
 
     if (!snap.exists()) { container.innerHTML = '<div class="empty-state">Aucun ami pour l\'instant.</div>'; return; }
@@ -1052,6 +1181,7 @@ async function loadMyFriends() {
 
 async function loadFriendRequests() {
     const container = document.getElementById('tab-requests');
+    if (!container) return;
     container.innerHTML = '';
 
     const snap = await get(ref(db, `users/${uid()}/friendRequests`));
@@ -1088,6 +1218,7 @@ async function loadFriendRequests() {
 
 window.searchUsers = async (query) => {
     const results = document.getElementById('friend-search-results');
+    if (!results) return;
     if (!query.trim()) { results.innerHTML = '<div class="empty-state">Tape pour chercher...</div>'; return; }
 
     const snap = await get(ref(db, 'users'));
@@ -1159,7 +1290,8 @@ let _currentBP = 0;
 function listenBP() {
     onValue(ref(db, `users/${uid()}/bp`), (snap) => {
         _currentBP = snap.val() || 0;
-        document.getElementById('user-bp-count').textContent  = `⭐ ${_currentBP}`;
+        const bpCount = document.getElementById('user-bp-count');
+        if (bpCount) bpCount.textContent = `⭐ ${_currentBP}`;
         const bal = document.getElementById('bp-modal-balance');
         if (bal) bal.innerHTML = `${_currentBP} <span>BP</span>`;
     });
@@ -1176,7 +1308,6 @@ async function spendBP(amount) {
     return true;
 }
 
-// Small passive reward for sending messages (1 BP every 10 messages, tracked locally)
 let _msgsSinceLastBP = 0;
 async function awardBPForActivity() {
     _msgsSinceLastBP++;
@@ -1191,7 +1322,7 @@ async function awardBPForActivity() {
    BLABPOINTS — DAILY REWARD
 ══════════════════════════════════════════════════════════════ */
 window.claimDailyBP = async () => {
-    const today    = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+    const today    = new Date().toISOString().slice(0, 10);
     const lastSnap = await get(ref(db, `users/${uid()}/lastDailyClaim`));
     const last     = lastSnap.val();
 
@@ -1218,13 +1349,13 @@ async function refreshDailyUI(todayOverride) {
     if (!btn) return;
 
     if (claimed) {
-        btn.disabled     = true;
-        label.textContent = 'Récompense déjà réclamée aujourd\'hui';
-        sub.textContent   = 'Reviens demain pour +5 BP.';
+        btn.disabled      = true;
+        if (label) label.textContent = 'Récompense déjà réclamée aujourd\'hui';
+        if (sub)   sub.textContent   = 'Reviens demain pour +5 BP.';
     } else {
-        btn.disabled     = false;
-        label.textContent = 'Récompense quotidienne disponible !';
-        sub.textContent   = 'Tu peux récupérer tes 5 BlabPoints aujourd\'hui.';
+        btn.disabled      = false;
+        if (label) label.textContent = 'Récompense quotidienne disponible !';
+        if (sub)   sub.textContent   = 'Tu peux récupérer tes 5 BlabPoints aujourd\'hui.';
     }
 }
 
@@ -1234,23 +1365,20 @@ async function refreshDailyUI(todayOverride) {
 window.openBPShop = async () => {
     openModal('modal-bp-shop');
 
-    // Update balance display
-    document.getElementById('bp-modal-balance').innerHTML = `${_currentBP} <span>BP</span>`;
+    const balEl = document.getElementById('bp-modal-balance');
+    if (balEl) balEl.innerHTML = `${_currentBP} <span>BP</span>`;
 
-    // Update preview names
     const previewName = me();
     ['profile-preview-name','profile-preview-name-font','profile-preview-name-anim'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = previewName;
     });
 
-    // Load user's existing style + owned items
-    const styleSnap  = await get(ref(db, `users/${uid()}/style`));
-    const style       = styleSnap.exists() ? styleSnap.val() : {};
-    const ownedSnap  = await get(ref(db, `users/${uid()}/owned`));
-    const owned       = ownedSnap.exists() ? ownedSnap.val() : {};
+    const styleSnap = await get(ref(db, `users/${uid()}/style`));
+    const style     = styleSnap.exists() ? styleSnap.val() : {};
+    const ownedSnap = await get(ref(db, `users/${uid()}/owned`));
+    const owned     = ownedSnap.exists() ? ownedSnap.val() : {};
 
-    // Apply current style to previews
     applyStyleToPreview('profile-preview-name',      style);
     applyStyleToPreview('profile-preview-name-font', style);
     applyStyleToPreview('profile-preview-name-anim', style);
@@ -1264,13 +1392,14 @@ window.openBPShop = async () => {
 function applyStyleToPreview(elId, style) {
     const el = document.getElementById(elId);
     if (!el) return;
-    el.style.color   = style.color || '';
-    el.dataset.font  = style.font  || '';
-    el.dataset.anim  = style.anim  || '';
+    el.style.color  = style.color || '';
+    el.dataset.font = style.font  || '';
+    el.dataset.anim = style.anim  || '';
 }
 
 function renderColorShop(owned, style) {
     const grid = document.getElementById('shop-cosmetics-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     BP_COLORS.forEach(item => {
         const isOwned    = !!owned[item.id];
@@ -1291,6 +1420,7 @@ function renderColorShop(owned, style) {
 
 function renderFontShop(owned, style) {
     const grid = document.getElementById('shop-fonts-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     BP_FONTS.forEach(item => {
         const isOwned    = !!owned[item.id];
@@ -1311,6 +1441,7 @@ function renderFontShop(owned, style) {
 
 function renderAnimShop(owned, style) {
     const grid = document.getElementById('shop-anims-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     BP_ANIMS.forEach(item => {
         const isOwned    = !!owned[item.id];
@@ -1329,18 +1460,13 @@ function renderAnimShop(owned, style) {
     });
 }
 
-/* Buy → equip immediately */
 window.buyItem = async (itemId, price, type, value) => {
     const ok = await spendBP(price);
     if (!ok) { showNotif('❌', 'Pas assez de BP', `Il te faut ${price} BlabPoints.`); return; }
-
-    // Mark as owned
     await set(ref(db, `users/${uid()}/owned/${itemId}`), true);
-
-    // Equip
     await update(ref(db, `users/${uid()}/style`), { [type]: value });
     showNotif('🎉', 'Achat réussi !', 'L\'item a été acheté et équipé.');
-    openBPShop(); // refresh
+    openBPShop();
 };
 
 window.equipColor = async (color) => {
