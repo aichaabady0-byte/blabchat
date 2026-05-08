@@ -1492,3 +1492,73 @@ window.createNewChannel = () => {
         name: name.trim().toLowerCase().replace(/\s+/g, '-'), categoryId: null
     });
 };
+/* ══════════════════════════════════════════════════════════════
+   BLABPLUS
+══════════════════════════════════════════════════════════════ */
+window.openBlabPlusModal = async () => {
+    openModal('modal-blabplus');
+    const snap = await get(ref(db, `users/${uid()}/blabplus`));
+    const isSubscribed = snap.val() === true;
+
+    document.getElementById('bplus-subscribed-view').style.display   = isSubscribed ? 'flex' : 'none';
+    document.getElementById('bplus-unsubscribed-view').style.display = isSubscribed ? 'none' : 'flex';
+
+    if (isSubscribed) renderFreeSkinGrid();
+};
+
+function renderFreeSkinGrid() {
+    const grid = document.getElementById('bplus-free-skin-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const allItems = [...BP_COLORS, ...BP_FONTS, ...BP_ANIMS];
+    allItems.slice(0, 6).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bplus-skin-option';
+        div.innerHTML = `<div class="skin-preview">${item.emoji || '🎨'}</div><div>${esc(item.name)}</div>`;
+        div.onclick = () => selectFreeSkin(item);
+        grid.appendChild(div);
+    });
+}
+
+let _selectedFreeSkin = null;
+function selectFreeSkin(item) {
+    _selectedFreeSkin = item;
+    document.querySelectorAll('.bplus-skin-option').forEach(el => el.style.borderColor = '#1e1e1e');
+    event.currentTarget.style.borderColor = '#555';
+}
+
+window.claimFreeSkin = async () => {
+    if (!_selectedFreeSkin) {
+        showNotif('⚠️', 'Choisis un skin', 'Sélectionne d\'abord un skin dans la grille.');
+        return;
+    }
+    const today = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const lastSnap = await get(ref(db, `users/${uid()}/blabplusLastSkin`));
+    if (lastSnap.val() === today) {
+        showNotif('⏳', 'Déjà réclamé', 'Tu as déjà choisi ton skin gratuit ce mois-ci.');
+        return;
+    }
+    const item = _selectedFreeSkin;
+    const type = item.color ? 'color' : item.font ? 'font' : 'anim';
+    const value = item.color || item.font || item.anim;
+    await set(ref(db, `users/${uid()}/owned/${item.id}`), true);
+    await update(ref(db, `users/${uid()}/style`), { [type]: value });
+    await set(ref(db, `users/${uid()}/blabplusLastSkin`), today);
+    _selectedFreeSkin = null;
+    showNotif('🎉', 'Skin réclamé !', `"${item.name}" a été équipé gratuitement.`);
+    closeModal('modal-blabplus');
+};
+
+window.subscribeBlabPlus = async () => {
+    await set(ref(db, `users/${uid()}/blabplus`), true);
+    await addBP(100);
+    showNotif('🎉', 'Bienvenue dans Blab+ !', '+100 BP crédités. Profite de ton badge exclusif !');
+    openBlabPlusModal();
+};
+
+window.cancelBlabPlus = async () => {
+    if (!confirm('Annuler ton abonnement Blab+ ?')) return;
+    await set(ref(db, `users/${uid()}/blabplus`), false);
+    showNotif('👋', 'Abonnement annulé', 'Tu repasseras en compte gratuit.');
+    openBlabPlusModal();
+};
