@@ -6,6 +6,7 @@ import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
     onAuthStateChanged, signOut, updateProfile
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initMJEvent } from './mj-event.js';
 
 /* ══════════════════════════════════════════════════════════════
    FIREBASE INIT
