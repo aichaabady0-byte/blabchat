@@ -1,0 +1,534 @@
+/* ══════════════════════════════════════════════════════════════
+   MICHAEL JACKSON EVENT — BlabChat
+   Activé via Firebase : events/mjackson/active = true
+══════════════════════════════════════════════════════════════ */
+
+/* ─── FONTS ─── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@1,900&display=swap');
+
+/* ─── ROOT VARIABLES (event override) ─── */
+body.mj-event-active {
+    --mj-gold:    #FFD700;
+    --mj-silver:  #C0C0C0;
+    --mj-black:   #0a0a0a;
+    --mj-red:     #CC0000;
+    --mj-white:   #F5F5F0;
+    --mj-glow:    rgba(255, 215, 0, 0.3);
+}
+
+/* ─── SPARKLE CURSOR ─── */
+body.mj-event-active {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='24' font-size='22'%3E🎤%3C/text%3E%3C/svg%3E") 4 28, auto;
+}
+
+/* ─── AMBIENT GOLD BORDER ON APP ─── */
+body.mj-event-active #page-app {
+    box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.15);
+}
+
+/* ─── MJ BANNER (top of app) ─── */
+#mj-event-banner {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    height: 44px;
+    background: linear-gradient(90deg,
+        #0a0a0a 0%,
+        #1a1200 20%,
+        #2a1f00 35%,
+        #1a1200 50%,
+        #2a1f00 65%,
+        #1a1200 80%,
+        #0a0a0a 100%
+    );
+    border-bottom: 1px solid rgba(255, 215, 0, 0.4);
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+body.mj-event-active #mj-event-banner {
+    display: flex;
+}
+
+/* Scanning light effect */
+#mj-event-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 80px;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent);
+    animation: mjBannerScan 3s linear infinite;
+}
+
+@keyframes mjBannerScan {
+    from { left: -80px; }
+    to   { left: 100%; }
+}
+
+.mj-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    animation: mjBannerSlide 30s linear infinite;
+    width: max-content;
+}
+
+@keyframes mjBannerSlide {
+    0%   { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+}
+
+.mj-banner-star {
+    color: var(--mj-gold);
+    font-size: 1rem;
+    animation: mjStarSpin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes mjStarSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.mj-banner-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 4px;
+    color: var(--mj-gold);
+    text-shadow: 0 0 10px rgba(255,215,0,0.6), 0 0 20px rgba(255,215,0,0.3);
+}
+
+.mj-banner-close {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255,215,0,0.5);
+    cursor: pointer;
+    font-size: .8rem;
+    z-index: 2;
+    transition: color .2s;
+}
+
+.mj-banner-close:hover { color: var(--mj-gold); }
+
+/* ─── BANNER PADDING FIX ─── */
+body.mj-event-active .top-nav {
+    top: 44px !important;
+}
+body.mj-event-active #page-app .app-layout {
+    padding-top: 44px;
+}
+
+/* ─── FLOATING SPOTLIGHT OVERLAY ─── */
+#mj-spotlights {
+    display: none;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+}
+
+body.mj-event-active #mj-spotlights {
+    display: block;
+}
+
+.mj-spotlight {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    mix-blend-mode: screen;
+    opacity: 0.06;
+    pointer-events: none;
+}
+
+.mj-spotlight-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #FFD700, transparent 70%);
+    top: -100px; left: -100px;
+    animation: mjSpot1 8s ease-in-out infinite alternate;
+}
+
+.mj-spotlight-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #C0C0C0, transparent 70%);
+    bottom: -80px; right: -80px;
+    animation: mjSpot2 10s ease-in-out infinite alternate;
+}
+
+.mj-spotlight-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, #FFD700, transparent 70%);
+    top: 40%; left: 60%;
+    animation: mjSpot3 12s ease-in-out infinite alternate;
+}
+
+@keyframes mjSpot1 { to { transform: translate(80px, 120px) scale(1.3); opacity: 0.1; } }
+@keyframes mjSpot2 { to { transform: translate(-60px, -80px) scale(1.2); opacity: 0.08; } }
+@keyframes mjSpot3 { to { transform: translate(-100px, 60px) scale(0.8); opacity: 0.05; } }
+
+/* ─── PARTICLES CANVAS ─── */
+#mj-particles-canvas {
+    display: none;
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 51;
+}
+
+body.mj-event-active #mj-particles-canvas {
+    display: block;
+}
+
+/* ─── MJ FULL-PAGE INTRO MODAL ─── */
+#mj-intro-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: #000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+}
+
+#mj-intro-modal.visible {
+    display: flex;
+}
+
+/* Scanlines */
+#mj-intro-modal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.015) 2px,
+        rgba(255,255,255,0.015) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+.mj-intro-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 50% 60%, rgba(255,215,0,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 20%, rgba(192,192,192,0.05) 0%, transparent 50%),
+        #000;
+    z-index: 0;
+}
+
+.mj-intro-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    text-align: center;
+    padding: 40px;
+}
+
+.mj-intro-silhouette {
+    font-size: 8rem;
+    line-height: 1;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
+    animation: mjSilhouettePulse 2s ease-in-out infinite;
+}
+
+@keyframes mjSilhouettePulse {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(255,215,0,0.4)); transform: scale(1); }
+    50%       { filter: drop-shadow(0 0 50px rgba(255,215,0,0.8)); transform: scale(1.05); }
+}
+
+.mj-intro-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 12vw, 8rem);
+    letter-spacing: 12px;
+    color: #fff;
+    line-height: 0.9;
+    position: relative;
+}
+
+.mj-intro-title span {
+    display: block;
+    background: linear-gradient(135deg, #FFD700, #FFF8DC, #FFD700, #C0C0C0);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: mjGoldShimmer 3s linear infinite;
+}
+
+@keyframes mjGoldShimmer {
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+.mj-intro-tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 3vw, 1.6rem);
+    color: rgba(255,215,0,0.7);
+    letter-spacing: 2px;
+}
+
+.mj-intro-dates {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.4);
+}
+
+.mj-intro-dates span {
+    width: 40px; height: 1px;
+    background: rgba(255,215,0,0.3);
+}
+
+.mj-intro-stars {
+    display: flex;
+    gap: 8px;
+}
+
+.mj-intro-star {
+    font-size: 1.4rem;
+    animation: mjStarFade 1.5s ease-in-out infinite;
+}
+
+.mj-intro-star:nth-child(2) { animation-delay: .2s; }
+.mj-intro-star:nth-child(3) { animation-delay: .4s; }
+.mj-intro-star:nth-child(4) { animation-delay: .6s; }
+.mj-intro-star:nth-child(5) { animation-delay: .8s; }
+
+@keyframes mjStarFade {
+    0%, 100% { opacity: .3; transform: scale(0.8); }
+    50%       { opacity: 1;  transform: scale(1.2); }
+}
+
+.mj-intro-enter-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 6px;
+    color: #000;
+    background: linear-gradient(135deg, #FFD700, #FFC300);
+    border: none;
+    padding: 14px 48px;
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 0 20px rgba(255,215,0,0.4), 0 0 60px rgba(255,215,0,0.1);
+}
+
+.mj-intro-enter-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: mjBtnShine 2s linear infinite;
+}
+
+@keyframes mjBtnShine {
+    0%   { left: -100%; }
+    100% { left: 100%; }
+}
+
+.mj-intro-enter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,215,0,0.2);
+}
+
+/* Vinyl record animation */
+.mj-vinyl {
+    position: absolute;
+    right: 5%;
+    bottom: 5%;
+    width: 200px;
+    height: 200px;
+    opacity: 0.06;
+    animation: mjVinylSpin 4s linear infinite;
+    font-size: 200px;
+    line-height: 1;
+}
+
+@keyframes mjVinylSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ─── MJ PILL BADGE (in messages) ─── */
+.mj-event-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(192,192,192,0.1));
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 100px;
+    padding: 2px 8px;
+    font-size: .7rem;
+    font-weight: 700;
+    color: #FFD700;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255,215,0,0.5);
+    vertical-align: middle;
+    margin-left: 4px;
+    font-family: 'Bebas Neue', sans-serif;
+}
+
+/* ─── SIDEBAR GLOW DURING EVENT ─── */
+body.mj-event-active .sidebar-servers {
+    background: linear-gradient(180deg, #0a0a08 0%, #0d0f13 30%);
+    border-right: 1px solid rgba(255,215,0,0.06);
+}
+
+body.mj-event-active .server-home:hover,
+body.mj-event-active .server-home.active {
+    background: linear-gradient(135deg, #3a2e00, #2a1f00);
+    box-shadow: 0 0 12px rgba(255,215,0,0.2);
+}
+
+/* ─── MOONWALK EASTER EGG (hover on user avatar) ─── */
+.mj-moonwalk-anim {
+    animation: mjMoonwalk 0.5s steps(1) infinite !important;
+    cursor: pointer;
+}
+
+@keyframes mjMoonwalk {
+    0%   { transform: translateX(0px)  scaleX(1); }
+    25%  { transform: translateX(-2px) scaleX(1); }
+    50%  { transform: translateX(-4px) scaleX(-1); }
+    75%  { transform: translateX(-2px) scaleX(-1); }
+    100% { transform: translateX(0px)  scaleX(1); }
+}
+
+/* ─── MJ CHAT MESSAGE HIGHLIGHT ─── */
+body.mj-event-active .msg-line:hover {
+    background: linear-gradient(90deg, rgba(255,215,0,0.03), var(--bg-high), rgba(255,215,0,0.02));
+}
+
+/* ─── MJ EVENT TICKER (bottom of screen) ─── */
+#mj-ticker {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9998;
+    height: 28px;
+    background: linear-gradient(90deg, #FFD700 0%, #FFC300 50%, #FFD700 100%);
+    background-size: 200% 100%;
+    animation: mjTickerGold 3s linear infinite;
+    overflow: hidden;
+    align-items: center;
+}
+
+@keyframes mjTickerGold {
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+body.mj-event-active #mj-ticker {
+    display: flex;
+}
+
+.mj-ticker-content {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: mjTickerScroll 20s linear infinite;
+    width: max-content;
+}
+
+@keyframes mjTickerScroll {
+    0%   { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+}
+
+.mj-ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: .85rem;
+    letter-spacing: 3px;
+    color: #000;
+    padding: 0 40px;
+}
+
+.mj-ticker-dot {
+    width: 4px; height: 4px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ─── THRILLER OVERLAY (special effect) ─── */
+#mj-thriller-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9997;
+    pointer-events: none;
+    background: transparent;
+}
+
+#mj-thriller-overlay.active {
+    display: block;
+    animation: mjThrillerFlash 0.15s steps(1) 6 both;
+}
+
+@keyframes mjThrillerFlash {
+    0%, 100% { background: transparent; }
+    50%       { background: rgba(180, 0, 0, 0.06); }
+}
+
+/* ─── ADMIN EVENT TOGGLE (visible in settings) ─── */
+.mj-event-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,195,0,0.05));
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 8px;
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--mj-gold);
+    letter-spacing: 1px;
+    font-family: 'Bebas Neue', sans-serif;
+}
+
+.mj-event-indicator .mj-pulse {
+    width: 8px; height: 8px;
+    background: var(--mj-gold);
+    border-radius: 50%;
+    animation: mjPulseGlow 1.2s ease-in-out infinite;
+}
+
+@keyframes mjPulseGlow {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,215,0,0.4); }
+    50%       { opacity: .6; box-shadow: 0 0 0 6px rgba(255,215,0,0); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+    body.mj-event-active #page-app .app-layout { padding-top: 44px; }
+    .mj-vinyl { display: none; }
+    #mj-ticker { height: 24px; }
+    .mj-ticker-item { font-size: .75rem; }
+}
