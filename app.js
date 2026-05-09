@@ -259,6 +259,7 @@ onAuthStateChanged(auth, async (user) => {
 function initApp() {
     loadServers();
     switchView('global');
+    initMJEvent(db); // ← ici
 }
 
 /* ══════════════════════════════════════════════════════════════
