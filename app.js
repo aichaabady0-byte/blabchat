@@ -6,7 +6,6 @@ import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
     onAuthStateChanged, signOut, updateProfile
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { initMJEvent } from './mj-event.js';
 
 /* ══════════════════════════════════════════════════════════════
    FIREBASE INIT
@@ -34,6 +33,9 @@ let currentChannelId  = 'general';
 let currentDmUserId   = null;
 let pendingJoinServer = null;
 let activeListeners   = [];
+
+// Dernier timestamp de news vu par l'utilisateur (pour le dot rouge)
+let _lastSeenNewsTs   = 0;
 
 const BP_COLORS = [
     { id: 'color-blue',   name: 'Bleu Néon',    color: '#5b6af0', price: 10 },
@@ -127,11 +129,9 @@ function blabplusBadgeHTML(isPlus = false) {
     return `<span class="blabplus-badge inline">Blab+</span>`;
 }
 
-async function isServerVerified(serverId) {
-    try {
-        const snap = await get(ref(db, `servers/${serverId}/verified`));
-        return snap.val() === true;
-    } catch { return false; }
+function verifiedBadgeServerHTML(isVerified = false) {
+    if (!isVerified) return '';
+    return `<img src="verified.png" alt="Serveur vérifié" title="Serveur vérifié" class="verified-badge">`;
 }
 
 function showNotif(icon, title, text, duration = 4000) {
@@ -247,9 +247,12 @@ onAuthStateChanged(auth, async (user) => {
         listenFriendRequests();
         checkInviteInUrl();
         listenBP();
+        loadDiscoverNews();          // Charge les news sur la page discover
+        listenNewsUnreadDot();       // Active le dot rouge sidebar si nouvelles news
     } else {
         document.getElementById('page-discover')?.classList.add('active');
         document.getElementById('page-app')?.classList.remove('active');
+        loadDiscoverNews();          // Visible même non connecté
     }
 });
 
@@ -259,7 +262,7 @@ onAuthStateChanged(auth, async (user) => {
 function initApp() {
     loadServers();
     switchView('global');
-    initMJEvent(db); // ← ici
+    maybeShowWhatsNewPopup();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -271,6 +274,7 @@ window.switchView = (view) => {
 
     document.getElementById('nav-home')?.classList.toggle('active', view === 'global');
     document.getElementById('nav-dm')?.classList.toggle('active', view === 'dm');
+    document.getElementById('nav-news')?.classList.toggle('active', view === 'whats-new');
 
     const drawerServerName = document.getElementById('drawer-server-name');
 
@@ -285,6 +289,7 @@ window.switchView = (view) => {
         document.getElementById('channel-header-actions').innerHTML = '';
         document.getElementById('main-header-actions').innerHTML    = '';
         document.getElementById('members-list').innerHTML           = '';
+
     } else if (view === 'global') {
         currentServerId = 'global';
         if (drawerServerName) drawerServerName.textContent = 'GLOBAL';
@@ -297,6 +302,21 @@ window.switchView = (view) => {
         renderGlobalChannels();
         renderGlobalDrawerChannels();
         renderMembersGlobal();
+
+    } else if (view === 'whats-new') {
+        // ── Vue "What's New" dans l'app ──
+        if (drawerServerName) drawerServerName.textContent = "WHAT'S NEW";
+        const csn = document.getElementById('current-server-name');
+        if (csn) csn.textContent = "WHAT'S NEW";
+        csn?.parentNode?.querySelectorAll('.verified-badge').forEach(b => b.remove());
+        document.getElementById('channel-header-actions').innerHTML = '';
+        document.getElementById('main-header-actions').innerHTML    = '';
+        document.getElementById('members-list').innerHTML           = '';
+        document.getElementById('channel-list').innerHTML           = '';
+        document.getElementById('drawer-channel-list').innerHTML    = '';
+        renderWhatsNewView();
+        markNewsAsSeen();
+
     } else {
         currentServerId = view;
         loadServerView(view);
@@ -314,6 +334,325 @@ function showWelcomeScreen(icon, title, sub) {
     const cia = document.getElementById('chat-input-area');
     if (cia) cia.style.display = 'none';
 }
+
+/* ══════════════════════════════════════════════════════════════
+   WHAT'S NEW — DISCOVER PAGE (visible sans connexion)
+══════════════════════════════════════════════════════════════ */
+function loadDiscoverNews() {
+    const grid = document.getElementById('discover-news-grid');
+    if (!grid) return;
+
+    onValue(ref(db, 'news'), (snap) => {
+        grid.innerHTML = '';
+        if (!snap.exists()) {
+            grid.innerHTML = `
+                <div class="news-empty">
+                    <div class="news-empty-icon">📭</div>
+                    <p>Aucune annonce pour l'instant. Revenez bientôt !</p>
+                </div>`;
+            return;
+        }
+
+        const items = [];
+        snap.forEach(child => items.push({ id: child.key, ...child.val() }));
+        items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        items.forEach(news => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            const dateStr = news.createdAt
+                ? new Date(news.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                : '';
+            card.innerHTML = `
+                ${news.imageUrl
+                    ? `<img class="news-card-img" src="${esc(news.imageUrl)}" alt="${esc(news.title)}">`
+                    : `<div class="news-card-img-placeholder">${news.emoji || '📢'}</div>`}
+                <div class="news-card-body">
+                    <div class="news-card-date">${esc(dateStr)}</div>
+                    ${news.author ? `<div class="news-admin-badge">⭐ ${esc(news.author)}</div>` : ''}
+                    <div class="news-card-title">${esc(news.title)}</div>
+                    <div class="news-card-desc">${esc(news.content)}</div>
+                </div>`;
+            grid.appendChild(card);
+        });
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   WHAT'S NEW — POPUP AUTO (à la connexion)
+══════════════════════════════════════════════════════════════ */
+async function maybeShowWhatsNewPopup() {
+    // Vérifie si l'utilisateur a coché "ne plus afficher"
+    const dontShowSnap = await get(ref(db, `users/${uid()}/newsPopupDismissed`));
+    const dismissed    = dontShowSnap.val();
+
+    // Charge les news
+    const newsSnap = await get(ref(db, 'news'));
+    if (!newsSnap.exists()) return;
+
+    const items = [];
+    newsSnap.forEach(c => items.push({ id: c.key, ...c.val() }));
+    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    if (!items.length) return;
+
+    const latestTs = items[0].createdAt || 0;
+
+    // Récupère le dernier ts vu
+    const seenSnap = await get(ref(db, `users/${uid()}/newsLastSeenTs`));
+    const seenTs   = seenSnap.val() || 0;
+
+    // Affiche le popup seulement s'il y a des nouvelles news non vues
+    if (dismissed && seenTs >= latestTs) return;
+
+    renderWhatsNewPopup(items);
+    document.getElementById('whats-new-popup')?.classList.remove('hidden');
+}
+
+function renderWhatsNewPopup(items) {
+    const body = document.getElementById('whats-new-popup-body');
+    if (!body) return;
+    body.innerHTML = '';
+
+    items.forEach(news => {
+        const dateStr = news.createdAt
+            ? new Date(news.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+            : '';
+        const card = document.createElement('div');
+        card.className = 'news-popup-card';
+        card.innerHTML = `
+            ${news.imageUrl
+                ? `<img class="news-popup-card-img" src="${esc(news.imageUrl)}" alt="${esc(news.title)}">`
+                : ''}
+            <div class="news-popup-card-body">
+                <div class="news-popup-card-date">
+                    ${esc(dateStr)}
+                    ${news.author ? `<span style="color:var(--accent);font-weight:700">· ${esc(news.author)}</span>` : ''}
+                </div>
+                <div class="news-popup-card-title">${esc(news.title)}</div>
+                <div class="news-popup-card-desc">${esc(news.content)}</div>
+            </div>`;
+        body.appendChild(card);
+    });
+}
+
+window.closeWhatsNewPopup = async () => {
+    const overlay = document.getElementById('whats-new-popup');
+    if (!overlay) return;
+    overlay.classList.add('hidden');
+
+    // Sauvegarde la préférence "ne plus afficher" si cochée
+    const cb = document.getElementById('whats-new-dont-show-cb');
+    if (cb?.checked && uid()) {
+        await set(ref(db, `users/${uid()}/newsPopupDismissed`), true);
+    }
+
+    // Marque les news comme vues
+    if (uid()) markNewsAsSeen();
+};
+
+/* ══════════════════════════════════════════════════════════════
+   WHAT'S NEW — VUE IN-APP (switchView 'whats-new')
+══════════════════════════════════════════════════════════════ */
+function renderWhatsNewView() {
+    const chatBox = document.getElementById('chat-messages');
+    const cia     = document.getElementById('chat-input-area');
+    if (!chatBox) return;
+    if (cia) cia.style.display = 'none';
+
+    const ccd = document.getElementById('current-channel-display');
+    if (ccd) ccd.textContent = "What's New";
+    const hash = document.getElementById('main-header-hash');
+    if (hash) hash.textContent = '🆕';
+
+    chatBox.innerHTML = '';
+
+    // Conteneur de la vue
+    const view = document.createElement('div');
+    view.className = 'whats-new-view';
+    view.style.cssText = 'display:flex;flex-direction:column;flex:1;overflow:hidden;height:100%';
+
+    const header = document.createElement('div');
+    header.className = 'whats-new-view-header';
+    header.innerHTML = `
+        <div class="whats-new-view-title">
+            📢 Annonces &amp; nouveautés
+        </div>`;
+
+    // Bouton admin si admin (vérifié)
+    isUserVerified(uid()).then(isVerified => {
+        if (isVerified) {
+            const adminBtn = document.createElement('button');
+            adminBtn.className   = 'btn-primary';
+            adminBtn.style.fontSize = '.82rem';
+            adminBtn.textContent = '+ Publier une annonce';
+            adminBtn.onclick     = openCreateNewsModal;
+            header.appendChild(adminBtn);
+        }
+    });
+
+    const cardsArea = document.createElement('div');
+    cardsArea.className = 'whats-new-cards-area';
+
+    view.appendChild(header);
+    view.appendChild(cardsArea);
+    chatBox.appendChild(view);
+
+    // Charge les news en temps réel
+    onValue(ref(db, 'news'), (snap) => {
+        cardsArea.innerHTML = '';
+        if (!snap.exists()) {
+            cardsArea.innerHTML = `
+                <div class="whats-new-empty">
+                    <div style="font-size:2.5rem">📭</div>
+                    <p>Aucune annonce pour l'instant.</p>
+                </div>`;
+            return;
+        }
+        const items = [];
+        snap.forEach(c => items.push({ id: c.key, ...c.val() }));
+        items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        items.forEach(news => {
+            const dateStr = news.createdAt
+                ? new Date(news.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                : '';
+            const card = document.createElement('div');
+            card.className = 'news-full-card';
+            card.innerHTML = `
+                ${news.imageUrl
+                    ? `<img class="news-full-card-img" src="${esc(news.imageUrl)}" alt="${esc(news.title)}">`
+                    : ''}
+                <div class="news-full-card-body">
+                    <div class="news-full-card-meta">
+                        <span class="news-full-card-date">${esc(dateStr)}</span>
+                        ${news.author
+                            ? `<span class="news-full-card-admin">⭐ ${esc(news.author)}</span>`
+                            : ''}
+                    </div>
+                    <div class="news-full-card-title">${esc(news.title)}</div>
+                    <div class="news-full-card-desc">${esc(news.content)}</div>
+                    ${news.emoji ? `<div style="font-size:1.8rem;margin-top:10px">${esc(news.emoji)}</div>` : ''}
+                </div>`;
+            cardsArea.appendChild(card);
+        });
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   WHAT'S NEW — DOT ROUGE SIDEBAR
+══════════════════════════════════════════════════════════════ */
+function listenNewsUnreadDot() {
+    if (!uid()) return;
+
+    // Écoute les news et le dernier vu en parallèle
+    onValue(ref(db, 'news'), async (newsSnap) => {
+        const dot = document.getElementById('news-unread-dot');
+        if (!dot) return;
+
+        if (!newsSnap.exists()) { dot.classList.remove('visible'); return; }
+
+        // Dernier ts de news publié
+        let latestTs = 0;
+        newsSnap.forEach(c => {
+            const ts = c.val().createdAt || 0;
+            if (ts > latestTs) latestTs = ts;
+        });
+
+        // Dernier ts vu par l'utilisateur
+        const seenSnap = await get(ref(db, `users/${uid()}/newsLastSeenTs`));
+        const seenTs   = seenSnap.val() || 0;
+
+        if (latestTs > seenTs) {
+            dot.classList.add('visible');
+        } else {
+            dot.classList.remove('visible');
+        }
+    });
+}
+
+async function markNewsAsSeen() {
+    if (!uid()) return;
+    const newsSnap = await get(ref(db, 'news'));
+    if (!newsSnap.exists()) return;
+    let latestTs = 0;
+    newsSnap.forEach(c => {
+        const ts = c.val().createdAt || 0;
+        if (ts > latestTs) latestTs = ts;
+    });
+    if (latestTs > 0) {
+        await set(ref(db, `users/${uid()}/newsLastSeenTs`), latestTs);
+    }
+    const dot = document.getElementById('news-unread-dot');
+    if (dot) dot.classList.remove('visible');
+
+    // Si le popup "ne plus afficher" était coché pour une ancienne news,
+    // on le réinitialise pour qu'il s'affiche à la prochaine
+    await set(ref(db, `users/${uid()}/newsPopupDismissed`), false);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   WHAT'S NEW — CRÉER UNE ANNONCE (admin = compte vérifié)
+══════════════════════════════════════════════════════════════ */
+function openCreateNewsModal() {
+    // Crée un mini-modal inline plutôt qu'un modal séparé
+    const existing = document.getElementById('create-news-modal');
+    if (existing) { existing.remove(); return; }
+
+    const overlay = document.createElement('div');
+    overlay.id          = 'create-news-modal';
+    overlay.className   = 'modal-overlay';
+    overlay.style.zIndex = '300';
+    overlay.innerHTML = `
+        <div class="modal-backdrop"></div>
+        <div class="modal wide">
+            <h2 class="modal-title">📢 Publier une annonce</h2>
+            <div class="form-group">
+                <label>Titre</label>
+                <input type="text" id="news-title-input" placeholder="Titre de l'annonce">
+            </div>
+            <div class="form-group">
+                <label>Contenu</label>
+                <textarea id="news-content-input" placeholder="Décris la nouveauté..." style="min-height:100px"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Emoji (optionnel)</label>
+                <input type="text" id="news-emoji-input" placeholder="🎉">
+            </div>
+            <div class="form-group">
+                <label>URL Image (optionnel)</label>
+                <input type="text" id="news-img-input" placeholder="https://...">
+            </div>
+            <button class="btn-primary btn-full" onclick="submitCreateNews()">Publier</button>
+            <button class="btn-ghost btn-full" onclick="document.getElementById('create-news-modal').remove()">Annuler</button>
+        </div>`;
+    overlay.querySelector('.modal-backdrop').onclick = () => overlay.remove();
+    document.body.appendChild(overlay);
+}
+
+window.submitCreateNews = async () => {
+    const title   = document.getElementById('news-title-input')?.value.trim();
+    const content = document.getElementById('news-content-input')?.value.trim();
+    const emoji   = document.getElementById('news-emoji-input')?.value.trim();
+    const imgUrl  = document.getElementById('news-img-input')?.value.trim();
+
+    if (!title || !content) {
+        showNotif('⚠️', 'Champs manquants', 'Le titre et le contenu sont obligatoires.');
+        return;
+    }
+
+    const newsData = {
+        title,
+        content,
+        author:    me(),
+        authorId:  uid(),
+        createdAt: Date.now(),
+    };
+    if (emoji)  newsData.emoji    = emoji;
+    if (imgUrl) newsData.imageUrl = imgUrl;
+
+    await push(ref(db, 'news'), newsData);
+    document.getElementById('create-news-modal')?.remove();
+    showNotif('✅', 'Annonce publiée !', `"${title}" est maintenant visible par tous.`);
+};
 
 /* ══════════════════════════════════════════════════════════════
    GLOBAL CHANNELS
@@ -344,6 +683,9 @@ function renderGlobalChannels() {
             div.classList.add('active');
             const ccd = document.getElementById('current-channel-display');
             if (ccd) ccd.textContent = ch.name;
+            // Restaure le hash normal
+            const hash = document.getElementById('main-header-hash');
+            if (hash) hash.textContent = '#';
             loadMessages('global', ch.id);
             closeMobileDrawer();
         };
@@ -353,6 +695,8 @@ function renderGlobalChannels() {
     currentChannelId = 'general';
     const ccd = document.getElementById('current-channel-display');
     if (ccd) ccd.textContent = 'général';
+    const hash = document.getElementById('main-header-hash');
+    if (hash) hash.textContent = '#';
     loadMessages('global', 'general');
     const cia = document.getElementById('chat-input-area');
     if (cia) cia.style.display = '';
@@ -420,6 +764,10 @@ async function loadServerView(serverId) {
     document.getElementById('main-header-actions').innerHTML =
         `<button class="btn-icon" onclick="openSearchServers()" title="Rejoindre un serveur">🔍</button>`;
 
+    // Restaure le hash normal
+    const hash = document.getElementById('main-header-hash');
+    if (hash) hash.textContent = '#';
+
     renderServerChannels(serverId);
     renderMembersServer(serverId);
 }
@@ -484,6 +832,8 @@ function appendChannelItem(list, ch, serverId) {
         div.classList.add('active');
         const ccd = document.getElementById('current-channel-display');
         if (ccd) ccd.textContent = ch.name;
+        const hash = document.getElementById('main-header-hash');
+        if (hash) hash.textContent = '#';
         loadMessages(serverId, ch.id);
         closeMobileDrawer();
     };
@@ -1145,6 +1495,8 @@ function openDmWith(userId, username) {
     if (cia) cia.style.display = '';
     document.getElementById('main-header-actions').innerHTML =
         `<span style="font-size:.8rem;color:var(--txt-3)">💬 Message privé</span>`;
+    const hash = document.getElementById('main-header-hash');
+    if (hash) hash.textContent = '💬';
 
     document.querySelectorAll('.dm-item').forEach(el => el.classList.remove('active'));
 
@@ -1399,7 +1751,6 @@ window.openBPShop = async () => {
     const ownedSnap = await get(ref(db, `users/${uid()}/owned`));
     const owned     = ownedSnap.exists() ? ownedSnap.val() : {};
 
-    // Vérifie si l'utilisateur est Blab+ pour la réduction
     const plusSnap  = await get(ref(db, `users/${uid()}/blabplus`));
     const isPlus    = plusSnap.val() === true;
 
@@ -1568,12 +1919,10 @@ window.claimFreeSkin = async () => {
 
 window.subscribeBlabPlus = async () => {
     await set(ref(db, `users/${uid()}/blabplus`), true);
-    // Invalide le cache pour que le badge apparaisse immédiatement
     delete _blabplusCache[uid()];
     await addBP(100);
     showNotif('🎉', 'Bienvenue dans Blab+ !', '+100 BP crédités. Profite de ton badge exclusif !');
     openBlabPlusModal();
-    // Rafraîchit le badge dans la sidebar
     const myNameEl = document.getElementById('my-name');
     if (myNameEl) {
         myNameEl.parentNode.querySelectorAll('.blabplus-badge').forEach(b => b.remove());
@@ -1589,7 +1938,6 @@ window.cancelBlabPlus = async () => {
     await set(ref(db, `users/${uid()}/blabplus`), false);
     delete _blabplusCache[uid()];
     showNotif('👋', 'Abonnement annulé', 'Tu repasseras en compte gratuit.');
-    // Retire le badge de la sidebar
     document.getElementById('my-name')?.parentNode
         ?.querySelectorAll('.blabplus-badge').forEach(b => b.remove());
     openBlabPlusModal();
