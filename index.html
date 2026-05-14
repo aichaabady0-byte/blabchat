@@ -31,83 +31,31 @@
             --sidebar-w:   220px;
             --server-w:    64px;
             --member-w:    220px;
-            /* BlabPlus */
             --bplus-bg:    #0a0a0a;
             --bplus-border:#2a2a2a;
             --bplus-glow:  rgba(255,255,255,0.08);
         }
         body { font-family: 'DM Sans', sans-serif; background: var(--bg-base); color: var(--txt-1); overflow-x: hidden; }
-
         .page { display: none; width: 100%; }
         .page.active { display: block; }
         #page-app { height: 100dvh; overflow: hidden; }
 
         /* ══ BLABPLUS BADGE ══ */
         .blabplus-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #0a0a0a;
-            border: 1.5px solid #3a3a3a;
-            border-radius: 8px;
-            padding: 2px 7px;
-            font-family: 'Syne', sans-serif;
-            font-size: .7rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -0.3px;
-            white-space: nowrap;
-            flex-shrink: 0;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #0a0a0a; border: 1.5px solid #3a3a3a; border-radius: 8px;
+            padding: 2px 7px; font-family: 'Syne', sans-serif; font-size: .7rem;
+            font-weight: 800; color: #fff; letter-spacing: -0.3px; white-space: nowrap;
+            flex-shrink: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
-        .blabplus-badge.large {
-            font-size: .85rem;
-            padding: 3px 10px;
-            border-radius: 10px;
-        }
-        .blabplus-badge.inline {
-            vertical-align: middle;
-            margin-left: 4px;
-            font-size: .65rem;
-            padding: 1px 6px;
-            border-radius: 7px;
-        }
+        .blabplus-badge.large { font-size: .85rem; padding: 3px 10px; border-radius: 10px; }
+        .blabplus-badge.inline { vertical-align: middle; margin-left: 4px; font-size: .65rem; padding: 1px 6px; border-radius: 7px; }
 
         /* ══ VERIFIED BADGE ══ */
-        .verified-badge {
-            width: 14px;
-            height: 14px;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 2px;
-            flex-shrink: 0;
-        }
-        .verified-badge-avatar {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 1.5px solid var(--bg-mid);
-            background: var(--bg-mid);
-        }
-        .verified-badge-server-icon {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 1.5px solid var(--bg-base);
-            background: var(--bg-base);
-            pointer-events: none;
-        }
-        .msg-sender-wrap {
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-        }
+        .verified-badge { width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-left: 2px; flex-shrink: 0; }
+        .verified-badge-avatar { position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--bg-mid); background: var(--bg-mid); }
+        .verified-badge-server-icon { position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--bg-base); background: var(--bg-base); pointer-events: none; }
+        .msg-sender-wrap { display: inline-flex; align-items: center; gap: 2px; }
 
         /* ══ DISCOVER ══ */
         #page-discover { min-height: 100dvh; }
@@ -116,11 +64,8 @@
         .top-nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 16px 40px;
-            background: rgba(13,15,19,0.72);
-            backdrop-filter: blur(18px);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            transition: background .3s;
+            padding: 16px 40px; background: rgba(13,15,19,0.72);
+            backdrop-filter: blur(18px); border-bottom: 1px solid rgba(255,255,255,0.04);
         }
         .logo { display: flex; align-items: center; gap: 10px; }
         .logo img { height: 36px; width: auto; display: block; }
@@ -132,11 +77,8 @@
 
         /* ══ HERO ══ */
         .hero-section {
-            min-height: 100dvh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
-            padding: 120px 20px 80px;
-            text-align: center;
+            min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; padding: 120px 20px 80px; text-align: center;
         }
         .bg-orbs { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
         .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .35; }
@@ -144,58 +86,34 @@
         .orb-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -180px; left: -100px; animation: drift 10s ease-in-out infinite alternate-reverse; }
         .orb-3 { width: 300px; height: 300px; background: var(--bp-gold); top: 40%; left: 30%; animation: drift 12s ease-in-out infinite alternate; opacity: .12; }
         @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
-
         .hero-section::before {
-            content: '';
-            position: absolute; inset: 0; z-index: 1;
+            content: ''; position: absolute; inset: 0; z-index: 1;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
-
         .hero-content { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 28px; max-width: 820px; }
-
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
             background: rgba(91,106,240,.15); border: 1px solid rgba(91,106,240,.3);
-            border-radius: 100px; padding: 6px 16px;
-            font-size: .8rem; font-weight: 600; color: #a0aaff;
+            border-radius: 100px; padding: 6px 16px; font-size: .8rem; font-weight: 600; color: #a0aaff;
             animation: fadeUp .6s ease both;
         }
         .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(1.4); } }
-
-        .hero-title {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(3.2rem, 10vw, 6.5rem);
-            font-weight: 800; line-height: 1;
-            animation: fadeUp .6s ease .1s both;
-        }
+        .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(3.2rem, 10vw, 6.5rem); font-weight: 800; line-height: 1; animation: fadeUp .6s ease .1s both; }
         .gradient-text { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .gold-text { background: linear-gradient(135deg, #f5c842, #f09d28); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-        .hero-sub {
-            color: var(--txt-2); font-size: 1.15rem; line-height: 1.7; max-width: 560px;
-            animation: fadeUp .6s ease .2s both;
-        }
+        .hero-sub { color: var(--txt-2); font-size: 1.15rem; line-height: 1.7; max-width: 560px; animation: fadeUp .6s ease .2s both; }
         .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; animation: fadeUp .6s ease .3s both; }
-
         @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
 
         /* ══ FAKE CHAT PREVIEW ══ */
         .hero-preview {
-            position: relative; z-index: 5;
-            width: 100%; max-width: 700px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+            position: relative; z-index: 5; width: 100%; max-width: 700px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+            overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
             animation: fadeUp .6s ease .4s both;
         }
-        .preview-titlebar {
-            background: var(--bg-mid); padding: 10px 16px;
-            display: flex; align-items: center; gap: 10px;
-            border-bottom: 1px solid var(--border);
-        }
+        .preview-titlebar { background: var(--bg-mid); padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
         .preview-dots { display: flex; gap: 6px; }
         .preview-dot { width: 10px; height: 10px; border-radius: 50%; }
         .preview-dot:nth-child(1) { background: #f05b5b; }
@@ -220,106 +138,73 @@
         .preview-input { margin: 0 16px 16px; background: var(--bg-high); border-radius: 8px; display: flex; align-items: center; padding: 10px 12px; border: 1px solid var(--border); }
         .preview-input span { color: var(--txt-3); font-size: .85rem; flex: 1; }
         .preview-send { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; color: #fff; }
-
-        .scroll-hint {
-            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            color: var(--txt-3); font-size: .75rem; z-index: 5; animation: fadeUp .6s ease .8s both;
-        }
+        .scroll-hint { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--txt-3); font-size: .75rem; z-index: 5; animation: fadeUp .6s ease .8s both; }
         .scroll-arrow { width: 20px; height: 20px; border-right: 2px solid var(--txt-3); border-bottom: 2px solid var(--txt-3); transform: rotate(45deg); animation: scrollBounce 1.5s infinite; }
         @keyframes scrollBounce { 0%,100% { transform:rotate(45deg) translateY(0); opacity:.5; } 50% { transform:rotate(45deg) translateY(4px); opacity:1; } }
 
         /* ══ SECTIONS COMMUNES ══ */
-        section.disc-section {
-            padding: 96px 40px;
-            max-width: 1100px; margin: 0 auto;
-        }
-        .section-label {
-            font-size: .75rem; font-weight: 700; letter-spacing: 2px;
-            text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
-        }
-        .section-title {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(2rem, 5vw, 3rem);
-            font-weight: 800; line-height: 1.1;
-            margin-bottom: 16px;
-        }
+        section.disc-section { padding: 96px 40px; max-width: 1100px; margin: 0 auto; }
+        .section-label { font-size: .75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+        .section-title { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
         .section-sub { color: var(--txt-2); font-size: 1rem; line-height: 1.7; max-width: 560px; }
+        .disc-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 0 40px; }
 
-        .disc-divider {
-            height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);
-            margin: 0 40px;
+        /* ══ WHAT'S NEW SECTION (Discover) ══ */
+        .whats-new-section { padding: 96px 40px; max-width: 1100px; margin: 0 auto; }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 48px; }
+        .news-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+            overflow: hidden; transition: border-color .2s, transform .2s; position: relative;
         }
+        .news-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+        .news-card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+        .news-card-img-placeholder {
+            width: 100%; height: 140px; background: linear-gradient(135deg, var(--bg-high), var(--bg-mid));
+            display: flex; align-items: center; justify-content: center; font-size: 2.5rem;
+        }
+        .news-card-body { padding: 20px; }
+        .news-card-date { font-size: .72rem; color: var(--txt-3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .news-card-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
+        .news-card-desc { font-size: .88rem; color: var(--txt-2); line-height: 1.6; }
+        .news-admin-badge {
+            display: inline-flex; align-items: center; gap: 5px; margin-bottom: 8px;
+            font-size: .72rem; font-weight: 700; color: var(--accent); background: var(--accent-glow);
+            padding: 2px 8px; border-radius: 6px; letter-spacing: .5px;
+        }
+        .news-empty { text-align: center; padding: 60px 20px; color: var(--txt-3); }
+        .news-empty-icon { font-size: 3rem; margin-bottom: 12px; }
 
         /* ══ FEATURES GRID ══ */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px; margin-top: 48px;
-        }
-        .feature-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px; padding: 28px;
-            position: relative; overflow: hidden;
-            transition: border-color .2s, transform .2s;
-        }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 48px; }
+        .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; position: relative; overflow: hidden; transition: border-color .2s, transform .2s; }
         .feature-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .feature-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            opacity: 0; transition: opacity .2s;
-        }
+        .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); opacity: 0; transition: opacity .2s; }
         .feature-card:hover::before { opacity: 1; }
         .feature-icon { font-size: 2rem; margin-bottom: 16px; }
         .feature-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
         .feature-desc { font-size: .88rem; color: var(--txt-2); line-height: 1.6; }
 
         /* ══ BLABPOINTS SECTION ══ */
-        .bp-section-wrap {
-            background: linear-gradient(135deg, rgba(245,200,66,.06), rgba(240,157,40,.04));
-            border-top: 1px solid rgba(245,200,66,.12);
-            border-bottom: 1px solid rgba(245,200,66,.12);
-        }
+        .bp-section-wrap { background: linear-gradient(135deg, rgba(245,200,66,.06), rgba(240,157,40,.04)); border-top: 1px solid rgba(245,200,66,.12); border-bottom: 1px solid rgba(245,200,66,.12); }
         .bp-section-inner { max-width: 1100px; margin: 0 auto; padding: 96px 40px; }
-
         .bp-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 48px; }
         .bp-hero-icon { font-size: 3rem; }
         .bp-hero-text h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; }
         .bp-hero-text p { color: var(--txt-2); font-size: 1rem; margin-top: 6px; }
-
-        .bp-earn-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 14px; margin-top: 32px; margin-bottom: 56px;
-        }
-        .bp-earn-card {
-            background: var(--bg-card); border: 1px solid rgba(245,200,66,.2);
-            border-radius: 14px; padding: 22px;
-            display: flex; gap: 14px; align-items: flex-start;
-            transition: border-color .2s, transform .2s;
-        }
+        .bp-earn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 32px; margin-bottom: 56px; }
+        .bp-earn-card { background: var(--bg-card); border: 1px solid rgba(245,200,66,.2); border-radius: 14px; padding: 22px; display: flex; gap: 14px; align-items: flex-start; transition: border-color .2s, transform .2s; }
         .bp-earn-card:hover { border-color: var(--bp-gold); transform: translateY(-2px); }
         .bp-earn-icon { font-size: 1.6rem; flex-shrink: 0; }
         .bp-earn-title { font-weight: 700; font-size: .9rem; margin-bottom: 4px; color: var(--bp-gold); }
         .bp-earn-desc { font-size: .82rem; color: var(--txt-2); line-height: 1.5; }
-
         .bp-shop-demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 40px; }
-        .demo-shop-item {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 14px; padding: 18px;
-            display: flex; flex-direction: column; gap: 10px;
-            position: relative; overflow: hidden;
-            transition: border-color .2s;
-        }
+        .demo-shop-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden; transition: border-color .2s; }
         .demo-shop-item:hover { border-color: var(--bp-gold); }
         .demo-shop-item .item-emoji { font-size: 1.8rem; }
         .demo-shop-item .item-name { font-weight: 700; font-size: .9rem; }
         .demo-shop-item .item-desc { font-size: .78rem; color: var(--txt-2); line-height: 1.4; }
         .demo-shop-item .item-price { display: flex; align-items: center; gap: 5px; font-size: .82rem; font-weight: 700; color: var(--bp-gold); margin-top: auto; }
-        .item-name-preview {
-            font-size: 1rem; font-weight: 700; padding: 6px 0;
-        }
+        .item-name-preview { font-size: 1rem; font-weight: 700; padding: 6px 0; }
         .anim-rainbow { animation: nameRainbow 3s linear infinite; }
         .anim-glow { animation: nameGlow 2s ease-in-out infinite; }
         .anim-pulse { animation: namePulse 2s ease-in-out infinite; }
@@ -331,241 +216,53 @@
         @keyframes nameGlow { 0%,100% { text-shadow: 0 0 6px currentColor; } 50% { text-shadow: 0 0 20px currentColor, 0 0 36px currentColor; } }
 
         /* ══ BLABPLUS SECTION ══ */
-        .blabplus-section-wrap {
-            background: linear-gradient(135deg, rgba(10,10,10,0.98), rgba(20,20,22,0.98));
-            border-top: 1px solid #222;
-            border-bottom: 1px solid #222;
-            position: relative;
-            overflow: hidden;
-        }
-        .blabplus-section-wrap::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 70%),
-                        radial-gradient(ellipse at 80% 20%, rgba(91,106,240,0.04) 0%, transparent 60%);
-            pointer-events: none;
-        }
-        .blabplus-section-inner {
-            max-width: 1100px; margin: 0 auto; padding: 96px 40px;
-            position: relative; z-index: 1;
-        }
-        .blabplus-hero {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 64px;
-            align-items: center;
-            margin-bottom: 64px;
-        }
-        .blabplus-hero-left {}
+        .blabplus-section-wrap { background: linear-gradient(135deg, rgba(10,10,10,0.98), rgba(20,20,22,0.98)); border-top: 1px solid #222; border-bottom: 1px solid #222; position: relative; overflow: hidden; }
+        .blabplus-section-wrap::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.03) 0%, transparent 70%), radial-gradient(ellipse at 80% 20%, rgba(91,106,240,0.04) 0%, transparent 60%); pointer-events: none; }
+        .blabplus-section-inner { max-width: 1100px; margin: 0 auto; padding: 96px 40px; position: relative; z-index: 1; }
+        .blabplus-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; margin-bottom: 64px; }
         .blabplus-hero-left .section-label { color: #888; }
-        .blabplus-hero-left h2 {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 16px;
-            color: #fff;
-        }
-        .blabplus-hero-left p {
-            color: #666;
-            font-size: 1rem;
-            line-height: 1.7;
-            margin-bottom: 28px;
-        }
-        .blabplus-price-block {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
-            margin-bottom: 28px;
-        }
-        .blabplus-price-amount {
-            font-family: 'Syne', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1;
-        }
-        .blabplus-price-detail {
-            font-size: .9rem;
-            color: #555;
-            line-height: 1.4;
-        }
+        .blabplus-hero-left h2 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; line-height: 1.1; margin-bottom: 16px; color: #fff; }
+        .blabplus-hero-left p { color: #666; font-size: 1rem; line-height: 1.7; margin-bottom: 28px; }
+        .blabplus-price-block { display: flex; align-items: baseline; gap: 8px; margin-bottom: 28px; }
+        .blabplus-price-amount { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 800; color: #fff; line-height: 1; }
+        .blabplus-price-detail { font-size: .9rem; color: #555; line-height: 1.4; }
         .blabplus-price-detail span { display: block; }
-        .blabplus-hero-right {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 32px;
-        }
-        /* The big BlabPlus badge visual */
-        .blabplus-big-badge {
-            background: #080808;
-            border: 2px solid #2a2a2a;
-            border-radius: 20px;
-            padding: 28px 48px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Syne', sans-serif;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -1px;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.04),
-                0 20px 60px rgba(0,0,0,0.8),
-                inset 0 1px 0 rgba(255,255,255,0.06);
-            position: relative;
-            transition: transform .3s, box-shadow .3s;
-        }
-        .blabplus-big-badge:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.08),
-                0 30px 80px rgba(0,0,0,0.9),
-                inset 0 1px 0 rgba(255,255,255,0.1);
-        }
-        .blabplus-badge-perks {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-        }
-        .blabplus-badge-perk {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: .85rem;
-            color: #999;
-        }
-        .blabplus-badge-perk-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            background: #111;
-            border: 1px solid #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .9rem;
-            flex-shrink: 0;
-        }
-        /* Perks grid */
-        .blabplus-perks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 14px;
-        }
-        .blabplus-perk-card {
-            background: #0d0d0d;
-            border: 1px solid #1e1e1e;
-            border-radius: 16px;
-            padding: 24px;
-            transition: border-color .2s, transform .2s;
-            position: relative;
-            overflow: hidden;
-        }
-        .blabplus-perk-card:hover {
-            border-color: #333;
-            transform: translateY(-2px);
-        }
-        .blabplus-perk-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, #222, #444, #222);
-            opacity: 0; transition: opacity .2s;
-        }
+        .blabplus-hero-right { display: flex; flex-direction: column; align-items: center; gap: 32px; }
+        .blabplus-big-badge { background: #080808; border: 2px solid #2a2a2a; border-radius: 20px; padding: 28px 48px; display: inline-flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: #ffffff; letter-spacing: -1px; box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.06); position: relative; transition: transform .3s, box-shadow .3s; }
+        .blabplus-big-badge:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 80px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.1); }
+        .blabplus-badge-perks { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .blabplus-badge-perk { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: #999; }
+        .blabplus-badge-perk-icon { width: 28px; height: 28px; border-radius: 8px; background: #111; border: 1px solid #222; display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+        .blabplus-perks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+        .blabplus-perk-card { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 16px; padding: 24px; transition: border-color .2s, transform .2s; position: relative; overflow: hidden; }
+        .blabplus-perk-card:hover { border-color: #333; transform: translateY(-2px); }
+        .blabplus-perk-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #222, #444, #222); opacity: 0; transition: opacity .2s; }
         .blabplus-perk-card:hover::before { opacity: 1; }
         .blabplus-perk-icon { font-size: 1.8rem; margin-bottom: 14px; }
-        .blabplus-perk-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 8px;
-        }
+        .blabplus-perk-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
         .blabplus-perk-desc { font-size: .85rem; color: #555; line-height: 1.6; }
-        .blabplus-perk-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 10px;
-            font-size: .72rem;
-            font-weight: 700;
-            color: #888;
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 6px;
-            padding: 2px 8px;
-            letter-spacing: .5px;
-        }
-        .blabplus-subscribe-box {
-            background: #0d0d0d;
-            border: 1px solid #1e1e1e;
-            border-radius: 20px;
-            padding: 32px;
-            text-align: center;
-            margin-top: 48px;
-        }
-        .blabplus-subscribe-box h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 8px;
-        }
-        .blabplus-subscribe-box p {
-            color: #555;
-            font-size: .9rem;
-            margin-bottom: 24px;
-        }
-        .btn-blabplus {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 14px 40px;
-            border-radius: 10px;
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: opacity .15s, transform .1s;
-            letter-spacing: -0.3px;
-        }
+        .blabplus-perk-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 10px; font-size: .72rem; font-weight: 700; color: #888; background: #111; border: 1px solid #222; border-radius: 6px; padding: 2px 8px; letter-spacing: .5px; }
+        .blabplus-subscribe-box { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 20px; padding: 32px; text-align: center; margin-top: 48px; }
+        .blabplus-subscribe-box h3 { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+        .blabplus-subscribe-box p { color: #555; font-size: .9rem; margin-bottom: 24px; }
+        .btn-blabplus { background: #fff; color: #000; border: none; padding: 14px 40px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; transition: opacity .15s, transform .1s; letter-spacing: -0.3px; }
         .btn-blabplus:hover { opacity: .88; transform: translateY(-2px); }
 
         /* ══ HOW IT WORKS ══ */
         .steps-list { display: flex; flex-direction: column; gap: 0; margin-top: 48px; position: relative; }
-        .steps-list::before {
-            content: ''; position: absolute; left: 23px; top: 0; bottom: 0; width: 2px;
-            background: linear-gradient(180deg, var(--accent), var(--accent2));
-            border-radius: 2px;
-        }
+        .steps-list::before { content: ''; position: absolute; left: 23px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent2)); border-radius: 2px; }
         .step-item { display: flex; gap: 24px; align-items: flex-start; padding: 0 0 40px; }
         .step-item:last-child { padding-bottom: 0; }
-        .step-num {
-            width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
-            background: var(--bg-card); border: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800;
-            color: var(--accent); position: relative; z-index: 1;
-        }
+        .step-num { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; color: var(--accent); position: relative; z-index: 1; }
         .step-content { padding-top: 10px; }
         .step-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
         .step-desc { font-size: .9rem; color: var(--txt-2); line-height: 1.6; }
 
         /* ══ SERVERS SHOWCASE ══ */
         .servers-showcase { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 48px; }
-        .server-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; overflow: hidden;
-            transition: border-color .2s, transform .2s;
-        }
+        .server-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color .2s, transform .2s; }
         .server-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .server-card-banner {
-            height: 70px; display: flex; align-items: center; justify-content: center;
-            font-size: 2rem;
-        }
+        .server-card-banner { height: 70px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
         .server-card-body { padding: 16px; }
         .server-card-name { font-weight: 700; font-size: .95rem; margin-bottom: 4px; }
         .server-card-desc { font-size: .8rem; color: var(--txt-2); margin-bottom: 12px; line-height: 1.5; }
@@ -581,13 +278,7 @@
 
         /* ══ TESTIMONIALS ══ */
         .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 48px; }
-        .testimonial-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 24px;
-            display: flex; flex-direction: column; gap: 14px;
-            transition: border-color .2s;
-        }
-        .testimonial-card:hover { border-color: var(--border); }
+        .testimonial-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 14px; transition: border-color .2s; }
         .quote-mark { font-size: 2rem; color: var(--accent); line-height: 1; opacity: .4; }
         .testimonial-text { font-size: .9rem; color: var(--txt-2); line-height: 1.7; flex: 1; }
         .testimonial-author { display: flex; align-items: center; gap: 10px; }
@@ -597,28 +288,15 @@
         .stars { color: var(--bp-gold); font-size: .8rem; letter-spacing: 2px; }
 
         /* ══ CTA FINAL ══ */
-        .cta-section {
-            padding: 96px 40px; text-align: center;
-            display: flex; flex-direction: column; align-items: center; gap: 28px;
-            position: relative; overflow: hidden;
-        }
-        .cta-section::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(ellipse at center, rgba(91,106,240,.15) 0%, transparent 70%);
-        }
+        .cta-section { padding: 96px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 28px; position: relative; overflow: hidden; }
+        .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(91,106,240,.15) 0%, transparent 70%); }
         .cta-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 24px; }
         .cta-title { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; }
         .cta-sub { color: var(--txt-2); font-size: 1rem; max-width: 460px; line-height: 1.7; }
         .cta-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 
         /* ══ FOOTER ══ */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 40px;
-            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
-            max-width: 1100px; margin: 0 auto;
-        }
+        footer { border-top: 1px solid var(--border); padding: 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; max-width: 1100px; margin: 0 auto; }
         .footer-logo { display: flex; align-items: center; gap: 8px; }
         .footer-logo img { height: 28px; }
         .footer-links { display: flex; gap: 20px; }
@@ -668,24 +346,13 @@
         .server-dm-btn:hover, .server-dm-btn.active { border-radius: 14px; background: var(--accent2); }
         .server-bp-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #f5c84222, #f09d2822); border: 1px solid #f5c84244; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: border-radius .2s, background .15s; }
         .server-bp-btn:hover { border-radius: 14px; background: linear-gradient(135deg, #f5c842, #f09d28); }
-        /* BlabPlus sidebar button */
-        .server-bplus-btn {
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            background: #0d0d0d;
-            border: 1.5px solid #2a2a2a;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            font-family: 'Syne', sans-serif;
-            font-size: .55rem;
-            font-weight: 800;
-            color: #fff;
-            transition: border-radius .2s, border-color .15s;
-            letter-spacing: -0.3px;
-            line-height: 1.1;
-            text-align: center;
-        }
+        .server-bplus-btn { width: 44px; height: 44px; border-radius: 50%; background: #0d0d0d; border: 1.5px solid #2a2a2a; display: flex; align-items: center; justify-content: center; cursor: pointer; font-family: 'Syne', sans-serif; font-size: .55rem; font-weight: 800; color: #fff; transition: border-radius .2s, border-color .15s; letter-spacing: -0.3px; line-height: 1.1; text-align: center; }
         .server-bplus-btn:hover { border-radius: 14px; border-color: #444; background: #111; }
+        /* What's New sidebar button */
+        .server-news-btn { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-high); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: border-radius .2s, background .15s; position: relative; }
+        .server-news-btn:hover, .server-news-btn.active { border-radius: 14px; background: var(--accent); }
+        .news-unread-dot { position: absolute; top: 2px; right: 2px; width: 9px; height: 9px; background: var(--red); border-radius: 50%; border: 2px solid var(--bg-base); display: none; }
+        .news-unread-dot.visible { display: block; }
 
         /* SIDEBAR CHANNELS */
         .sidebar-channels { width: var(--sidebar-w); background: var(--bg-mid); display: flex; flex-direction: column; flex-shrink: 0; }
@@ -769,6 +436,8 @@
         .friend-zone input { flex: 1; background: var(--bg-high); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; color: var(--txt-1); font-family: inherit; font-size: .85rem; outline: none; }
         .friend-zone input::placeholder { color: var(--txt-3); }
         .friend-zone button { background: var(--accent); color: #fff; border: none; border-radius: 8px; width: 32px; cursor: pointer; font-size: 1.1rem; }
+
+        /* ══ MODALS ══ */
         .modal-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
         .modal-overlay.hidden { display: none; }
         .modal-backdrop { position: absolute; inset: 0; background: #00000080; backdrop-filter: blur(4px); }
@@ -842,12 +511,6 @@
         .shop-item-name { font-weight: 700; font-size: .88rem; color: var(--txt-1); }
         .shop-item-desc { font-size: .75rem; color: var(--txt-3); line-height: 1.4; }
         .shop-item-price { display: flex; align-items: center; gap: 5px; font-size: .8rem; font-weight: 700; color: var(--bp-gold); margin-top: auto; }
-        .shop-item-price.bplus-price { color: #aaa; }
-        .shop-item-price.bplus-price .bplus-discount {
-            font-size: .7rem; color: #555;
-            text-decoration: line-through;
-            margin-left: 2px;
-        }
         .daily-reward { background: linear-gradient(135deg, #f5c84215, #f09d2815); border: 1px solid #f5c84233; border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
         .daily-reward-info { flex: 1; }
         .daily-reward-info strong { color: var(--bp-gold); font-size: .9rem; }
@@ -862,88 +525,125 @@
         .profile-preview-name[data-anim="rainbow"] { animation: nameRainbow 3s linear infinite; }
         .profile-preview-name[data-anim="glow"] { animation: nameGlow 2s ease-in-out infinite; }
 
-        /* BlabPlus modal */
-        .modal-blabplus {
-            background: #080808;
-            border-color: #1e1e1e;
-        }
+        /* ══ BLABPLUS MODAL ══ */
+        .modal-blabplus { background: #080808; border-color: #1e1e1e; }
         .modal-blabplus .modal-title { color: #fff; }
-        .bplus-modal-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            background: #0d0d0d;
-            border: 1px solid #1e1e1e;
-            border-radius: 12px;
-        }
-        .bplus-modal-badge-big {
-            background: #0a0a0a;
-            border: 2px solid #2a2a2a;
-            border-radius: 12px;
-            padding: 10px 18px;
-            font-family: 'Syne', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #fff;
-            white-space: nowrap;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-            flex-shrink: 0;
-        }
+        .bplus-modal-header { display: flex; align-items: center; gap: 16px; padding: 16px; background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 12px; }
+        .bplus-modal-badge-big { background: #0a0a0a; border: 2px solid #2a2a2a; border-radius: 12px; padding: 10px 18px; font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: #fff; white-space: nowrap; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); flex-shrink: 0; }
         .bplus-modal-info h3 { font-family: 'Syne', sans-serif; font-size: 1rem; color: #fff; margin-bottom: 2px; }
         .bplus-modal-info p { font-size: .8rem; color: #555; }
         .bplus-perks-list { display: flex; flex-direction: column; gap: 8px; }
-        .bplus-perk-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            background: #0d0d0d;
-            border: 1px solid #1a1a1a;
-            border-radius: 10px;
-        }
+        .bplus-perk-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 10px; }
         .bplus-perk-row-icon { font-size: 1.2rem; width: 28px; text-align: center; }
         .bplus-perk-row-text { flex: 1; }
         .bplus-perk-row-title { font-size: .88rem; font-weight: 600; color: #ddd; }
         .bplus-perk-row-desc { font-size: .75rem; color: #555; margin-top: 1px; }
         .bplus-free-skin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
-        .bplus-skin-option {
-            background: #0d0d0d;
-            border: 1px solid #1e1e1e;
-            border-radius: 10px;
-            padding: 10px 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color .15s;
-            font-size: .78rem;
-            color: #888;
-        }
+        .bplus-skin-option { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: border-color .15s; font-size: .78rem; color: #888; }
         .bplus-skin-option:hover { border-color: #333; color: #ccc; }
         .bplus-skin-option .skin-preview { font-size: 1.4rem; margin-bottom: 4px; }
-        .btn-blabplus-modal {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-family: 'Syne', sans-serif;
-            font-weight: 800;
-            font-size: .95rem;
-            cursor: pointer;
-            transition: opacity .15s, transform .1s;
-            width: 100%;
-            margin-top: 4px;
-        }
+        .btn-blabplus-modal { background: #fff; color: #000; border: none; padding: 12px; border-radius: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: .95rem; cursor: pointer; transition: opacity .15s, transform .1s; width: 100%; margin-top: 4px; }
         .btn-blabplus-modal:hover { opacity: .88; transform: translateY(-1px); }
         .btn-blabplus-modal:disabled { opacity: .4; cursor: not-allowed; transform: none; background: #333; color: #888; }
 
+        /* ══ WHAT'S NEW POPUP (in-app) ══ */
+        .whats-new-popup-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+        }
+        .whats-new-popup-overlay.hidden { display: none; }
+        .whats-new-popup {
+            position: relative; z-index: 1;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; width: 540px; max-width: 95vw;
+            max-height: 90dvh; display: flex; flex-direction: column;
+            box-shadow: 0 40px 120px rgba(0,0,0,.8);
+            overflow: hidden;
+        }
+        .whats-new-popup-header {
+            padding: 24px 24px 0;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .whats-new-popup-title {
+            font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .whats-new-popup-title .new-badge {
+            font-size: .7rem; background: var(--accent); color: #fff;
+            padding: 2px 8px; border-radius: 20px; letter-spacing: .5px;
+        }
+        .whats-new-popup-close {
+            background: var(--bg-high); border: 1px solid var(--border);
+            color: var(--txt-2); width: 30px; height: 30px; border-radius: 8px;
+            cursor: pointer; font-size: .9rem; display: flex; align-items: center; justify-content: center;
+            transition: background .15s, color .15s;
+        }
+        .whats-new-popup-close:hover { background: var(--red); color: #fff; border-color: var(--red); }
+        .whats-new-popup-body { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .news-popup-card {
+            background: var(--bg-high); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden;
+        }
+        .news-popup-card-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .news-popup-card-body { padding: 16px; }
+        .news-popup-card-date { font-size: .72rem; color: var(--txt-3); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+        .news-popup-card-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
+        .news-popup-card-desc { font-size: .9rem; color: var(--txt-2); line-height: 1.6; }
+        .whats-new-popup-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; background: var(--bg-mid);
+        }
+        .whats-new-dont-show {
+            display: flex; align-items: center; gap: 8px;
+            font-size: .82rem; color: var(--txt-2); cursor: pointer;
+        }
+        .whats-new-dont-show input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+        .scroll-to-close-hint {
+            font-size: .75rem; color: var(--txt-3);
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        /* ══ WHAT'S NEW VIEW (in-app main) ══ */
+        .whats-new-view { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .whats-new-view-header {
+            padding: 20px 24px 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+        .whats-new-view-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .whats-new-cards-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .news-full-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden; transition: border-color .2s;
+        }
+        .news-full-card:hover { border-color: var(--accent); }
+        .news-full-card-img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+        .news-full-card-body { padding: 18px; }
+        .news-full-card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .news-full-card-date { font-size: .72rem; color: var(--txt-3); text-transform: uppercase; letter-spacing: 1px; }
+        .news-full-card-admin { display: flex; align-items: center; gap: 4px; font-size: .72rem; color: var(--accent); font-weight: 700; }
+        .news-full-card-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+        .news-full-card-desc { font-size: .88rem; color: var(--txt-2); line-height: 1.6; }
+        .whats-new-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; color: var(--txt-3); gap: 12px; padding: 40px; text-align: center; }
+
+        /* ══ ADMIN CREATE NEWS ══ */
+        .admin-news-create {
+            background: var(--bg-high); border: 1px dashed var(--accent);
+            border-radius: 14px; padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .admin-news-create-title { font-size: .8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+
+        /* ══ MOBILE ══ */
         .mobile-menu-btn { display: none; }
         .mobile-drawer { display: none; }
         .mobile-drawer-backdrop { display: none; }
         @media (max-width: 960px) { .sidebar-members { display: none; } }
-        @media (max-width: 768px) {
-            .blabplus-hero { grid-template-columns: 1fr; gap: 40px; }
-        }
+        @media (max-width: 768px) { .blabplus-hero { grid-template-columns: 1fr; gap: 40px; } }
         @media (max-width: 600px) {
             .sidebar-channels, .sidebar-servers { display: none; }
             .mobile-menu-btn { display: flex; flex-direction: column; gap: 4px; background: none; border: none; cursor: pointer; padding: 6px; }
@@ -966,6 +666,7 @@
             .top-nav { padding: 12px 20px; }
             .nav-links { display: none; }
             section.disc-section { padding: 64px 20px; }
+            .whats-new-section { padding: 64px 20px; }
             .bp-section-inner { padding: 64px 20px; }
             .blabplus-section-inner { padding: 64px 20px; }
             footer { padding: 28px 20px; }
@@ -978,18 +679,17 @@
 <!-- ══ PAGE DISCOVER ══ -->
 <section id="page-discover" class="page active">
 
-    <!-- NAV -->
     <nav class="top-nav">
         <div class="logo">
             <img src="logo.png" alt="BlabChat" onerror="this.style.display='none'">
             <span class="logo-text">BlabChat</span>
         </div>
         <div class="nav-links">
+            <span class="nav-link" onclick="document.getElementById('whats-new-discover').scrollIntoView({behavior:'smooth'})">What's New 🆕</span>
             <span class="nav-link" onclick="document.getElementById('features-section').scrollIntoView({behavior:'smooth'})">Fonctionnalités</span>
             <span class="nav-link" onclick="document.getElementById('bp-section').scrollIntoView({behavior:'smooth'})">BlabPoints</span>
             <span class="nav-link" onclick="document.getElementById('blabplus-section').scrollIntoView({behavior:'smooth'})">Blab+</span>
             <span class="nav-link" onclick="document.getElementById('servers-section').scrollIntoView({behavior:'smooth'})">Serveurs</span>
-            <span class="nav-link" onclick="document.getElementById('how-section').scrollIntoView({behavior:'smooth'})">Comment ça marche</span>
         </div>
         <div class="auth-buttons">
             <button class="btn-ghost" onclick="showAuth('login')">Connexion</button>
@@ -1004,168 +704,81 @@
             <div class="orb orb-2"></div>
             <div class="orb orb-3"></div>
         </div>
-
         <div class="hero-content">
             <div class="hero-badge">
                 <div class="badge-dot"></div>
                 Nouveau · <span class="blabplus-badge" style="font-size:.65rem;padding:1px 6px;border-radius:6px">Blab+</span>&nbsp;disponible dès maintenant
             </div>
-
-            <h1 class="hero-title">
-                Le Chat<br><span class="gradient-text">Premium</span>
-            </h1>
-
-            <p class="hero-sub">
-                Crée des serveurs, gère tes salons, rôles et membres.<br>
-                Gagne des <span class="gold-text" style="font-weight:700">BlabPoints ⭐</span> et personnalise ton expérience.
-            </p>
-
+            <h1 class="hero-title">Le Chat<br><span class="gradient-text">Premium</span></h1>
+            <p class="hero-sub">Crée des serveurs, gère tes salons, rôles et membres.<br>Gagne des <span class="gold-text" style="font-weight:700">BlabPoints ⭐</span> et personnalise ton expérience.</p>
             <div class="hero-actions">
                 <button class="btn-primary btn-large" onclick="showAuth('register')">Commencer gratuitement</button>
                 <button class="btn-ghost btn-large" onclick="document.getElementById('blabplus-section').scrollIntoView({behavior:'smooth'})">Découvrir Blab+ →</button>
             </div>
-
-            <!-- Fake chat preview -->
             <div class="hero-preview">
                 <div class="preview-titlebar">
-                    <div class="preview-dots">
-                        <div class="preview-dot"></div>
-                        <div class="preview-dot"></div>
-                        <div class="preview-dot"></div>
-                    </div>
+                    <div class="preview-dots"><div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div></div>
                     <span class="preview-channel"># général — Serveur Gaming 🎮</span>
                 </div>
                 <div class="preview-msgs">
                     <div class="preview-msg">
                         <div class="preview-avatar" style="background:#5b6af0">Lx</div>
                         <div class="preview-msg-body">
-                            <div class="preview-msg-header">
-                                <span class="preview-msg-name" style="color:#5b6af0;animation:nameGlow 2s ease-in-out infinite">Luxen</span>
-                                <span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px;margin-left:4px">Blab+</span>
-                                <span class="preview-msg-time">aujourd'hui à 18:42</span>
-                            </div>
+                            <div class="preview-msg-header"><span class="preview-msg-name" style="color:#5b6af0;animation:nameGlow 2s ease-in-out infinite">Luxen</span><span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px;margin-left:4px">Blab+</span><span class="preview-msg-time">aujourd'hui à 18:42</span></div>
                             <div class="preview-msg-text">Quelqu'un dispo pour une partie ce soir ? 👾</div>
                         </div>
                     </div>
                     <div class="preview-msg">
                         <div class="preview-avatar" style="background:#e05bf0">Nv</div>
                         <div class="preview-msg-body">
-                            <div class="preview-msg-header">
-                                <span class="preview-msg-name" style="animation:nameRainbow 3s linear infinite">Nova</span>
-                                <span class="preview-msg-time">aujourd'hui à 18:43</span>
-                            </div>
+                            <div class="preview-msg-header"><span class="preview-msg-name" style="animation:nameRainbow 3s linear infinite">Nova</span><span class="preview-msg-time">aujourd'hui à 18:43</span></div>
                             <div class="preview-msg-text">Oui ! Je viens de récupérer mes <span class="bp-tag">⭐ +5 BP</span> du jour 🎉</div>
                         </div>
                     </div>
-                    <div class="preview-msg">
-                        <div class="preview-avatar" style="background:#3fd68f">Zk</div>
-                        <div class="preview-msg-body">
-                            <div class="preview-msg-header">
-                                <span class="preview-msg-name" style="color:#3fd68f;font-family:'Syne',sans-serif">Zenko</span>
-                                <span class="preview-msg-time">aujourd'hui à 18:43</span>
-                            </div>
-                            <div class="preview-msg-text">J'ai dépensé mes BP pour le style Arc-en-ciel 🌈 ça claque !</div>
-                        </div>
-                    </div>
                 </div>
-                <div class="preview-typing">
-                    <div class="preview-avatar" style="background:#f0c05b;width:22px;height:22px;font-size:.6rem;flex-shrink:0">Mx</div>
-                    <span style="font-size:.75rem;color:var(--txt-3);margin:0 8px">Maxou est en train d'écrire</span>
-                    <div class="typing-dots">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-                <div class="preview-input">
-                    <span>Message #général…</span>
-                    <div class="preview-send">➤</div>
-                </div>
+                <div class="preview-input"><span>Message #général…</span><div class="preview-send">➤</div></div>
             </div>
         </div>
-
-        <div class="scroll-hint">
-            <span>Défiler pour découvrir</span>
-            <div class="scroll-arrow"></div>
-        </div>
+        <div class="scroll-hint"><span>Défiler pour découvrir</span><div class="scroll-arrow"></div></div>
     </div>
 
     <!-- STATS -->
     <div class="stats-wrap">
         <div class="stats-inner">
-            <div>
-                <div class="stat-num gradient-text">12K+</div>
-                <div class="stat-label">Utilisateurs actifs</div>
-            </div>
-            <div>
-                <div class="stat-num gradient-text">3 400+</div>
-                <div class="stat-label">Serveurs créés</div>
-            </div>
-            <div>
-                <div class="stat-num gold-text">2M+</div>
-                <div class="stat-label">BlabPoints distribués</div>
-            </div>
-            <div>
-                <div class="stat-num" style="color:var(--green)">99.9%</div>
-                <div class="stat-label">Disponibilité</div>
+            <div><div class="stat-num gradient-text">12K+</div><div class="stat-label">Utilisateurs actifs</div></div>
+            <div><div class="stat-num gradient-text">3 400+</div><div class="stat-label">Serveurs créés</div></div>
+            <div><div class="stat-num gold-text">2M+</div><div class="stat-label">BlabPoints distribués</div></div>
+            <div><div class="stat-num" style="color:var(--green)">99.9%</div><div class="stat-label">Disponibilité</div></div>
+        </div>
+    </div>
+
+    <!-- ══ WHAT'S NEW SECTION (Discover) ══ -->
+    <div id="whats-new-discover" class="whats-new-section">
+        <div class="section-label">Nouveautés</div>
+        <h2 class="section-title">What's <span class="gradient-text">New</span> 🆕</h2>
+        <p class="section-sub">Les dernières annonces, mises à jour et nouveautés de BlabChat — directement de l'équipe.</p>
+        <div id="discover-news-grid" class="news-grid">
+            <div class="news-empty">
+                <div class="news-empty-icon">📭</div>
+                <p>Aucune annonce pour l'instant. Revenez bientôt !</p>
             </div>
         </div>
     </div>
+
+    <div class="disc-divider"></div>
 
     <!-- FEATURES -->
     <section class="disc-section" id="features-section">
         <div class="section-label">Fonctionnalités</div>
         <h2 class="section-title">Tout ce qu'il te faut<br>pour <span class="gradient-text">communiquer</span></h2>
-        <p class="section-sub">Des serveurs aux messages privés, en passant par les rôles et salons personnalisables — BlabChat a tout prévu.</p>
-
+        <p class="section-sub">Des serveurs aux messages privés, en passant par les rôles et salons personnalisables.</p>
         <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">🏠</div>
-                <div class="feature-title">Serveurs personnalisables</div>
-                <div class="feature-desc">Crée ton propre univers : choisis un nom, une icône, organise tes salons par catégories et invites tes amis en un lien.</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📋</div>
-                <div class="feature-title">Salons & catégories</div>
-                <div class="feature-desc">Organise ta communauté en plusieurs salons thématiques, regroupés dans des catégories claires et intuitives.</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🎭</div>
-                <div class="feature-title">Système de rôles avancé</div>
-                <div class="feature-desc">Crée des rôles colorés avec des permissions fines : gérer les salons, supprimer des messages, gérer les membres...</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">💬</div>
-                <div class="feature-title">Messages privés</div>
-                <div class="feature-desc">Parle en direct avec tes amis, partage des moments, envoie des DMs instantanés — toujours à portée de clic.</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <div class="feature-title">Gestion des amis</div>
-                <div class="feature-desc">Recherche des utilisateurs, envoie des demandes d'amis et retrouve rapidement tes contacts dans la sidebar.</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔗</div>
-                <div class="feature-title">Liens d'invitation</div>
-                <div class="feature-desc">Génère des liens d'invitation uniques pour ton serveur. Partage-les n'importe où, et accueille de nouveaux membres instantanément.</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">⭐</div>
-                <div class="feature-title">BlabPoints</div>
-                <div class="feature-desc">Un système de récompenses intégré — gagne des points chaque jour et dépense-les pour personnaliser ton pseudo et ton style.</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">🔔</div>
-                <div class="feature-title">Notifications en temps réel</div>
-                <div class="feature-desc">Sois alerté instantanément des nouveaux messages, demandes d'amis, et activités sur tes serveurs. Ne rate rien.</div>
-            </div>
-            <div class="feature-card" style="border-color:#222;background:#0d0d0d;">
-                <div class="feature-icon" style="display:flex;align-items:center;gap:10px">
-                    <span class="blabplus-badge large">Blab+</span>
-                </div>
-                <div class="feature-title" style="color:#fff">BlabPlus — Passe Premium</div>
-                <div class="feature-desc" style="color:#555">100 BP/mois, skin de profil gratuit, −20% dans le shop. Affiche ton badge <span class="blabplus-badge" style="font-size:.65rem;padding:1px 6px">Blab+</span> partout dans le chat.</div>
-            </div>
+            <div class="feature-card"><div class="feature-icon">🏠</div><div class="feature-title">Serveurs personnalisables</div><div class="feature-desc">Crée ton propre univers : choisis un nom, une icône, organise tes salons par catégories et invites tes amis en un lien.</div></div>
+            <div class="feature-card"><div class="feature-icon">📋</div><div class="feature-title">Salons & catégories</div><div class="feature-desc">Organise ta communauté en plusieurs salons thématiques, regroupés dans des catégories claires et intuitives.</div></div>
+            <div class="feature-card"><div class="feature-icon">🎭</div><div class="feature-title">Système de rôles avancé</div><div class="feature-desc">Crée des rôles colorés avec des permissions fines : gérer les salons, supprimer des messages, gérer les membres...</div></div>
+            <div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">Messages privés</div><div class="feature-desc">Parle en direct avec tes amis, partage des moments, envoie des DMs instantanés.</div></div>
+            <div class="feature-card"><div class="feature-icon">⭐</div><div class="feature-title">BlabPoints</div><div class="feature-desc">Un système de récompenses intégré — gagne des points chaque jour et dépense-les pour personnaliser ton pseudo.</div></div>
+            <div class="feature-card" style="border-color:#222;background:#0d0d0d;"><div class="feature-icon" style="display:flex;align-items:center;gap:10px"><span class="blabplus-badge large">Blab+</span></div><div class="feature-title" style="color:#fff">BlabPlus — Passe Premium</div><div class="feature-desc" style="color:#555">100 BP/mois, skin gratuit, −20% dans le shop. Badge <span class="blabplus-badge" style="font-size:.65rem;padding:1px 6px">Blab+</span> affiché partout.</div></div>
         </div>
     </section>
 
@@ -1179,213 +792,50 @@
                 <div class="bp-hero-text">
                     <div class="section-label" style="margin-bottom:6px">Système de récompenses</div>
                     <h2>Les <span class="gold-text">BlabPoints</span></h2>
-                    <p>Gagne des points gratuits chaque jour, dépense-les pour te démarquer de la foule.</p>
+                    <p>Gagne des points gratuits chaque jour, dépense-les pour te démarquer.</p>
                 </div>
             </div>
-
             <div class="section-label">Comment gagner des BlabPoints ?</div>
             <div class="bp-earn-grid">
-                <div class="bp-earn-card">
-                    <div class="bp-earn-icon">🎁</div>
-                    <div>
-                        <div class="bp-earn-title">Récompense quotidienne · +5 BP</div>
-                        <div class="bp-earn-desc">Connecte-toi chaque jour et réclame ta récompense journalière depuis ta barre de profil ou le shop. Simple, gratuit, chaque jour sans exception.</div>
-                    </div>
-                </div>
-                <div class="bp-earn-card">
-                    <div class="bp-earn-icon">💬</div>
-                    <div>
-                        <div class="bp-earn-title">Activité dans les salons · +1 BP</div>
-                        <div class="bp-earn-desc">Chaque message envoyé dans un serveur te rapporte des points. Plus tu participes à la communauté, plus tu accumules de BP rapidement.</div>
-                    </div>
-                </div>
-                <div class="bp-earn-card">
-                    <div class="bp-earn-icon">👥</div>
-                    <div>
-                        <div class="bp-earn-title">Inviter des amis · +10 BP</div>
-                        <div class="bp-earn-desc">Quand quelqu'un rejoint BlabChat via ton lien d'invitation, tu empoches 10 points bonus. Plus ta communauté grandit, plus tu gagnes.</div>
-                    </div>
-                </div>
-                <div class="bp-earn-card" style="border-color:#1e1e1e;background:#0d0d0d">
-                    <div class="bp-earn-icon">🏆</div>
-                    <div>
-                        <div class="bp-earn-title" style="color:#888">Blab+ · +100 BP/mois automatiques</div>
-                        <div class="bp-earn-desc" style="color:#444">Les abonnés <span class="blabplus-badge" style="font-size:.62rem;padding:1px 5px">Blab+</span> reçoivent 100 BlabPoints chaque mois, plus une réduction de 20% sur tous les achats dans le shop.</div>
-                    </div>
-                </div>
+                <div class="bp-earn-card"><div class="bp-earn-icon">🎁</div><div><div class="bp-earn-title">Récompense quotidienne · +5 BP</div><div class="bp-earn-desc">Connecte-toi chaque jour et réclame ta récompense journalière.</div></div></div>
+                <div class="bp-earn-card"><div class="bp-earn-icon">💬</div><div><div class="bp-earn-title">Activité dans les salons · +1 BP</div><div class="bp-earn-desc">Chaque message envoyé dans un serveur te rapporte des points.</div></div></div>
+                <div class="bp-earn-card"><div class="bp-earn-icon">👥</div><div><div class="bp-earn-title">Inviter des amis · +10 BP</div><div class="bp-earn-desc">Quand quelqu'un rejoint via ton lien, tu empoches 10 points bonus.</div></div></div>
+                <div class="bp-earn-card" style="border-color:#1e1e1e;background:#0d0d0d"><div class="bp-earn-icon">🏆</div><div><div class="bp-earn-title" style="color:#888">Blab+ · +100 BP/mois automatiques</div><div class="bp-earn-desc" style="color:#444">Les abonnés reçoivent 100 BlabPoints chaque mois automatiquement.</div></div></div>
             </div>
-
-            <div class="section-label" style="margin-top:40px">Que faire avec tes BlabPoints ?</div>
-            <p class="section-sub" style="margin-bottom:28px">Dépense tes points dans le shop pour personnaliser l'affichage de ton pseudo dans tous les serveurs.</p>
-
-            <div class="bp-shop-demo">
-                <div class="demo-shop-item">
-                    <div class="item-emoji">🎨</div>
-                    <div class="item-name">Couleur personnalisée</div>
-                    <div class="item-desc">Change la couleur de ton pseudo pour une teinte unique. Choisis parmi une palette exclusive.</div>
-                    <div class="item-name-preview" style="color:#e05bf0">TonPseudo</div>
-                    <div class="item-price">⭐ 15 BlabPoints</div>
-                    <button class="btn-bp" style="margin-top:6px" onclick="showAuth('register')">Débloquer</button>
-                </div>
-                <div class="demo-shop-item">
-                    <div class="item-emoji">🌈</div>
-                    <div class="item-name">Arc-en-ciel animé</div>
-                    <div class="item-desc">Ton pseudo change de couleur en continu selon un dégradé arc-en-ciel flamboyant.</div>
-                    <div class="item-name-preview anim-rainbow">TonPseudo</div>
-                    <div class="item-price">⭐ 30 BlabPoints</div>
-                    <button class="btn-bp" style="margin-top:6px" onclick="showAuth('register')">Débloquer</button>
-                </div>
-                <div class="demo-shop-item">
-                    <div class="item-emoji">✨</div>
-                    <div class="item-name">Effet Néon</div>
-                    <div class="item-desc">Ton pseudo brille comme une enseigne néon avec une lueur pulsante autour de lui.</div>
-                    <div class="item-name-preview anim-glow" style="color:#5b6af0">TonPseudo</div>
-                    <div class="item-price">⭐ 25 BlabPoints</div>
-                    <button class="btn-bp" style="margin-top:6px" onclick="showAuth('register')">Débloquer</button>
-                </div>
-                <div class="demo-shop-item">
-                    <div class="item-emoji">⚡</div>
-                    <div class="item-name">Police Monospace</div>
-                    <div class="item-desc">Adopte la police monospace façon terminal/code pour un look unique et tech.</div>
-                    <div class="item-name-preview font-mono" style="color:#3fd68f">TonPseudo</div>
-                    <div class="item-price">⭐ 20 BlabPoints</div>
-                    <button class="btn-bp" style="margin-top:6px" onclick="showAuth('register')">Débloquer</button>
-                </div>
-                <div class="demo-shop-item">
-                    <div class="item-emoji">💎</div>
-                    <div class="item-name">Clignotement élégant</div>
-                    <div class="item-desc">Ton nom pulse doucement pour attirer l'attention de façon subtile mais remarquable.</div>
-                    <div class="item-name-preview anim-pulse" style="color:#f5c842">TonPseudo</div>
-                    <div class="item-price">⭐ 20 BlabPoints</div>
-                    <button class="btn-bp" style="margin-top:6px" onclick="showAuth('register')">Débloquer</button>
-                </div>
-                <div class="demo-shop-item">
-                    <div class="item-emoji">📖</div>
-                    <div class="item-name">Police Syne</div>
-                    <div class="item-desc">Affiche ton pseudo avec la police d'en-tête Syne : ultra-bold et impactante.</div>
-                    <div class="item-name-preview font-syne" style="color:#e05bf0">TonPseudo</div>
-                    <div class="item-price">⭐ 15 BlabPoints</div>
-                    <button class="btn-bp" style="margin-top:6px" onclick="showAuth('register')">Débloquer</button>
-                </div>
-            </div>
-
-            <div style="text-align:center;margin-top:40px">
-                <button class="btn-gold" onclick="showAuth('register')">Commencer à gagner des BlabPoints gratuitement →</button>
-            </div>
+            <div style="text-align:center;margin-top:40px"><button class="btn-gold" onclick="showAuth('register')">Commencer à gagner des BlabPoints gratuitement →</button></div>
         </div>
     </div>
 
     <div class="disc-divider"></div>
 
-    <!-- ══ BLABPLUS SECTION ══ -->
+    <!-- BLABPLUS SECTION -->
     <div class="blabplus-section-wrap" id="blabplus-section">
         <div class="blabplus-section-inner">
-
             <div class="blabplus-hero">
                 <div class="blabplus-hero-left">
                     <div class="section-label" style="color:#666;letter-spacing:3px">ABONNEMENT PREMIUM</div>
                     <h2>Passe au niveau<br>supérieur avec<br><span style="color:#fff">Blab+</span></h2>
-                    <p>100 BlabPoints chaque mois, un skin gratuit, −20% partout dans le shop — et ton badge exclusif affiché dans tout le chat.</p>
-                    <div class="blabplus-price-block">
-                        <div class="blabplus-price-amount">100</div>
-                        <div class="blabplus-price-detail">
-                            <span style="color:#777">BlabPoints</span>
-                            <span style="color:#444">par mois · automatiques</span>
-                        </div>
-                    </div>
+                    <p>100 BlabPoints chaque mois, un skin gratuit, −20% partout dans le shop.</p>
+                    <div class="blabplus-price-block"><div class="blabplus-price-amount">100</div><div class="blabplus-price-detail"><span style="color:#777">BlabPoints</span><span style="color:#444">par mois · automatiques</span></div></div>
                     <button class="btn-blabplus" onclick="showAuth('register')">S'abonner à Blab+ →</button>
-                    <p style="font-size:.75rem;color:#333;margin-top:10px">Annulable à tout moment · Paiement mensuel</p>
                 </div>
                 <div class="blabplus-hero-right">
                     <div class="blabplus-big-badge">Blab+</div>
                     <div class="blabplus-badge-perks">
-                        <div class="blabplus-badge-perk">
-                            <div class="blabplus-badge-perk-icon">⭐</div>
-                            <span>+100 BlabPoints automatiques chaque mois</span>
-                        </div>
-                        <div class="blabplus-badge-perk">
-                            <div class="blabplus-badge-perk-icon">🎨</div>
-                            <span>1 skin de profil gratuit par mois à choisir</span>
-                        </div>
-                        <div class="blabplus-badge-perk">
-                            <div class="blabplus-badge-perk-icon">🏷️</div>
-                            <span>−20% sur tous les achats dans le shop</span>
-                        </div>
-                        <div class="blabplus-badge-perk">
-                            <div class="blabplus-badge-perk-icon" style="font-family:'Syne',sans-serif;font-size:.6rem;font-weight:800;color:#fff;letter-spacing:-.3px">Blab+</div>
-                            <span>Badge exclusif visible dans tout le chat</span>
-                        </div>
+                        <div class="blabplus-badge-perk"><div class="blabplus-badge-perk-icon">⭐</div><span>+100 BlabPoints automatiques chaque mois</span></div>
+                        <div class="blabplus-badge-perk"><div class="blabplus-badge-perk-icon">🎨</div><span>1 skin de profil gratuit par mois</span></div>
+                        <div class="blabplus-badge-perk"><div class="blabplus-badge-perk-icon">🏷️</div><span>−20% sur tous les achats dans le shop</span></div>
+                        <div class="blabplus-badge-perk"><div class="blabplus-badge-perk-icon" style="font-family:'Syne',sans-serif;font-size:.6rem;font-weight:800;color:#fff;letter-spacing:-.3px">Blab+</div><span>Badge exclusif visible dans tout le chat</span></div>
                     </div>
                 </div>
             </div>
-
-            <div class="section-label" style="color:#444;margin-bottom:24px">CE QUE TU OBTIENS</div>
-            <div class="blabplus-perks-grid">
-                <div class="blabplus-perk-card">
-                    <div class="blabplus-perk-icon">⭐</div>
-                    <div class="blabplus-perk-title">100 BlabPoints / mois</div>
-                    <div class="blabplus-perk-desc">Reçois automatiquement 100 BP à chaque renouvellement d'abonnement. Accumule-les pour débloquer des cosmétiques premium sans effort.</div>
-                    <div class="blabplus-perk-tag">AUTOMATIQUE</div>
-                </div>
-                <div class="blabplus-perk-card">
-                    <div class="blabplus-perk-icon">🎨</div>
-                    <div class="blabplus-perk-title">1 skin gratuit par mois</div>
-                    <div class="blabplus-perk-desc">Chaque mois, choisis un skin de profil dans la boutique et débloque-le gratuitement — couleur, police ou animation, c'est toi qui choisis.</div>
-                    <div class="blabplus-perk-tag">VALEUR JUSQU'À 35 BP</div>
-                </div>
-                <div class="blabplus-perk-card">
-                    <div class="blabplus-perk-icon">🏷️</div>
-                    <div class="blabplus-perk-title">−20% dans le shop</div>
-                    <div class="blabplus-perk-desc">Tous les achats dans la boutique BlabPoints sont réduits de 20% automatiquement. Tes points s'étendent plus loin, tu en profites davantage.</div>
-                    <div class="blabplus-perk-tag">SUR TOUT LE SHOP</div>
-                </div>
-                <div class="blabplus-perk-card">
-                    <div class="blabplus-perk-icon" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;background:#0a0a0a;border:1.5px solid #2a2a2a;border-radius:8px;display:inline-flex;padding:4px 10px;margin-bottom:14px">Blab+</div>
-                    <div class="blabplus-perk-title">Badge exclusif partout</div>
-                    <div class="blabplus-perk-desc">Ton badge Blab+ s'affiche dans le chat, dans les listes de membres, dans les DMs. Tout le monde voit que tu soutiens BlabChat.</div>
-                    <div class="blabplus-perk-tag">VISIBLE PARTOUT</div>
-                </div>
-            </div>
-
             <div class="blabplus-subscribe-box">
                 <h3>Rejoins Blab+ aujourd'hui</h3>
                 <p>100 BP par mois · 1 skin gratuit · −20% shop · badge exclusif</p>
                 <button class="btn-blabplus" onclick="showAuth('register')">Commencer mon abonnement Blab+ →</button>
             </div>
-
         </div>
     </div>
-
-    <div class="disc-divider"></div>
-
-    <!-- HOW IT WORKS -->
-    <section class="disc-section" id="how-section">
-        <div class="section-label">Comment ça marche</div>
-        <h2 class="section-title">Lancé en <span class="gradient-text">3 étapes</span></h2>
-        <div class="steps-list">
-            <div class="step-item">
-                <div class="step-num">1</div>
-                <div class="step-content">
-                    <div class="step-title">Crée ton compte gratuitement</div>
-                    <div class="step-desc">Inscris-toi en quelques secondes avec un pseudo, un email et un mot de passe. Pas de carte bancaire, pas de conditions cachées. Tu commences immédiatement avec 10 BlabPoints de bienvenue.</div>
-                </div>
-            </div>
-            <div class="step-item">
-                <div class="step-num">2</div>
-                <div class="step-content">
-                    <div class="step-title">Rejoins ou crée un serveur</div>
-                    <div class="step-desc">Explore les serveurs publics, rejoins via un lien d'invitation, ou lance ton propre serveur en 10 secondes. Organise-le en catégories et salons, assigne des rôles à tes membres.</div>
-                </div>
-            </div>
-            <div class="step-item">
-                <div class="step-num">3</div>
-                <div class="step-content">
-                    <div class="step-title">Chatte, accumule, personnalise</div>
-                    <div class="step-desc">Envoie des messages, parle en DMs, réclame tes BlabPoints quotidiens. Dépense-les dans la boutique pour rendre ton pseudo unique et te démarquer sur tous les serveurs. Ou passe à <span style="font-family:'Syne',sans-serif;font-weight:800;color:#888">Blab+</span> pour encore plus d'avantages.</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <div class="disc-divider"></div>
 
@@ -1394,127 +844,18 @@
         <div class="section-label">Serveurs populaires</div>
         <h2 class="section-title">Des communautés<br>pour <span class="gradient-text">tout le monde</span></h2>
         <div class="servers-showcase">
-            <div class="server-card">
-                <div class="server-card-banner" style="background:linear-gradient(135deg,#1a1e40,#2a2460)">🎮</div>
-                <div class="server-card-body">
-                    <div class="server-card-name">Gaming Zone</div>
-                    <div class="server-card-desc">LFG, tournois, streams et discussions gaming. Toutes les plateformes bienvenues.</div>
-                    <div class="server-card-meta">
-                        <div class="server-card-members"><div class="members-dot"></div> 1 240 membres</div>
-                        <button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button>
-                    </div>
-                </div>
-            </div>
-            <div class="server-card">
-                <div class="server-card-banner" style="background:linear-gradient(135deg,#1a2a1a,#1a3a1a)">🎨</div>
-                <div class="server-card-body">
-                    <div class="server-card-name">Créatifs & Design</div>
-                    <div class="server-card-desc">Partage tes créations, demande des avis, découvre des artistes et designers talentueux.</div>
-                    <div class="server-card-meta">
-                        <div class="server-card-members"><div class="members-dot"></div> 876 membres</div>
-                        <button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button>
-                    </div>
-                </div>
-            </div>
-            <div class="server-card">
-                <div class="server-card-banner" style="background:linear-gradient(135deg,#2a1a2a,#3a1a40)">🎵</div>
-                <div class="server-card-body">
-                    <div class="server-card-name">Music Heads</div>
-                    <div class="server-card-desc">Toutes les musiques, tous les styles. Partage tes découvertes et débats sur l'actu musicale.</div>
-                    <div class="server-card-meta">
-                        <div class="server-card-members"><div class="members-dot"></div> 2 100 membres</div>
-                        <button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button>
-                    </div>
-                </div>
-            </div>
-            <div class="server-card">
-                <div class="server-card-banner" style="background:linear-gradient(135deg,#1a2030,#202840)">💻</div>
-                <div class="server-card-body">
-                    <div class="server-card-name">Dev & Tech</div>
-                    <div class="server-card-desc">Programmation, open-source, aide entre développeurs. Du débutant au senior.</div>
-                    <div class="server-card-meta">
-                        <div class="server-card-members"><div class="members-dot"></div> 3 410 membres</div>
-                        <button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button>
-                    </div>
-                </div>
-            </div>
-            <div class="server-card">
-                <div class="server-card-banner" style="background:linear-gradient(135deg,#2a1a10,#3a2010)">📚</div>
-                <div class="server-card-body">
-                    <div class="server-card-name">Study Together</div>
-                    <div class="server-card-desc">Sessions de révision, partage de cours, entraide scolaire et universitaire.</div>
-                    <div class="server-card-meta">
-                        <div class="server-card-members"><div class="members-dot"></div> 689 membres</div>
-                        <button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button>
-                    </div>
-                </div>
-            </div>
-            <div class="server-card">
-                <div class="server-card-banner" style="background:linear-gradient(135deg,#0d1a2a,#102030)">🌍</div>
-                <div class="server-card-body">
-                    <div class="server-card-name">Langues du Monde</div>
-                    <div class="server-card-desc">Apprends des langues, pratique avec des natifs, échange des cultures du monde entier.</div>
-                    <div class="server-card-meta">
-                        <div class="server-card-members"><div class="members-dot"></div> 1 850 membres</div>
-                        <button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="disc-divider"></div>
-
-    <!-- TESTIMONIALS -->
-    <section class="disc-section">
-        <div class="section-label">Ils adorent BlabChat</div>
-        <h2 class="section-title">Ce que disent<br>nos <span class="gradient-text">utilisateurs</span></h2>
-        <div class="testimonials-grid">
-            <div class="testimonial-card">
-                <div class="stars">★★★★★</div>
-                <div class="testimonial-text">Les BlabPoints c'est vraiment addictif — j'attends chaque jour de récupérer mes points pour débloquer de nouveaux styles. Mon nom arc-en-ciel fait fureur sur le serveur gaming.</div>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar" style="background:#5b6af0">Lx</div>
-                    <div>
-                        <div class="testimonial-name" style="display:flex;align-items:center;gap:6px">Luxen_GG <span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px">Blab+</span></div>
-                        <div class="testimonial-meta">Serveur Gaming Zone · 420 BP collectés</div>
-                    </div>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="stars">★★★★★</div>
-                <div class="testimonial-text">Le skin gratuit Blab+ chaque mois c'est génial. J'ai migré ma commu Discord ici et l'interface est bien plus propre. La création de rôles est ultra intuitive.</div>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar" style="background:#e05bf0">Nv</div>
-                    <div>
-                        <div class="testimonial-name">Nova_Design</div>
-                        <div class="testimonial-meta">Fondatrice · Créatifs & Design</div>
-                    </div>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="stars">★★★★☆</div>
-                <div class="testimonial-text">L'effet néon sur mon pseudo vaut vraiment ses 25 points. Avec Blab+ j'ai la réduction de 20%, donc je l'ai eu pour 20 BP. Les gens demandent toujours comment j'ai fait ça.</div>
-                <div class="testimonial-author">
-                    <div class="testimonial-avatar" style="background:#3fd68f">Zk</div>
-                    <div>
-                        <div class="testimonial-name" style="display:flex;align-items:center;gap:6px">Zenko <span class="blabplus-badge" style="font-size:.6rem;padding:1px 5px;border-radius:6px">Blab+</span></div>
-                        <div class="testimonial-meta">Dev & Tech · 210 BP dépensés</div>
-                    </div>
-                </div>
-            </div>
+            <div class="server-card"><div class="server-card-banner" style="background:linear-gradient(135deg,#1a1e40,#2a2460)">🎮</div><div class="server-card-body"><div class="server-card-name">Gaming Zone</div><div class="server-card-desc">LFG, tournois, streams et discussions gaming.</div><div class="server-card-meta"><div class="server-card-members"><div class="members-dot"></div> 1 240 membres</div><button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button></div></div></div>
+            <div class="server-card"><div class="server-card-banner" style="background:linear-gradient(135deg,#1a2a1a,#1a3a1a)">🎨</div><div class="server-card-body"><div class="server-card-name">Créatifs & Design</div><div class="server-card-desc">Partage tes créations, demande des avis.</div><div class="server-card-meta"><div class="server-card-members"><div class="members-dot"></div> 876 membres</div><button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button></div></div></div>
+            <div class="server-card"><div class="server-card-banner" style="background:linear-gradient(135deg,#1a2030,#202840)">💻</div><div class="server-card-body"><div class="server-card-name">Dev & Tech</div><div class="server-card-desc">Programmation, open-source, aide entre développeurs.</div><div class="server-card-meta"><div class="server-card-members"><div class="members-dot"></div> 3 410 membres</div><button class="btn-primary" style="padding:6px 14px;font-size:.8rem" onclick="showAuth('register')">Rejoindre</button></div></div></div>
         </div>
     </section>
 
     <!-- CTA FINAL -->
     <div class="cta-section">
         <div class="cta-content">
-            <div class="hero-badge">
-                <div class="badge-dot"></div>
-                Gratuit pour toujours · Blab+ disponible
-            </div>
+            <div class="hero-badge"><div class="badge-dot"></div>Gratuit pour toujours · Blab+ disponible</div>
             <h2 class="cta-title">Prêt à <span class="gradient-text">rejoindre</span><br>l'aventure ?</h2>
-            <p class="cta-sub">Crée ton compte en 30 secondes, rejoins des milliers de communautés et commence à gagner tes premiers BlabPoints dès aujourd'hui.</p>
+            <p class="cta-sub">Crée ton compte en 30 secondes, rejoins des milliers de communautés.</p>
             <div class="cta-actions">
                 <button class="btn-primary btn-large" onclick="showAuth('register')">Créer mon compte gratuit</button>
                 <button class="btn-ghost btn-large" onclick="document.getElementById('blabplus-section').scrollIntoView({behavior:'smooth'})">Découvrir Blab+</button>
@@ -1522,21 +863,11 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
     <footer>
-        <div class="footer-logo">
-            <img src="logo.png" alt="BlabChat" onerror="this.style.display='none'">
-            <span class="logo-text" style="font-size:.95rem">BlabChat</span>
-        </div>
-        <div class="footer-links">
-            <span class="footer-link">Mentions légales</span>
-            <span class="footer-link">Confidentialité</span>
-            <span class="footer-link">CGU</span>
-            <span class="footer-link">Contact</span>
-        </div>
+        <div class="footer-logo"><img src="logo.png" alt="BlabChat" onerror="this.style.display='none'"><span class="logo-text" style="font-size:.95rem">BlabChat</span></div>
+        <div class="footer-links"><span class="footer-link">Mentions légales</span><span class="footer-link">Confidentialité</span><span class="footer-link">CGU</span><span class="footer-link">Contact</span></div>
         <div class="footer-copy">© 2025 BlabChat · Tous droits réservés</div>
     </footer>
-
 </section>
 
 <!-- ══ PAGE APP ══ -->
@@ -1551,17 +882,11 @@
             <button class="server-add" onclick="createNewServer()">+</button>
         </div>
         <div class="drawer-channels">
-            <div class="drawer-header">
-                <span id="drawer-server-name" class="drawer-title">GLOBAL</span>
-                <button class="drawer-close" aria-label="Fermer">✕</button>
-            </div>
+            <div class="drawer-header"><span id="drawer-server-name" class="drawer-title">GLOBAL</span><button class="drawer-close" aria-label="Fermer">✕</button></div>
             <div class="drawer-channel-list" id="drawer-channel-list"></div>
             <div class="drawer-user-bar">
                 <div class="user-bar-avatar" id="drawer-my-avatar">?</div>
-                <div class="user-bar-info">
-                    <span class="user-bar-name" id="drawer-my-name">...</span>
-                    <span class="user-bar-status">En ligne</span>
-                </div>
+                <div class="user-bar-info"><span class="user-bar-name" id="drawer-my-name">...</span><span class="user-bar-status">En ligne</span></div>
                 <button class="btn-icon-logout" onclick="logout()">✕</button>
             </div>
         </div>
@@ -1573,6 +898,10 @@
             <div class="server-dm-btn" onclick="switchView('dm')" id="nav-dm" title="Messages privés">💬</div>
             <div class="server-bp-btn" onclick="openBPShop()" id="nav-bp" title="BlabPoints">⭐</div>
             <div class="server-bplus-btn" onclick="openBlabPlusModal()" id="nav-bplus" title="Blab+">Blab+</div>
+            <div class="server-news-btn" onclick="switchView('whats-new')" id="nav-news" title="What's New">
+                🆕
+                <div class="news-unread-dot" id="news-unread-dot"></div>
+            </div>
             <div class="server-divider"></div>
             <div id="server-list" class="server-list"></div>
             <button class="server-add" onclick="createNewServer()" title="Créer un serveur">+</button>
@@ -1582,9 +911,7 @@
                 <span id="current-server-name" class="channels-title">GLOBAL</span>
                 <div class="header-actions" id="channel-header-actions"></div>
             </div>
-            <div class="channel-scroll" id="channel-scroll">
-                <div id="channel-list"></div>
-            </div>
+            <div class="channel-scroll" id="channel-scroll"><div id="channel-list"></div></div>
             <div class="user-bar">
                 <div class="user-bar-avatar" id="my-avatar" onclick="openBPShop()" title="Mon profil / BlabPoints">?</div>
                 <div class="user-bar-info" onclick="openBPShop()" title="Mon profil / BlabPoints">
@@ -1599,11 +926,9 @@
             <header class="main-header">
                 <div class="main-header-left">
                     <button class="mobile-menu-btn" aria-label="Menu" aria-expanded="false">
-                        <span class="hamburger-bar"></span>
-                        <span class="hamburger-bar"></span>
-                        <span class="hamburger-bar"></span>
+                        <span class="hamburger-bar"></span><span class="hamburger-bar"></span><span class="hamburger-bar"></span>
                     </button>
-                    <span class="header-hash">#</span>
+                    <span class="header-hash" id="main-header-hash">#</span>
                     <h3 id="current-channel-display">général</h3>
                 </div>
                 <div class="header-actions" id="main-header-actions"></div>
@@ -1627,27 +952,39 @@
     </div>
 </section>
 
+<!-- ══ WHAT'S NEW POPUP (in-app, auto at login) ══ -->
+<div id="whats-new-popup" class="whats-new-popup-overlay hidden">
+    <div class="whats-new-popup">
+        <div class="whats-new-popup-header">
+            <div class="whats-new-popup-title">What's New <span class="new-badge">NOUVEAU</span></div>
+            <button class="whats-new-popup-close" onclick="closeWhatsNewPopup()">✕</button>
+        </div>
+        <div class="whats-new-popup-body" id="whats-new-popup-body">
+            <!-- filled dynamically -->
+        </div>
+        <div class="whats-new-popup-footer">
+            <label class="whats-new-dont-show">
+                <input type="checkbox" id="whats-new-dont-show-cb">
+                Ne plus afficher jusqu'à la prochaine nouveauté
+            </label>
+            <div class="scroll-to-close-hint">⬇ Scrolle pour fermer</div>
+        </div>
+    </div>
+</div>
+
 <!-- ══ MODALS ══ -->
 <div id="modal-auth" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-auth')"></div>
     <div class="modal">
         <h2 id="modal-title" class="modal-title">Bienvenue</h2>
-        <div id="group-user" class="form-group">
-            <label>Pseudo</label>
-            <input type="text" id="auth-user" placeholder="Ton pseudo">
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="auth-email" placeholder="ton@email.com">
-        </div>
-        <div class="form-group">
-            <label>Mot de passe</label>
-            <input type="password" id="auth-pass" placeholder="••••••••">
-        </div>
+        <div id="group-user" class="form-group"><label>Pseudo</label><input type="text" id="auth-user" placeholder="Ton pseudo"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="auth-email" placeholder="ton@email.com"></div>
+        <div class="form-group"><label>Mot de passe</label><input type="password" id="auth-pass" placeholder="••••••••"></div>
         <button id="auth-submit" class="btn-primary btn-full">Confirmer</button>
         <button class="btn-ghost btn-full" onclick="closeModal('modal-auth')">Annuler</button>
     </div>
 </div>
+
 <div id="modal-friends" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-friends')"></div>
     <div class="modal">
@@ -1666,6 +1003,7 @@
         <button class="btn-ghost btn-full" onclick="closeModal('modal-friends')">Fermer</button>
     </div>
 </div>
+
 <div id="modal-search-servers" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-search-servers')"></div>
     <div class="modal">
@@ -1679,16 +1017,14 @@
             <div class="search-results" id="server-search-results"><div class="empty-state">Tape pour chercher...</div></div>
         </div>
         <div id="tab-invite" class="tab-content">
-            <p class="modal-desc">Colle le lien d'invitation que tu as reçu :</p>
-            <div class="form-group">
-                <label>Lien / Code</label>
-                <input type="text" id="invite-link-input" placeholder="blabchat.io/invite/XXXXXX ou code court">
-            </div>
+            <p class="modal-desc">Colle le lien d'invitation :</p>
+            <div class="form-group"><label>Lien / Code</label><input type="text" id="invite-link-input" placeholder="blabchat.io/invite/XXXXXX"></div>
             <button class="btn-primary btn-full" onclick="joinByInviteLink()">Rejoindre →</button>
         </div>
         <button class="btn-ghost btn-full" onclick="closeModal('modal-search-servers')">Fermer</button>
     </div>
 </div>
+
 <div id="modal-join-confirm" class="modal-overlay hidden">
     <div class="modal-backdrop"></div>
     <div class="modal">
@@ -1703,6 +1039,7 @@
         </div>
     </div>
 </div>
+
 <div id="modal-admin" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-admin')"></div>
     <div class="modal">
@@ -1714,17 +1051,8 @@
             <button class="modal-tab" onclick="switchTab('admin','tab-admin-invite',event)">Invitation</button>
         </div>
         <div id="tab-admin-channels" class="tab-content active">
-            <div class="admin-section">
-                <div class="admin-section-title">Catégories</div>
-                <div id="admin-category-list"></div>
-                <button class="btn-primary btn-full" style="margin-top:8px" onclick="createCategory()">+ Nouvelle catégorie</button>
-            </div>
-            <div class="admin-section">
-                <div class="admin-section-title">Créer un salon</div>
-                <div class="form-group"><label>Catégorie</label><select id="admin-channel-category"></select></div>
-                <div class="form-group"><label>Nom du salon</label><input type="text" id="admin-channel-name" placeholder="nouveau-salon"></div>
-                <button class="btn-primary btn-full" onclick="adminCreateChannel()">Créer le salon</button>
-            </div>
+            <div class="admin-section"><div class="admin-section-title">Catégories</div><div id="admin-category-list"></div><button class="btn-primary btn-full" style="margin-top:8px" onclick="createCategory()">+ Nouvelle catégorie</button></div>
+            <div class="admin-section"><div class="admin-section-title">Créer un salon</div><div class="form-group"><label>Catégorie</label><select id="admin-channel-category"></select></div><div class="form-group"><label>Nom du salon</label><input type="text" id="admin-channel-name" placeholder="nouveau-salon"></div><button class="btn-primary btn-full" onclick="adminCreateChannel()">Créer le salon</button></div>
         </div>
         <div id="tab-admin-roles" class="tab-content">
             <div id="admin-role-list"></div>
@@ -1744,7 +1072,7 @@
         </div>
         <div id="tab-admin-members" class="tab-content"><div id="admin-members-list"></div></div>
         <div id="tab-admin-invite" class="tab-content">
-            <p class="modal-desc">Partage ce lien pour inviter des gens sur ton serveur :</p>
+            <p class="modal-desc">Partage ce lien pour inviter des gens :</p>
             <div class="invite-link-box" id="invite-link-display" onclick="copyInviteLink()">Génération...</div>
             <button class="btn-primary btn-full" onclick="copyInviteLink()">📋 Copier le lien</button>
             <button class="btn-ghost btn-full" style="margin-top:4px" onclick="regenerateInvite()">🔄 Nouveau lien</button>
@@ -1752,15 +1080,13 @@
         <button class="btn-ghost btn-full" onclick="closeModal('modal-admin')">Fermer</button>
     </div>
 </div>
+
 <div id="modal-bp-shop" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-bp-shop')"></div>
     <div class="modal wide">
         <div class="bp-header">
             <div class="bp-icon-big">⭐</div>
-            <div class="bp-header-info">
-                <h3>BlabPoints</h3>
-                <p>Gagne 5 points par jour, dépense-les en style.</p>
-            </div>
+            <div class="bp-header-info"><h3>BlabPoints</h3><p>Gagne 5 points par jour, dépense-les en style.</p></div>
             <div class="bp-balance" id="bp-modal-balance">0 <span>BP</span></div>
         </div>
         <div class="daily-reward" id="daily-reward-section">
@@ -1771,13 +1097,9 @@
             </div>
             <button class="btn-bp" id="daily-claim-btn" onclick="claimDailyBP()">Récupérer +5</button>
         </div>
-        <!-- BlabPlus upsell strip -->
         <div id="bplus-upsell-strip" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px;cursor:pointer" onclick="openBlabPlusModal()">
             <div class="blabplus-badge large">Blab+</div>
-            <div style="flex:1">
-                <div style="font-size:.85rem;font-weight:700;color:#ccc">Passe à Blab+ · 100 BP/mois + skin gratuit + −20%</div>
-                <div style="font-size:.75rem;color:#444;margin-top:2px">Clique pour en savoir plus →</div>
-            </div>
+            <div style="flex:1"><div style="font-size:.85rem;font-weight:700;color:#ccc">Passe à Blab+ · 100 BP/mois + skin gratuit + −20%</div><div style="font-size:.75rem;color:#444;margin-top:2px">Clique pour en savoir plus →</div></div>
         </div>
         <div class="modal-tabs">
             <button class="modal-tab active" onclick="switchTab('bp','tab-bp-cosmetics',event)">🎨 Cosmétiques</button>
@@ -1785,95 +1107,47 @@
             <button class="modal-tab" onclick="switchTab('bp','tab-bp-anims',event)">✨ Animations</button>
         </div>
         <div id="tab-bp-cosmetics" class="tab-content active">
-            <div class="profile-preview">
-                <div class="profile-preview-label">Aperçu de ton nom</div>
-                <div class="profile-preview-name" id="profile-preview-name">Ton pseudo</div>
-            </div>
+            <div class="profile-preview"><div class="profile-preview-label">Aperçu de ton nom</div><div class="profile-preview-name" id="profile-preview-name">Ton pseudo</div></div>
             <div class="shop-grid" id="shop-cosmetics-grid"></div>
         </div>
         <div id="tab-bp-fonts" class="tab-content">
-            <div class="profile-preview">
-                <div class="profile-preview-label">Aperçu de ton nom</div>
-                <div class="profile-preview-name" id="profile-preview-name-font">Ton pseudo</div>
-            </div>
+            <div class="profile-preview"><div class="profile-preview-label">Aperçu de ton nom</div><div class="profile-preview-name" id="profile-preview-name-font">Ton pseudo</div></div>
             <div class="shop-grid" id="shop-fonts-grid"></div>
         </div>
         <div id="tab-bp-anims" class="tab-content">
-            <div class="profile-preview">
-                <div class="profile-preview-label">Aperçu de l'animation</div>
-                <div class="profile-preview-name" id="profile-preview-name-anim">Ton pseudo</div>
-            </div>
+            <div class="profile-preview"><div class="profile-preview-label">Aperçu de l'animation</div><div class="profile-preview-name" id="profile-preview-name-anim">Ton pseudo</div></div>
             <div class="shop-grid" id="shop-anims-grid"></div>
         </div>
         <button class="btn-ghost btn-full" onclick="closeModal('modal-bp-shop')">Fermer</button>
     </div>
 </div>
 
-<!-- ══ MODAL BLAB+ ══ -->
+<!-- MODAL BLAB+ -->
 <div id="modal-blabplus" class="modal-overlay hidden">
     <div class="modal-backdrop" onclick="closeModal('modal-blabplus')"></div>
     <div class="modal wide modal-blabplus">
         <div class="bplus-modal-header">
             <div class="bplus-modal-badge-big">Blab+</div>
-            <div class="bplus-modal-info">
-                <h3>Abonnement BlabPlus</h3>
-                <p>100 BlabPoints/mois · skin gratuit · −20% shop · badge exclusif</p>
-            </div>
-            <div style="margin-left:auto;font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;line-height:1;text-align:right">
-                100 <span style="font-size:.75rem;color:#444;font-weight:400;display:block">BP/mois</span>
-            </div>
+            <div class="bplus-modal-info"><h3>Abonnement BlabPlus</h3><p>100 BlabPoints/mois · skin gratuit · −20% shop · badge exclusif</p></div>
+            <div style="margin-left:auto;font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;line-height:1;text-align:right">100 <span style="font-size:.75rem;color:#444;font-weight:400;display:block">BP/mois</span></div>
         </div>
-
-        <!-- Abonné ou non -->
         <div id="bplus-subscribed-view" style="display:none;flex-direction:column;gap:10px">
-            <div style="text-align:center;padding:12px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px">
-                <div style="font-size:1.4rem;margin-bottom:6px">✓</div>
-                <div style="font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:1rem">Tu es abonné Blab+ !</div>
-                <div style="font-size:.8rem;color:#555;margin-top:4px">Renouvellement automatique chaque mois.</div>
-            </div>
-            <!-- Free monthly skin -->
+            <div style="text-align:center;padding:12px;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:10px"><div style="font-size:1.4rem;margin-bottom:6px">✓</div><div style="font-family:'Syne',sans-serif;font-weight:800;color:#fff;font-size:1rem">Tu es abonné Blab+ !</div><div style="font-size:.8rem;color:#555;margin-top:4px">Renouvellement automatique chaque mois.</div></div>
             <div style="font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:#444;text-transform:uppercase;margin-top:4px">TON SKIN GRATUIT DU MOIS</div>
             <div class="bplus-free-skin-grid" id="bplus-free-skin-grid"></div>
             <button class="btn-blabplus-modal" id="bplus-claim-skin-btn" onclick="claimFreeSkin()">Choisir mon skin gratuit</button>
             <button class="btn-ghost btn-full" onclick="cancelBlabPlus()" style="border-color:#1e1e1e;color:#333;font-size:.8rem">Annuler l'abonnement</button>
         </div>
-
-        <!-- Non abonné -->
         <div id="bplus-unsubscribed-view" style="display:flex;flex-direction:column;gap:10px">
             <div class="bplus-perks-list">
-                <div class="bplus-perk-row">
-                    <div class="bplus-perk-row-icon">⭐</div>
-                    <div class="bplus-perk-row-text">
-                        <div class="bplus-perk-row-title">+100 BlabPoints chaque mois</div>
-                        <div class="bplus-perk-row-desc">Crédités automatiquement à chaque renouvellement</div>
-                    </div>
-                </div>
-                <div class="bplus-perk-row">
-                    <div class="bplus-perk-row-icon">🎨</div>
-                    <div class="bplus-perk-row-text">
-                        <div class="bplus-perk-row-title">1 skin de profil gratuit / mois</div>
-                        <div class="bplus-perk-row-desc">Couleur, police ou animation — ton choix chaque mois</div>
-                    </div>
-                </div>
-                <div class="bplus-perk-row">
-                    <div class="bplus-perk-row-icon">🏷️</div>
-                    <div class="bplus-perk-row-text">
-                        <div class="bplus-perk-row-title">−20% sur tout le shop</div>
-                        <div class="bplus-perk-row-desc">Réduction appliquée automatiquement à chaque achat</div>
-                    </div>
-                </div>
-                <div class="bplus-perk-row">
-                    <div class="bplus-perk-row-icon" style="font-family:'Syne',sans-serif;font-size:.55rem;font-weight:800;color:#fff;background:#0a0a0a;border:1.5px solid #2a2a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;letter-spacing:-.2px;padding:2px 4px">Blab+</div>
-                    <div class="bplus-perk-row-text">
-                        <div class="bplus-perk-row-title">Badge exclusif dans tout le chat</div>
-                        <div class="bplus-perk-row-desc">Visible dans les messages, listes de membres et DMs</div>
-                    </div>
-                </div>
+                <div class="bplus-perk-row"><div class="bplus-perk-row-icon">⭐</div><div class="bplus-perk-row-text"><div class="bplus-perk-row-title">+100 BlabPoints chaque mois</div><div class="bplus-perk-row-desc">Crédités automatiquement à chaque renouvellement</div></div></div>
+                <div class="bplus-perk-row"><div class="bplus-perk-row-icon">🎨</div><div class="bplus-perk-row-text"><div class="bplus-perk-row-title">1 skin de profil gratuit / mois</div><div class="bplus-perk-row-desc">Couleur, police ou animation — ton choix chaque mois</div></div></div>
+                <div class="bplus-perk-row"><div class="bplus-perk-row-icon">🏷️</div><div class="bplus-perk-row-text"><div class="bplus-perk-row-title">−20% sur tout le shop</div><div class="bplus-perk-row-desc">Réduction appliquée automatiquement à chaque achat</div></div></div>
+                <div class="bplus-perk-row"><div class="bplus-perk-row-icon" style="font-family:'Syne',sans-serif;font-size:.55rem;font-weight:800;color:#fff;background:#0a0a0a;border:1.5px solid #2a2a2a;border-radius:6px;display:flex;align-items:center;justify-content:center;letter-spacing:-.2px;padding:2px 4px">Blab+</div><div class="bplus-perk-row-text"><div class="bplus-perk-row-title">Badge exclusif dans tout le chat</div><div class="bplus-perk-row-desc">Visible dans les messages, listes de membres et DMs</div></div></div>
             </div>
             <button class="btn-blabplus-modal" onclick="subscribeBlabPlus()">S'abonner à Blab+ — 100 BP/mois →</button>
             <p style="text-align:center;font-size:.72rem;color:#333">Annulable à tout moment · Pas de CB nécessaire en démo</p>
         </div>
-
         <button class="btn-ghost btn-full" onclick="closeModal('modal-blabplus')" style="border-color:#1a1a1a;color:#444">Fermer</button>
     </div>
 </div>
@@ -1887,16 +1161,8 @@
     const drawer = document.querySelector('.mobile-drawer');
     const backdrop = document.querySelector('.mobile-drawer-backdrop');
     if (!btn || !drawer || !backdrop) return;
-    function openDrawer() {
-        backdrop.classList.add('visible');
-        requestAnimationFrame(() => { backdrop.classList.add('open'); drawer.classList.add('open'); btn.classList.add('is-open'); btn.setAttribute('aria-expanded','true'); });
-        document.body.style.overflow = 'hidden';
-    }
-    function closeDrawer() {
-        backdrop.classList.remove('open'); drawer.classList.remove('open'); btn.classList.remove('is-open'); btn.setAttribute('aria-expanded','false');
-        document.body.style.overflow = '';
-        setTimeout(() => backdrop.classList.remove('visible'), 320);
-    }
+    function openDrawer() { backdrop.classList.add('visible'); requestAnimationFrame(() => { backdrop.classList.add('open'); drawer.classList.add('open'); btn.classList.add('is-open'); btn.setAttribute('aria-expanded','true'); }); document.body.style.overflow = 'hidden'; }
+    function closeDrawer() { backdrop.classList.remove('open'); drawer.classList.remove('open'); btn.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); document.body.style.overflow = ''; setTimeout(() => backdrop.classList.remove('visible'), 320); }
     btn.addEventListener('click', () => btn.classList.contains('is-open') ? closeDrawer() : openDrawer());
     backdrop.addEventListener('click', closeDrawer);
     const closeBtn = drawer.querySelector('.drawer-close');
