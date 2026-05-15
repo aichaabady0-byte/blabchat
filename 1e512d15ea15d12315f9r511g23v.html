@@ -457,11 +457,12 @@ html,body{height:100%;background:var(--bg);color:var(--txt1);font-family:'JetBra
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
-  getDatabase,ref,set,get,onValue,onChildAdded,onChildChanged,
-  onChildRemoved,off,push,update,remove,serverTimestamp
+  getDatabase, ref, set, get, onValue, off, update, remove
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* ── FIREBASE CONFIG ── */
+/* ════════════════════════════════════════════════════════
+   FIREBASE
+════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBwpvOG3MyfQwqfAK4pwf-7TBKNFONIrPU",
   authDomain: "mazechat-78945.firebaseapp.com",
@@ -474,577 +475,717 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-/* ── STATE ── */
-const state = {
-  files: {},
-  activeFile: null,
-  tabs: [],
-  sessionId: null,
-  peerId: 'peer_'+Math.random().toString(36).slice(2,8),
-  peerColor: PEER_COLORS[Math.floor(Math.random()*PEER_COLORS.length)],
-  peerName: 'Dev_'+Math.random().toString(36).slice(2,5).toUpperCase(),
-  peers: {},
-  listeners: [],
-  suppressSync: false,
-  previewOpen: false,
-  panelOpen: true,
-};
+/* ════════════════════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════════════════════ */
+const PEER_COLORS = ['#7c6ff7','#3fd68f','#f09d28','#4dd9e0','#f05b5b','#e05bf0','#f5c842'];
 
 const SNIPPETS = [
-  {type:'html',label:'HTML Boilerplate',code:'<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <title>Document</title>\n</head>\n<body>\n  \n</body>\n</html>'},
-  {type:'html',label:'Div flex center',code:'<div style="display:flex;align-items:center;justify-content:center;">\n  \n</div>'},
-  {type:'css',label:'CSS Reset',code:'*,*::before,*::after{\n  box-sizing:border-box;\n  margin:0;\n  padding:0;\n}'},
-  {type:'css',label:'CSS Variables',code:':root{\n  --primary: #7c6ff7;\n  --bg: #0e0e12;\n  --txt: #e8e8f0;\n}'},
-  {type:'css',label:'Flex center',code:'display: flex;\nalign-items: center;\njustify-content: center;'},
-  {type:'css',label:'Grid responsive',code:'display: grid;\ngrid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\ngap: 1rem;'},
-  {type:'js',label:'Fetch JSON',code:'async function fetchData(url) {\n  const res = await fetch(url);\n  const data = await res.json();\n  return data;\n}'},
-  {type:'js',label:'addEventListener',code:"document.addEventListener('DOMContentLoaded', () => {\n  \n});"},
-  {type:'js',label:'querySelector',code:"const el = document.querySelector('.my-element');"},
-  {type:'js',label:'localStorage get/set',code:"localStorage.setItem('key', JSON.stringify(data));\nconst data = JSON.parse(localStorage.getItem('key'));"},
+  {type:'html', label:'HTML Boilerplate',      code:'<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <title>Document</title>\n</head>\n<body>\n  \n</body>\n</html>'},
+  {type:'html', label:'Div flex center',        code:'<div style="display:flex;align-items:center;justify-content:center;">\n  \n</div>'},
+  {type:'html', label:'Image responsive',       code:'<img src="" alt="" style="max-width:100%;height:auto;">'},
+  {type:'css',  label:'CSS Reset',              code:'*, *::before, *::after {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}'},
+  {type:'css',  label:'CSS Variables',          code:':root {\n  --primary: #7c6ff7;\n  --bg: #0e0e12;\n  --txt: #e8e8f0;\n}'},
+  {type:'css',  label:'Flexbox center',         code:'display: flex;\nalign-items: center;\njustify-content: center;'},
+  {type:'css',  label:'Grid responsive',        code:'display: grid;\ngrid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\ngap: 1rem;'},
+  {type:'css',  label:'Transition smooth',      code:'transition: all 0.2s ease;'},
+  {type:'js',   label:'DOMContentLoaded',       code:"document.addEventListener('DOMContentLoaded', () => {\n  \n});"},
+  {type:'js',   label:'querySelector',          code:"const el = document.querySelector('.my-element');"},
+  {type:'js',   label:'Fetch JSON',             code:'async function fetchData(url) {\n  const res = await fetch(url);\n  const data = await res.json();\n  return data;\n}'},
+  {type:'js',   label:'setInterval',            code:"setInterval(() => {\n  \n}, 1000);"},
 ];
 
 const CP_SWATCHES = [
   '#f05b5b','#f09d28','#f5c842','#3fd68f','#4dd9e0',
-  '#5b9cf0','#7c6ff7','#e05bf0','#ffffff','#0e0e12',
+  '#5b9cf0','#7c6ff7','#e05bf0','#ffffff','#000000',
   '#98c379','#e06c75','#61afef','#d19a66','#c678dd',
 ];
 
-function PEER_COLORS(){return['#7c6ff7','#3fd68f','#f09d28','#4dd9e0','#f05b5b','#e05bf0','#f5c842']}
-// fix: define as array directly
-const PEER_COLORS_ARR = ['#7c6ff7','#3fd68f','#f09d28','#4dd9e0','#f05b5b','#e05bf0','#f5c842'];
-state.peerColor = PEER_COLORS_ARR[Math.floor(Math.random()*PEER_COLORS_ARR.length)];
+/* ════════════════════════════════════════════════════════
+   STATE  — source de vérité unique
+════════════════════════════════════════════════════════ */
+const state = {
+  files:        {},          // { filename: content }
+  activeFile:   null,
+  tabs:         [],
+  sessionId:    null,
+  peerId:       'peer_' + Math.random().toString(36).slice(2,8),
+  peerColor:    PEER_COLORS[Math.floor(Math.random() * PEER_COLORS.length)],
+  peerName:     'Dev_' + Math.random().toString(36).slice(2,5).toUpperCase(),
+  peers:        {},
+  suppressSync: false,
+  previewOpen:  false,
+  panelOpen:    true,
+  loaded:       false,       // true quand Firebase a répondu
+};
 
-/* ── FILE HELPERS ── */
-function fileIcon(name){
-  if(name.endsWith('.html')||name.endsWith('.htm')) return '🌐';
-  if(name.endsWith('.css')) return '🎨';
-  if(name.endsWith('.js')) return '⚡';
-  if(name.endsWith('.json')) return '{}';
-  if(name.endsWith('.md')) return '📝';
+/* ════════════════════════════════════════════════════════
+   PERSISTENCE — clé localStorage par session / standalone
+════════════════════════════════════════════════════════ */
+// Chaque utilisateur standalone a sa propre clé locale
+const LOCAL_KEY = 'blabide_standalone_files';
+const LOCAL_ACTIVE = 'blabide_standalone_active';
+const LOCAL_TABS   = 'blabide_standalone_tabs';
+
+function saveLocal() {
+  if (state.sessionId) return; // en live, Firebase est la source
+  try {
+    localStorage.setItem(LOCAL_KEY,   JSON.stringify(state.files));
+    localStorage.setItem(LOCAL_ACTIVE, state.activeFile || '');
+    localStorage.setItem(LOCAL_TABS,   JSON.stringify(state.tabs));
+  } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (raw) {
+      state.files = JSON.parse(raw);
+      state.tabs  = JSON.parse(localStorage.getItem(LOCAL_TABS) || '[]');
+      // Nettoie les tabs orphelins
+      state.tabs  = state.tabs.filter(t => state.files[t] !== undefined);
+      const lastActive = localStorage.getItem(LOCAL_ACTIVE);
+      if (lastActive && state.files[lastActive] !== undefined) {
+        state.activeFile = lastActive;
+      } else if (state.tabs.length) {
+        state.activeFile = state.tabs[0];
+      }
+    }
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════════════════════ */
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fileIcon(name) {
+  if (!name) return '📄';
+  if (name.endsWith('.html') || name.endsWith('.htm')) return '🌐';
+  if (name.endsWith('.css'))  return '🎨';
+  if (name.endsWith('.js'))   return '⚡';
+  if (name.endsWith('.json')) return '{}';
+  if (name.endsWith('.md'))   return '📝';
   return '📄';
 }
-function fileLang(name){
-  if(name.endsWith('.html')||name.endsWith('.htm')) return 'HTML';
-  if(name.endsWith('.css')) return 'CSS';
-  if(name.endsWith('.js')) return 'JavaScript';
-  if(name.endsWith('.json')) return 'JSON';
-  if(name.endsWith('.md')) return 'Markdown';
+function fileLang(name) {
+  if (!name) return 'Texte';
+  if (name.endsWith('.html') || name.endsWith('.htm')) return 'HTML';
+  if (name.endsWith('.css'))  return 'CSS';
+  if (name.endsWith('.js'))   return 'JavaScript';
+  if (name.endsWith('.json')) return 'JSON';
+  if (name.endsWith('.md'))   return 'Markdown';
   return 'Texte';
 }
 
-/* ── RENDER FILE LIST ── */
-function renderFiles(){
+/* ════════════════════════════════════════════════════════
+   EDITOR DOM REFS
+════════════════════════════════════════════════════════ */
+const ed = document.getElementById('code-editor');
+
+/* ════════════════════════════════════════════════════════
+   RENDER
+════════════════════════════════════════════════════════ */
+function renderFiles() {
   const list = document.getElementById('file-list');
   list.innerHTML = '';
-  Object.keys(state.files).forEach(name => {
+  const names = Object.keys(state.files);
+  if (!names.length) {
+    list.innerHTML = '<div style="padding:14px 12px;font-size:.75rem;color:var(--txt3)">Aucun fichier.<br>Crée-en un avec +</div>';
+    return;
+  }
+  names.forEach(name => {
     const div = document.createElement('div');
-    div.className = 'file-item'+(state.activeFile===name?' active':'');
-    div.innerHTML = `<span class="file-icon">${fileIcon(name)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span><button class="file-del" onclick="delFile('${esc(name)}')">✕</button>`;
-    div.onclick = (e)=>{ if(!e.target.classList.contains('file-del')) openFile(name); };
+    div.className = 'file-item' + (state.activeFile === name ? ' active' : '');
+    div.innerHTML =
+      `<span class="file-icon">${fileIcon(name)}</span>` +
+      `<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>` +
+      `<button class="file-del" data-name="${esc(name)}">✕</button>`;
+    div.querySelector('.file-del').addEventListener('click', e => {
+      e.stopPropagation();
+      delFile(name);
+    });
+    div.addEventListener('click', () => openFile(name));
     list.appendChild(div);
   });
 }
 
-/* ── RENDER TABS ── */
-function renderTabs(){
-  const tabs = document.getElementById('tabs');
-  tabs.innerHTML = '';
+function renderTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = '';
   state.tabs.forEach(name => {
     const div = document.createElement('div');
-    div.className = 'tab'+(state.activeFile===name?' active':'');
-    div.innerHTML = `<span>${fileIcon(name)}</span><span>${esc(name)}</span><span class="tab-close" onclick="closeTab(event,'${esc(name)}')">✕</span>`;
-    div.onclick = (e)=>{ if(!e.target.classList.contains('tab-close')) openFile(name); };
-    tabs.appendChild(div);
+    div.className = 'tab' + (state.activeFile === name ? ' active' : '');
+    div.innerHTML =
+      `<span>${fileIcon(name)}</span><span>${esc(name)}</span>` +
+      `<span class="tab-close">✕</span>`;
+    div.querySelector('.tab-close').addEventListener('click', e => {
+      e.stopPropagation();
+      closeTab(name);
+    });
+    div.addEventListener('click', () => openFile(name));
+    container.appendChild(div);
   });
 }
 
-/* ── OPEN / SWITCH FILE ── */
-function openFile(name){
-  if(!state.files[name]) return;
-  // save current
-  if(state.activeFile && state.files[state.activeFile]!==undefined){
-    state.files[state.activeFile] = document.getElementById('code-editor').value;
+function updateStatusBar() {
+  document.getElementById('st-file').textContent = state.activeFile || 'Aucun fichier';
+  document.getElementById('st-lang').textContent = fileLang(state.activeFile);
+}
+
+/* ════════════════════════════════════════════════════════
+   FILE OPERATIONS
+════════════════════════════════════════════════════════ */
+function openFile(name) {
+  if (state.files[name] === undefined) return;
+  // Sauvegarde le contenu actuel avant de switcher
+  if (state.activeFile && state.files[state.activeFile] !== undefined) {
+    state.files[state.activeFile] = ed.value;
   }
   state.activeFile = name;
-  if(!state.tabs.includes(name)) state.tabs.push(name);
-  const ed = document.getElementById('code-editor');
-  ed.value = state.files[name] || '';
+  if (!state.tabs.includes(name)) state.tabs.push(name);
+
+  ed.value = state.files[name];
   updateLineNums();
   updateHighlight();
   renderFiles();
   renderTabs();
-  document.getElementById('st-file').textContent = name;
-  document.getElementById('st-lang').textContent = fileLang(name);
+  updateStatusBar();
+  saveLocal();
 }
 
-window.delFile = (name)=>{
-  if(!confirm(`Supprimer "${name}" ?`)) return;
+function delFile(name) {
+  if (!confirm(`Supprimer "${name}" ?`)) return;
   delete state.files[name];
-  state.tabs = state.tabs.filter(t=>t!==name);
-  if(state.activeFile===name){
-    state.activeFile = state.tabs[0]||null;
-    if(state.activeFile) openFile(state.activeFile);
-    else document.getElementById('code-editor').value='';
+  state.tabs = state.tabs.filter(t => t !== name);
+  if (state.activeFile === name) {
+    state.activeFile = state.tabs[state.tabs.length - 1] || null;
+    if (state.activeFile) {
+      ed.value = state.files[state.activeFile];
+      updateLineNums();
+      updateHighlight();
+    } else {
+      ed.value = '';
+      updateLineNums();
+      document.getElementById('highlight-overlay').innerHTML = '';
+    }
   }
-  renderFiles(); renderTabs();
-  if(state.sessionId) syncFilesToSession();
-};
+  renderFiles();
+  renderTabs();
+  updateStatusBar();
+  saveLocal();
+  if (state.sessionId) syncFilesToSession();
+}
 
-window.closeTab = (e,name)=>{
-  e.stopPropagation();
-  state.tabs = state.tabs.filter(t=>t!==name);
-  if(state.activeFile===name){
-    state.activeFile = state.tabs[state.tabs.length-1]||null;
-    if(state.activeFile) openFile(state.activeFile);
-    else document.getElementById('code-editor').value='';
+function closeTab(name) {
+  state.tabs = state.tabs.filter(t => t !== name);
+  if (state.activeFile === name) {
+    state.activeFile = state.tabs[state.tabs.length - 1] || null;
+    if (state.activeFile) {
+      ed.value = state.files[state.activeFile];
+      updateLineNums();
+      updateHighlight();
+    } else {
+      ed.value = '';
+    }
   }
   renderTabs();
-};
+  renderFiles();
+  updateStatusBar();
+  saveLocal();
+}
 
-/* ── NEW FILE ── */
-window.newFile = ()=>{
+window.newFile = () => {
   const name = prompt('Nom du fichier (ex: index.html, style.css, app.js)');
-  if(!name?.trim()) return;
+  if (!name?.trim()) return;
   const n = name.trim();
-  if(state.files[n]!==undefined){ openFile(n); return; }
-  state.files[n] = getDefaultContent(n);
+  if (state.files[n] !== undefined) { openFile(n); return; }
+  // Fichier vide — l'utilisateur écrit son propre contenu
+  state.files[n] = '';
   openFile(n);
-  if(state.sessionId) syncFilesToSession();
+  saveLocal();
+  if (state.sessionId) syncFilesToSession();
 };
 
-function getDefaultContent(name){
-  if(name.endsWith('.html')) return '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <title>Ma page</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <h1>Bonjour le monde</h1>\n  <script src="app.js"><\/script>\n</body>\n</html>';
-  if(name.endsWith('.css')) return 'body {\n  font-family: sans-serif;\n  background: #f0f0f0;\n  color: #333;\n}\n\nh1 {\n  color: #7c6ff7;\n}';
-  if(name.endsWith('.js')) return "document.addEventListener('DOMContentLoaded', () => {\n  console.log('BlabIDE prêt !');\n});";
-  return '';
+/* ════════════════════════════════════════════════════════
+   LINE NUMBERS
+════════════════════════════════════════════════════════ */
+function updateLineNums() {
+  const ln    = document.getElementById('line-nums');
+  const count = (ed.value.split('\n').length) || 1;
+  ln.innerHTML = Array.from({length: count}, (_, i) =>
+    `<span class="line-num">${i + 1}</span>`
+  ).join('');
 }
 
-/* ── LINE NUMBERS ── */
-function updateLineNums(){
-  const ed   = document.getElementById('code-editor');
-  const ln   = document.getElementById('line-nums');
-  const lines = ed.value.split('\n').length;
-  ln.innerHTML = Array.from({length:lines},(_,i)=>`<span class="line-num">${i+1}</span>`).join('');
-}
-
-/* ── SYNTAX HIGHLIGHT (lightweight) ── */
-function updateHighlight(){
-  const ed = document.getElementById('code-editor');
-  const ov = document.getElementById('highlight-overlay');
-  const lang = fileLang(state.activeFile||'');
-  ov.innerHTML = highlight(ed.value, lang);
-}
-
-function highlight(code, lang){
+/* ════════════════════════════════════════════════════════
+   SYNTAX HIGHLIGHT
+════════════════════════════════════════════════════════ */
+function highlight(code, lang) {
   let s = escHtml(code);
-  if(lang==='HTML'){
+  if (lang === 'HTML') {
     s = s
-      .replace(/(&lt;\/?[a-zA-Z][a-zA-Z0-9-]*)/g,'<span class="tok-tag">$1</span>')
-      .replace(/(\s[a-zA-Z-]+)(=)/g,'<span class="tok-attr">$1</span>$2')
-      .replace(/(=)(&quot;[^&]*&quot;)/g,'$1<span class="tok-str">$2</span>')
-      .replace(/(&lt;!--[\s\S]*?--&gt;)/g,'<span class="tok-cmt">$1</span>');
-  } else if(lang==='CSS'){
+      .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tok-cmt">$1</span>')
+      .replace(/(&lt;\/?[a-zA-Z][a-zA-Z0-9:-]*)/g, '<span class="tok-tag">$1</span>')
+      .replace(/\b([a-zA-Z-]+)(=)(&quot;[^&quot;]*&quot;)/g,
+        '<span class="tok-attr">$1</span>$2<span class="tok-str">$3</span>')
+      .replace(/(&gt;)/g, '<span class="tok-tag">$1</span>');
+  } else if (lang === 'CSS') {
     s = s
-      .replace(/(\/\*[\s\S]*?\*\/)/g,'<span class="tok-cmt">$1</span>')
-      .replace(/([.#]?[a-zA-Z][a-zA-Z0-9_-]*)\s*\{/g,'<span class="tok-sel">$1</span> {')
-      .replace(/([\w-]+)(\s*:)/g,'<span class="tok-prop">$1</span>$2')
-      .replace(/(:)\s*([^;{]+)/g,'$1 <span class="tok-val">$2</span>');
-  } else if(lang==='JavaScript'){
+      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tok-cmt">$1</span>')
+      .replace(/([.#:[\]][^\s{,]*|[a-zA-Z][a-zA-Z0-9-]*)(\s*\{)/g,
+        '<span class="tok-sel">$1</span>$2')
+      .replace(/([\w-]+)(\s*:)([^;{}]+)/g,
+        '<span class="tok-prop">$1</span>$2<span class="tok-val">$3</span>');
+  } else if (lang === 'JavaScript') {
     s = s
-      .replace(/(\/\/[^\n]*)/g,'<span class="tok-cmt">$1</span>')
-      .replace(/\b(const|let|var|function|return|if|else|for|while|class|import|export|default|new|this|async|await|typeof|instanceof)\b/g,'<span class="tok-kw">$1</span>')
-      .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g,'<span class="tok-fn">$1</span>')
-      .replace(/(&quot;[^&]*&quot;|&#x27;[^&]*&#x27;|`[^`]*`)/g,'<span class="tok-str">$1</span>')
-      .replace(/\b(\d+(\.\d+)?)\b/g,'<span class="tok-num">$1</span>');
+      .replace(/(\/\/[^\n]*)/g, '<span class="tok-cmt">$1</span>')
+      .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tok-cmt">$1</span>')
+      .replace(/\b(const|let|var|function|return|if|else|for|while|do|switch|case|break|continue|class|extends|import|export|default|new|this|typeof|instanceof|async|await|try|catch|finally|throw|null|undefined|true|false)\b/g,
+        '<span class="tok-kw">$1</span>')
+      .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)(\s*\()/g,
+        '<span class="tok-fn">$1</span>$2')
+      .replace(/(&quot;(?:[^&]|&(?!quot;))*&quot;|&#x27;[^&#]*&#x27;|`[^`]*`)/g,
+        '<span class="tok-str">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
   }
   return s;
 }
 
-function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function updateHighlight() {
+  const ov = document.getElementById('highlight-overlay');
+  ov.innerHTML = highlight(ed.value, fileLang(state.activeFile));
+}
 
-/* ── EDITOR EVENTS ── */
-const ed = document.getElementById('code-editor');
-ed.addEventListener('input', ()=>{
-  if(state.activeFile) state.files[state.activeFile] = ed.value;
+/* ════════════════════════════════════════════════════════
+   EDITOR EVENTS
+════════════════════════════════════════════════════════ */
+ed.addEventListener('input', () => {
+  if (state.activeFile) state.files[state.activeFile] = ed.value;
   updateLineNums();
   updateHighlight();
   syncCursorPos();
-  if(state.sessionId && !state.suppressSync) debouncedSync();
+  saveLocal();
+  if (state.sessionId && !state.suppressSync) debouncedSync();
 });
-ed.addEventListener('keydown', onEditorKey);
-ed.addEventListener('scroll', syncScroll);
-ed.addEventListener('click', syncCursorPos);
-ed.addEventListener('keyup', syncCursorPos);
 
-function onEditorKey(e){
-  if(e.key==='Tab'){
+ed.addEventListener('keydown', e => {
+  // Tab → 2 espaces
+  if (e.key === 'Tab') {
     e.preventDefault();
-    const s=ed.selectionStart, end=ed.selectionEnd;
-    ed.value=ed.value.substring(0,s)+'  '+ed.value.substring(end);
-    ed.selectionStart=ed.selectionEnd=s+2;
+    const s = ed.selectionStart, end = ed.selectionEnd;
+    ed.value = ed.value.substring(0, s) + '  ' + ed.value.substring(end);
+    ed.selectionStart = ed.selectionEnd = s + 2;
     ed.dispatchEvent(new Event('input'));
+    return;
   }
-  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+  // Ctrl/Cmd+S → exécuter
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault();
     runCode();
+    return;
   }
-  // Auto-close brackets
-  const pairs={'(':')','{':'}','[':']','"':'"',"'":'`'};
-  if(pairs[e.key] && !e.ctrlKey && !e.metaKey){
-    const s=ed.selectionStart, end=ed.selectionEnd;
-    if(s===end){
+  // Auto-fermeture des paires
+  const pairs = { '(': ')', '{': '}', '[': ']' };
+  if (pairs[e.key] && !e.ctrlKey && !e.metaKey) {
+    const s = ed.selectionStart, end = ed.selectionEnd;
+    if (s === end) {
       e.preventDefault();
-      ed.value=ed.value.substring(0,s)+e.key+pairs[e.key]+ed.value.substring(end);
-      ed.selectionStart=ed.selectionEnd=s+1;
+      ed.value = ed.value.substring(0, s) + e.key + pairs[e.key] + ed.value.substring(end);
+      ed.selectionStart = ed.selectionEnd = s + 1;
       ed.dispatchEvent(new Event('input'));
     }
   }
-}
+});
 
-function syncScroll(){
+ed.addEventListener('scroll', () => {
   document.getElementById('highlight-overlay').scrollTop = ed.scrollTop;
   document.getElementById('highlight-overlay').scrollLeft = ed.scrollLeft;
   document.getElementById('line-nums').scrollTop = ed.scrollTop;
+});
+
+ed.addEventListener('click',  syncCursorPos);
+ed.addEventListener('keyup',  syncCursorPos);
+
+function syncCursorPos() {
+  const before = ed.value.substring(0, ed.selectionStart);
+  const ln  = before.split('\n').length;
+  const col = before.split('\n').pop().length + 1;
+  document.getElementById('st-pos').textContent = `Ln ${ln}, Col ${col}`;
+  if (state.sessionId) broadcastCursor(ln, col);
 }
 
-function syncCursorPos(){
-  const v = ed.value.substring(0, ed.selectionStart);
-  const ln = v.split('\n').length;
-  const col = v.split('\n').pop().length+1;
-  document.getElementById('st-pos').textContent=`Ln ${ln}, Col ${col}`;
-  if(state.sessionId) broadcastCursor(ln,col);
-}
-
-/* ── RUN / PREVIEW ── */
-window.runCode = ()=>{
-  if(state.activeFile) state.files[state.activeFile] = ed.value;
-  const html = buildPreview();
+/* ════════════════════════════════════════════════════════
+   RUN / PREVIEW
+════════════════════════════════════════════════════════ */
+window.runCode = () => {
+  if (state.activeFile) state.files[state.activeFile] = ed.value;
   const frame = document.getElementById('preview-frame');
-  if(!state.previewOpen){ togglePreview(); }
-  frame.srcdoc = html;
-  notif('⚡','Exécuté !','Le code a été compilé et lancé dans l\'aperçu.');
+  if (!state.previewOpen) togglePreview();
+  frame.srcdoc = buildPreview();
+  notif('⚡', 'Exécuté !', 'Aperçu mis à jour.');
 };
 
-function buildPreview(){
-  let html = state.files['index.html'] || state.files[Object.keys(state.files).find(f=>f.endsWith('.html'))] || '<p>Pas de fichier HTML trouvé.</p>';
-  const cssFile = Object.keys(state.files).find(f=>f.endsWith('.css'));
-  const jsFile  = Object.keys(state.files).find(f=>f.endsWith('.js'));
-  if(cssFile){
-    const css = state.files[cssFile];
-    html = html.replace('</head>',`<style>${css}</style></head>`);
-  }
-  if(jsFile){
-    const js = state.files[jsFile];
-    html = html.replace('</body>',`<script>${js}<\/script></body>`);
-  }
+function buildPreview() {
+  const keys = Object.keys(state.files);
+  const htmlKey = keys.find(f => f === 'index.html') || keys.find(f => f.endsWith('.html'));
+  if (!htmlKey) return '<body style="font-family:monospace;padding:20px;color:#f05b5b">Aucun fichier .html trouvé.</body>';
+
+  let html = state.files[htmlKey];
+  // Inline tous les CSS et JS référencés par nom de fichier
+  keys.filter(f => f.endsWith('.css')).forEach(f => {
+    const re = new RegExp(`<link[^>]+href=["']${f.replace('.','\\.')}["'][^>]*>`, 'g');
+    html = html.replace(re, `<style>${state.files[f]}</style>`);
+  });
+  keys.filter(f => f.endsWith('.js')).forEach(f => {
+    const re = new RegExp(`<script[^>]+src=["']${f.replace('.','\\.')}["'][^>]*><\\/script>`, 'g');
+    html = html.replace(re, `<script>${state.files[f]}<\/script>`);
+  });
   return html;
 }
 
-window.togglePreview = ()=>{
+window.togglePreview = () => {
   state.previewOpen = !state.previewOpen;
   document.getElementById('preview-pane').classList.toggle('open', state.previewOpen);
   document.getElementById('preview-btn').classList.toggle('active', state.previewOpen);
 };
 
-window.togglePanel = ()=>{
+window.togglePanel = () => {
   state.panelOpen = !state.panelOpen;
   document.getElementById('panel').classList.toggle('collapsed', !state.panelOpen);
 };
 
-/* ── DOWNLOAD ── */
-window.downloadFile = ()=>{
-  if(!state.activeFile){ notif('⚠️','Aucun fichier','Ouvre un fichier pour le télécharger.'); return; }
-  const content = ed.value;
+window.downloadFile = () => {
+  if (!state.activeFile) { notif('⚠️', 'Aucun fichier', 'Ouvre un fichier pour le télécharger.'); return; }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content],{type:'text/plain'}));
+  a.href = URL.createObjectURL(new Blob([ed.value], { type: 'text/plain' }));
   a.download = state.activeFile;
   a.click();
 };
 
-/* ── COLOR PICKER ── */
+/* ════════════════════════════════════════════════════════
+   COLOR PICKER — fonctionnel
+════════════════════════════════════════════════════════ */
+// Remplir les swatches
 const swatchContainer = document.getElementById('cp-swatches');
-CP_SWATCHES.forEach(c=>{
+CP_SWATCHES.forEach(color => {
   const s = document.createElement('div');
-  s.className='cp-swatch';
-  s.style.background=c;
-  s.title=c;
-  s.onclick=()=>{ document.getElementById('cp-hex').value=c; document.getElementById('cp-picker').value=c; };
+  s.className = 'cp-swatch';
+  s.style.background = color;
+  s.title = color;
+  s.addEventListener('click', () => {
+    document.getElementById('cp-hex').value    = color;
+    document.getElementById('cp-picker').value = color;
+    swatchContainer.querySelectorAll('.cp-swatch').forEach(x => x.classList.remove('selected'));
+    s.classList.add('selected');
+  });
   swatchContainer.appendChild(s);
 });
-document.getElementById('cp-picker').addEventListener('input', e=>{
+
+// Sync color picker natif ↔ champ texte hex
+document.getElementById('cp-picker').addEventListener('input', e => {
   document.getElementById('cp-hex').value = e.target.value;
 });
-document.getElementById('cp-hex').addEventListener('input', e=>{
-  const v=e.target.value;
-  if(/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('cp-picker').value=v;
+document.getElementById('cp-hex').addEventListener('input', e => {
+  const v = e.target.value.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('cp-picker').value = v;
 });
 
-window.toggleColorPicker = ()=>{
+window.toggleColorPicker = () => {
   document.getElementById('color-panel').classList.toggle('open');
   document.getElementById('snippet-panel').classList.remove('open');
 };
-window.insertColor = ()=>{
-  const hex = document.getElementById('cp-hex').value;
-  const s=ed.selectionStart, end=ed.selectionEnd;
-  ed.value=ed.value.substring(0,s)+hex+ed.value.substring(end);
-  ed.selectionStart=ed.selectionEnd=s+hex.length;
+
+window.insertColor = () => {
+  const hex = document.getElementById('cp-hex').value || '#7c6ff7';
+  const s = ed.selectionStart;
+  const end = ed.selectionEnd;
+  ed.focus();
+  // Utilise execCommand pour compatibilité (garde l'historique undo)
+  const before = ed.value.substring(0, s);
+  const after  = ed.value.substring(end);
+  ed.value = before + hex + after;
+  ed.selectionStart = ed.selectionEnd = s + hex.length;
   ed.dispatchEvent(new Event('input'));
   document.getElementById('color-panel').classList.remove('open');
-  ed.focus();
 };
 
-/* ── SNIPPETS ── */
-const snippetList = document.getElementById('snippet-list');
-SNIPPETS.forEach((sn,i)=>{
-  const div=document.createElement('div');
-  div.className=`sp-item sp-${sn.type}`;
-  div.innerHTML=`<span class="sp-badge">${sn.type.toUpperCase()}</span><span>${esc(sn.label)}</span>`;
-  div.onclick=()=>{
-    const s=ed.selectionStart;
-    ed.value=ed.value.substring(0,s)+sn.code+ed.value.substring(ed.selectionEnd);
-    ed.selectionStart=ed.selectionEnd=s+sn.code.length;
+/* ════════════════════════════════════════════════════════
+   SNIPPETS — insertion correcte dans l'éditeur
+════════════════════════════════════════════════════════ */
+const snippetListEl = document.getElementById('snippet-list');
+SNIPPETS.forEach(sn => {
+  const div = document.createElement('div');
+  div.className = `sp-item sp-${sn.type}`;
+  div.innerHTML = `<span class="sp-badge">${sn.type.toUpperCase()}</span><span>${esc(sn.label)}</span>`;
+  div.addEventListener('click', () => {
+    const s   = ed.selectionStart;
+    const end = ed.selectionEnd;
+    const before = ed.value.substring(0, s);
+    const after  = ed.value.substring(end);
+    ed.value = before + sn.code + after;
+    ed.selectionStart = ed.selectionEnd = s + sn.code.length;
     ed.dispatchEvent(new Event('input'));
     document.getElementById('snippet-panel').classList.remove('open');
     ed.focus();
-  };
-  snippetList.appendChild(div);
+  });
+  snippetListEl.appendChild(div);
 });
 
-window.insertSnippet = ()=>{
+window.insertSnippet = () => {
   document.getElementById('snippet-panel').classList.toggle('open');
   document.getElementById('color-panel').classList.remove('open');
 };
 
-/* ── CLOSE PANELS ON OUTSIDE CLICK ── */
-document.addEventListener('click', e=>{
-  const cp=document.getElementById('color-panel');
-  const sp=document.getElementById('snippet-panel');
-  if(!e.target.closest('#color-panel') && !e.target.closest('[onclick="toggleColorPicker()"]')) cp.classList.remove('open');
-  if(!e.target.closest('#snippet-panel') && !e.target.closest('[onclick="insertSnippet()"]')) sp.classList.remove('open');
+// Fermer les panneaux flottants en cliquant ailleurs
+document.addEventListener('click', e => {
+  if (!e.target.closest('#color-panel')   && !e.target.closest('[onclick="toggleColorPicker()"]'))
+    document.getElementById('color-panel').classList.remove('open');
+  if (!e.target.closest('#snippet-panel') && !e.target.closest('[onclick="insertSnippet()"]'))
+    document.getElementById('snippet-panel').classList.remove('open');
 });
 
-/* ── RESIZE HANDLE ── */
-let resizing=false, resizeStartX=0, resizeStartW=0;
-const handle = document.getElementById('resize-handle');
-handle.addEventListener('mousedown', e=>{
-  resizing=true; resizeStartX=e.clientX;
+/* ════════════════════════════════════════════════════════
+   RESIZE HANDLE
+════════════════════════════════════════════════════════ */
+let resizing = false, resizeStartX = 0, resizeStartW = 0;
+document.getElementById('resize-handle').addEventListener('mousedown', e => {
+  resizing = true; resizeStartX = e.clientX;
+  resizeStartW = parseInt(getComputedStyle(document.getElementById('preview-pane')).width) || 0;
+  document.getElementById('resize-handle').classList.add('dragging');
+  document.body.style.userSelect = 'none';
+});
+document.addEventListener('mousemove', e => {
+  if (!resizing) return;
+  const newW = Math.max(200, Math.min(900, resizeStartW + (resizeStartX - e.clientX)));
   const pp = document.getElementById('preview-pane');
-  resizeStartW=parseInt(getComputedStyle(pp).width)||0;
-  handle.classList.add('dragging');
-  document.body.style.userSelect='none';
+  pp.style.width = newW + 'px';
+  if (!state.previewOpen) { state.previewOpen = true; pp.classList.add('open'); }
 });
-document.addEventListener('mousemove', e=>{
-  if(!resizing) return;
-  const delta=resizeStartX-e.clientX;
-  const newW=Math.max(200,Math.min(800,resizeStartW+delta));
-  const pp=document.getElementById('preview-pane');
-  pp.style.width=newW+'px';
-  if(!state.previewOpen && newW>200) state.previewOpen=true, pp.classList.add('open');
-});
-document.addEventListener('mouseup', ()=>{
-  if(resizing){ resizing=false; handle.classList.remove('dragging'); document.body.style.userSelect=''; }
+document.addEventListener('mouseup', () => {
+  if (!resizing) return;
+  resizing = false;
+  document.getElementById('resize-handle').classList.remove('dragging');
+  document.body.style.userSelect = '';
 });
 
-/* ══════════════════════════════════════════════════════
-   LIVE SHARE — FIREBASE
-══════════════════════════════════════════════════════ */
-function genSessionId(){ return 'ide_'+Math.random().toString(36).slice(2,10); }
+/* ════════════════════════════════════════════════════════
+   LIVE SHARE — Firebase
+════════════════════════════════════════════════════════ */
+function genSessionId() { return 'ide_' + Math.random().toString(36).slice(2,10); }
 
-window.openShare = ()=>{
-  document.getElementById('share-modal').classList.add('open');
-  renderShareModal();
-};
-window.closeShare = ()=>{ document.getElementById('share-modal').classList.remove('open'); };
+window.openShare  = () => { document.getElementById('share-modal').classList.add('open');    renderShareModal(); };
+window.closeShare = () => { document.getElementById('share-modal').classList.remove('open'); };
 
-function renderShareModal(){
-  const active=document.getElementById('sm-active');
-  const idle=document.getElementById('sm-idle');
-  if(state.sessionId){
-    active.style.display='block'; idle.style.display='none';
-    const url=`${location.href.split('?')[0]}?session=${state.sessionId}`;
-    document.getElementById('sm-link').value=url;
+function renderShareModal() {
+  const active = document.getElementById('sm-active');
+  const idle   = document.getElementById('sm-idle');
+  if (state.sessionId) {
+    active.style.display = 'block'; idle.style.display = 'none';
+    const url = location.origin + location.pathname + '?session=' + state.sessionId;
+    document.getElementById('sm-link').value = url;
     renderPeers();
   } else {
-    active.style.display='none'; idle.style.display='block';
+    active.style.display = 'none'; idle.style.display = 'block';
   }
 }
 
-function renderPeers(){
-  const container=document.getElementById('sm-peers');
-  container.innerHTML='';
-  const allPeers=[{id:state.peerId,name:state.peerName,color:state.peerColor,me:true}];
-  Object.values(state.peers).forEach(p=>allPeers.push(p));
-  allPeers.forEach(p=>{
-    const div=document.createElement('div');
-    div.className='sm-peer';
-    div.innerHTML=`<div class="sm-peer-dot" style="background:${p.color}"></div><span style="flex:1">${esc(p.name)}</span>${p.me?'<span style="font-size:.72rem;color:var(--txt3)">Vous</span>':''}`;
-    container.appendChild(div);
+function renderPeers() {
+  const c = document.getElementById('sm-peers');
+  c.innerHTML = '';
+  [{id: state.peerId, name: state.peerName, color: state.peerColor, me: true},
+   ...Object.values(state.peers)].forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'sm-peer';
+    d.innerHTML = `<div class="sm-peer-dot" style="background:${p.color}"></div><span style="flex:1">${esc(p.name)}</span>${p.me ? '<span style="font-size:.72rem;color:var(--txt3)">Vous</span>' : ''}`;
+    c.appendChild(d);
   });
 }
 
-window.copyShareLink = async ()=>{
-  const link=document.getElementById('sm-link').value;
-  await navigator.clipboard.writeText(link).catch(()=>{});
-  const btn=document.getElementById('sm-copy');
-  btn.textContent='Copié !'; btn.classList.add('copied');
-  setTimeout(()=>{ btn.textContent='Copier'; btn.classList.remove('copied'); },2000);
-  notif('📋','Lien copié !','Partage ce lien pour inviter des collaborateurs.');
+window.copyShareLink = async () => {
+  await navigator.clipboard.writeText(document.getElementById('sm-link').value).catch(() => {});
+  const btn = document.getElementById('sm-copy');
+  btn.textContent = 'Copié !'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+  notif('📋', 'Lien copié !', 'Partage ce lien pour inviter des collaborateurs.');
 };
 
-window.startSession = async ()=>{
-  const id=genSessionId();
-  state.sessionId=id;
-  // Write session
-  await set(ref(db,`ide_sessions/${id}/meta`),{
-    createdAt:Date.now(), owner:state.peerId
-  });
+window.startSession = async () => {
+  const id = genSessionId();
+  state.sessionId = id;
+  // Sauvegarde les fichiers actuels dans Firebase
+  if (state.activeFile) state.files[state.activeFile] = ed.value;
+  await set(ref(db, `ide_sessions/${id}/meta`), { createdAt: Date.now(), owner: state.peerId });
   await syncFilesToSession();
-  joinSessionListeners(id);
-  notif('✦','Session démarrée !','Partage le lien pour collaborer en direct.');
+  attachSessionListeners(id);
   updateLiveUI();
   renderShareModal();
+  notif('✦', 'Session démarrée !', 'Partage le lien pour collaborer en direct.');
 };
 
-window.joinSession = async ()=>{
-  let input=document.getElementById('sm-join-input').value.trim();
-  // Extract session ID from URL if full URL pasted
-  const m=input.match(/session=([a-z0-9_]+)/);
-  if(m) input=m[1];
-  if(!input){ notif('⚠️','ID manquant','Colle un lien ou un ID de session.'); return; }
-  const snap=await get(ref(db,`ide_sessions/${input}/meta`));
-  if(!snap.exists()){ notif('❌','Introuvable','Cette session n\'existe pas ou a expiré.'); return; }
-  state.sessionId=input;
-  // Load files from session
-  const filesSnap=await get(ref(db,`ide_sessions/${input}/files`));
-  if(filesSnap.exists()){
-    state.files=filesSnap.val();
-    const first=Object.keys(state.files)[0];
-    if(first) openFile(first);
+window.joinSession = async () => {
+  let input = document.getElementById('sm-join-input').value.trim();
+  const m   = input.match(/session=(ide_[a-z0-9]+)/);
+  if (m) input = m[1];
+  if (!input) { notif('⚠️', 'ID manquant', 'Colle un lien ou un ID de session.'); return; }
+  const snap = await get(ref(db, `ide_sessions/${input}/meta`));
+  if (!snap.exists()) { notif('❌', 'Introuvable', 'Cette session n\'existe pas ou a expiré.'); return; }
+  state.sessionId = input;
+  // Charge les fichiers depuis Firebase
+  const filesSnap = await get(ref(db, `ide_sessions/${input}/files`));
+  if (filesSnap.exists()) {
+    state.files = filesSnap.val();
+    state.tabs  = Object.keys(state.files);
+    state.activeFile = state.tabs[0] || null;
+    if (state.activeFile) {
+      ed.value = state.files[state.activeFile];
+      updateLineNums(); updateHighlight();
+    }
+    renderFiles(); renderTabs(); updateStatusBar();
   }
-  joinSessionListeners(input);
-  notif('🎉','Connecté !','Tu as rejoint la session live.');
+  attachSessionListeners(input);
   updateLiveUI();
   renderShareModal();
   closeShare();
+  notif('🎉', 'Connecté !', 'Tu as rejoint la session live.');
 };
 
-function joinSessionListeners(id){
-  // Broadcast my presence
-  const presRef=ref(db,`ide_sessions/${id}/peers/${state.peerId}`);
-  set(presRef,{name:state.peerName, color:state.peerColor, ts:Date.now()});
+function attachSessionListeners(id) {
+  // Présence
+  const presRef = ref(db, `ide_sessions/${id}/peers/${state.peerId}`);
+  set(presRef, { name: state.peerName, color: state.peerColor, ts: Date.now() });
+  window.addEventListener('beforeunload', () => remove(presRef));
 
-  // Listen for file changes from others
-  const filesRef=ref(db,`ide_sessions/${id}/files`);
-  onValue(filesRef, snap=>{
-    if(!snap.exists()) return;
-    const remote=snap.val();
-    // merge without overwriting local edits
-    Object.keys(remote).forEach(name=>{
-      if(name!==state.activeFile){
-        state.files[name]=remote[name];
-      } else {
-        // active file: only update if content differs (another peer edited)
-        if(state.suppressSync) return;
-        if(remote[name]!==ed.value){
-          const pos=ed.selectionStart;
-          state.suppressSync=true;
-          ed.value=remote[name];
-          state.files[name]=remote[name];
-          ed.selectionStart=ed.selectionEnd=Math.min(pos,remote[name].length);
+  // Sync fichiers en temps réel
+  onValue(ref(db, `ide_sessions/${id}/files`), snap => {
+    if (!snap.exists()) return;
+    const remote = snap.val();
+    // Intègre les fichiers distants sans écraser l'édition locale en cours
+    let changed = false;
+    Object.keys(remote).forEach(name => {
+      if (name === state.activeFile) {
+        if (!state.suppressSync && remote[name] !== ed.value) {
+          const pos = ed.selectionStart;
+          state.suppressSync = true;
+          ed.value = remote[name];
+          state.files[name] = remote[name];
+          ed.selectionStart = ed.selectionEnd = Math.min(pos, remote[name].length);
           updateLineNums(); updateHighlight();
-          state.suppressSync=false;
+          state.suppressSync = false;
+          changed = true;
         }
+      } else if (state.files[name] !== remote[name]) {
+        state.files[name] = remote[name];
+        changed = true;
       }
     });
-    renderFiles(); renderTabs();
-  });
-  state.listeners.push([`ide_sessions/${id}/files`]);
-
-  // Listen for peers
-  onValue(ref(db,`ide_sessions/${id}/peers`), snap=>{
-    state.peers={};
-    snap.forEach(c=>{
-      if(c.key!==state.peerId) state.peers[c.key]=c.val();
+    // Ajoute les nouveaux fichiers créés par d'autres
+    Object.keys(remote).forEach(name => {
+      if (state.files[name] === undefined) { state.files[name] = remote[name]; changed = true; }
     });
-    const count=Object.keys(state.peers).length;
-    document.getElementById('cursors-count').textContent=
-      `${count+1} participant${count>0?'s':''}`;
+    if (changed) { renderFiles(); renderTabs(); }
+  });
+
+  // Présence des pairs
+  onValue(ref(db, `ide_sessions/${id}/peers`), snap => {
+    state.peers = {};
+    snap.forEach(c => { if (c.key !== state.peerId) state.peers[c.key] = c.val(); });
+    const n = Object.keys(state.peers).length;
+    document.getElementById('cursors-count').textContent = `${n + 1} participant${n ? 's' : ''}`;
     renderPeers();
   });
-
-  // Cleanup on unload
-  window.addEventListener('beforeunload',()=>{
-    remove(presRef);
-  });
 }
 
-async function syncFilesToSession(){
-  if(!state.sessionId) return;
-  if(state.activeFile) state.files[state.activeFile]=ed.value;
-  await set(ref(db,`ide_sessions/${state.sessionId}/files`), {...state.files});
+async function syncFilesToSession() {
+  if (!state.sessionId) return;
+  if (state.activeFile) state.files[state.activeFile] = ed.value;
+  await set(ref(db, `ide_sessions/${state.sessionId}/files`), { ...state.files });
 }
 
-let syncTimer=null;
-function debouncedSync(){
+let syncTimer = null;
+function debouncedSync() {
   clearTimeout(syncTimer);
-  syncTimer=setTimeout(syncFilesToSession, 600);
+  syncTimer = setTimeout(syncFilesToSession, 500);
 }
 
-function broadcastCursor(ln,col){
-  if(!state.sessionId) return;
-  update(ref(db,`ide_sessions/${state.sessionId}/cursors/${state.peerId}`),{
-    line:ln,col,file:state.activeFile,name:state.peerName,color:state.peerColor,ts:Date.now()
+function broadcastCursor(ln, col) {
+  if (!state.sessionId) return;
+  update(ref(db, `ide_sessions/${state.sessionId}/cursors/${state.peerId}`), {
+    line: ln, col, file: state.activeFile,
+    name: state.peerName, color: state.peerColor, ts: Date.now()
   });
 }
 
-function updateLiveUI(){
-  const badge=document.getElementById('live-badge');
-  badge.classList.toggle('visible',!!state.sessionId);
-  document.getElementById('status').classList.toggle('live-status',!!state.sessionId);
-  document.getElementById('st-session').textContent=state.sessionId?`Session: ${state.sessionId}`:'Hors ligne';
+function updateLiveUI() {
+  document.getElementById('live-badge').classList.toggle('visible', !!state.sessionId);
+  document.getElementById('status').classList.toggle('live-status', !!state.sessionId);
+  document.getElementById('st-session').textContent =
+    state.sessionId ? `Session: ${state.sessionId}` : 'Hors ligne';
 }
 
-/* ── CHECK URL FOR SESSION ON LOAD ── */
-const urlParams=new URLSearchParams(location.search);
-const urlSession=urlParams.get('session');
-if(urlSession){
-  setTimeout(async ()=>{
-    state.sessionId=urlSession;
-    const snap=await get(ref(db,`ide_sessions/${urlSession}/files`));
-    if(snap.exists()){
-      state.files=snap.val();
-      const first=Object.keys(state.files)[0];
-      if(first) openFile(first);
-    }
-    joinSessionListeners(urlSession);
-    updateLiveUI();
-    notif('🔗','Session rejointe !',`Session: ${urlSession}`);
-  },300);
-}
-
-/* ── NOTIF ── */
-function notif(icon,title,text){
-  const a=document.getElementById('notif-area');
-  const d=document.createElement('div');
-  d.className='notif';
-  d.innerHTML=`<span class="notif-icon">${icon}</span><span class="notif-txt"><b>${title}</b> ${text}</span>`;
+/* ════════════════════════════════════════════════════════
+   NOTIF
+════════════════════════════════════════════════════════ */
+function notif(icon, title, text) {
+  const a = document.getElementById('notif-area');
+  const d = document.createElement('div');
+  d.className = 'notif';
+  d.innerHTML = `<span class="notif-icon">${icon}</span><span class="notif-txt"><b>${title}</b> ${text}</span>`;
   a.appendChild(d);
-  setTimeout(()=>d.remove(),3500);
+  setTimeout(() => d.remove(), 3500);
 }
 
-/* ── INIT DEFAULT FILES ── */
-if(!urlSession){
-  state.files={
-    'index.html': '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width,initial-scale=1">\n  <title>Mon Projet</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <div class="container">\n    <h1>Bonjour BlabIDE !</h1>\n    <p>Modifie ce fichier et appuie sur <kbd>Ctrl+S</kbd> ou "Exécuter" pour voir le résultat.</p>\n    <button onclick="greet()">Cliquez-moi</button>\n  </div>\n  <script src="app.js"><\/script>\n</body>\n</html>',
-    'style.css': 'body {\n  font-family: sans-serif;\n  background: linear-gradient(135deg, #0e0e12, #1a1a2e);\n  min-height: 100vh;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: #e8e8f0;\n}\n\n.container {\n  text-align: center;\n  padding: 2rem;\n}\n\nh1 {\n  font-size: 2rem;\n  background: linear-gradient(135deg, #7c6ff7, #4dd9e0);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  margin-bottom: 1rem;\n}\n\nbutton {\n  background: #7c6ff7;\n  color: white;\n  border: none;\n  padding: 10px 24px;\n  border-radius: 8px;\n  font-size: 1rem;\n  cursor: pointer;\n  margin-top: 1rem;\n  transition: filter .2s;\n}\nbutton:hover { filter: brightness(1.15); }',
-    'app.js': "function greet() {\n  alert('Bienvenue dans BlabIDE ! 🚀');\n}\n\ndocument.addEventListener('DOMContentLoaded', () => {\n  console.log('BlabIDE prêt !');\n});",
-  };
-  openFile('index.html');
-}
+/* ════════════════════════════════════════════════════════
+   BOOT — charge depuis localStorage ou session URL
+   AUCUN preset n'est injecté
+════════════════════════════════════════════════════════ */
+(async function boot() {
+  const urlParams  = new URLSearchParams(location.search);
+  const urlSession = urlParams.get('session');
 
-// expose globally
-window.openFile=openFile;
+  if (urlSession) {
+    // ── Mode collaboration : charger depuis Firebase ──
+    state.sessionId = urlSession;
+    const snap = await get(ref(db, `ide_sessions/${urlSession}/files`));
+    if (snap.exists()) {
+      state.files = snap.val();
+      state.tabs  = Object.keys(state.files);
+      state.activeFile = state.tabs[0] || null;
+      if (state.activeFile) {
+        ed.value = state.files[state.activeFile];
+        updateLineNums(); updateHighlight();
+      }
+    }
+    attachSessionListeners(urlSession);
+    updateLiveUI();
+    renderFiles(); renderTabs(); updateStatusBar();
+    notif('🔗', 'Session rejointe !', urlSession);
+
+  } else {
+    // ── Mode standalone : charger depuis localStorage ──
+    loadLocal();
+    if (state.activeFile && state.files[state.activeFile] !== undefined) {
+      ed.value = state.files[state.activeFile];
+      updateLineNums(); updateHighlight();
+    }
+    renderFiles(); renderTabs(); updateStatusBar();
+
+    // Si aucun fichier, affiche un écran d'accueil vide
+    if (!Object.keys(state.files).length) {
+      document.getElementById('st-file').textContent = 'Aucun fichier';
+      document.getElementById('st-lang').textContent = '—';
+    }
+  }
+
+  state.loaded = true;
+})();
+
+// Expose pour les onclick HTML
+window.openFile = openFile;
 
 </script>
 </body>
