@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// 1. D'abord, on sert les fichiers statiques (app.js, style.css, PDF, etc.)
+// 1. D'abord, on sert les fichiers statiques classiques
 app.use(express.static(path.resolve(__dirname)));
 
 // 2. Ta route de configuration
@@ -18,12 +18,17 @@ app.get('/config', (req, res) => {
     });
 });
 
-// 3. NOUVELLE ROUTE : Pour l'URL propre de la politique de confidentialité
+// 3. ROUTE EXPLICITE POUR LE PDF (Résout le problème du Cannot GET /privacy.pdf)
+app.get('/privacy.pdf', (req, res) => {
+    res.sendFile(path.join(__dirname, 'privacy.pdf'));
+});
+
+// 4. Pour l'URL propre de la politique de confidentialité
 app.get('/privacy-policy', (req, res) => {
     res.sendFile(path.join(__dirname, 'privacypolicy.html'));
 });
 
-// 4. EN DERNIER : On ne sert l'index.html QUE pour la racine
+// 5. EN DERNIER : On ne sert l'index.html QUE pour la racine
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
