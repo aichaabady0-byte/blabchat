@@ -14,18 +14,31 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000; /* Fond noir esthétique pendant le chargement */
+            background-color: #1a1a1a; /* Un gris foncé pour voir si l'iframe bug */
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            display: block;
         }
+        .fallback {
+            color: white;
+            text-align: center;
+            padding: 50px;
+            font-family: sans-serif;
+        }
+        .fallback a { color: #5b6af0; }
     </style>
 </head>
 <body>
 
-    <iframe src="politique_de_confidentialite_blabchat.pdf#toolbar=0&navpanes=0"></iframe>
+    <iframe src="privacy.pdf#toolbar=0&navpanes=0">
+        <div class="fallback">
+            <p>Votre navigateur ne prend pas en charge les PDF intégrés.</p>
+            <p><a href="privacy.pdf" target="_blank">Cliquez ici pour télécharger le PDF directement</a>.</p>
+        </div>
+    </iframe>
 
 </body>
 </html>
